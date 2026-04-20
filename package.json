@@ -1,0 +1,28 @@
+{
+  "name": "helix-agent-framework",
+  "version": "0.7.0",
+  "description": "Helix — Local-first AI Agent Framework",
+  "type": "module",
+  "main": "src/server-lite.js",
+  "bin": {
+    "helix": "./bin/helix.js"
+  },
+  "scripts": {
+    "start": "node bin/helix.js start",
+    "init": "node bin/helix.js init",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "express": "^5.1.0",
+    "pg": "^8.20.0"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "framework",
+    "helix",
+    "local-first"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helix Console</title>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.header h1{font-size:18px;font-weight:600}
+.header-sub{color:var(--muted);font-size:12px;font-weight:400}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-ok{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-error{background:rgba(248,81,73,.15);color:var(--red)}
+.badge-running{background:rgba(210,153,34,.15);color:var(--yellow)}
+.badge-muted{background:rgba(139,148,158,.15);color:var(--muted)}
+.main{padding:24px;max-width:1100px;margin:0 auto}
+
+/* Onboarding — only shown when no agents yet */
+.onboarding{background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(63,185,80,.06));border:1px solid var(--accent);border-radius:10px;padding:20px 24px;margin-bottom:24px;display:none}
+.onboarding.visible{display:block}
+.onboarding h2{color:var(--accent);font-size:16px;margin-bottom:10px;text-transform:none;letter-spacing:normal}
+.onboarding ol{padding-left:20px;color:var(--text);line-height:1.8;font-size:13px}
+.onboarding code{background:var(--bg);padding:2px 8px;border-radius:3px;font-family:'SF Mono',monospace;font-size:12px;color:var(--accent)}
+.onboarding .dismiss{float:right;color:var(--muted);font-size:11px;cursor:pointer;background:none;border:none;width:auto;padding:0}
+
+h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.card-label{font-size:12px;color:var(--muted)}
+.card-value{font-size:28px;font-weight:700;margin:4px 0}
+.card-sub{font-size:11px;color:var(--muted)}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.action-card h3{font-size:13px;color:var(--accent);margin-bottom:4px}
+.action-card .hint{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.4}
+input,select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-size:13px;width:100%;margin-bottom:6px}
+button{background:var(--accent);color:#000;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;width:100%}
+button:hover{opacity:.85}
+button:disabled{opacity:.5;cursor:not-allowed}
+.result{font-family:'SF Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;max-height:80px;overflow:auto;word-break:break-all}
+.activity{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.list-item:last-child{border-bottom:none}
+.mono{font-family:'SF Mono',monospace;font-size:12px}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}
+.nav{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
+.nav a{color:var(--accent);text-decoration:none;font-size:13px}
+.nav a:hover{text-decoration:underline}
+.nav .ver{color:var(--muted);font-size:12px;margin-left:auto}
+@media(max-width:768px){.grid,.actions,.activity{grid-template-columns:1fr}.main{padding:12px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Helix Console <span class="header-sub">Local-first AI Agent Framework</span></h1>
+  <span class="badge badge-muted" id="hb">checking…</span>
+</div>
+<div class="main">
+
+<!-- Onboarding — shown when no agents yet -->
+<div class="onboarding" id="onboard">
+  <button class="dismiss" onclick="dismissOnboard()">dismiss</button>
+  <h2>👋 歡迎使用 Helix</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:12px">這是你本地 agent runtime 的主控台。還沒跑過 agent？照下面 3 步驟開始：</p>
+  <ol>
+    <li>CLI 設定 API key：<code>helix login --provider gemini --api-key YOUR_KEY</code></li>
+    <li>編輯 <code>helix.config.js</code> 加 agent 角色定義</li>
+    <li>到下方「啟動新 Agent」卡，填 role_id 按 Spawn — 或直接跑 <code>helix repl</code> 開互動對話</li>
+  </ol>
+</div>
+
+<h2>系統概覽</h2>
+<div class="grid">
+  <div class="card"><div class="card-label">Agents</div><div class="card-value" id="s-agents">—</div><div class="card-sub">運行中的 agent 實例</div></div>
+  <div class="card"><div class="card-label">Tasks</div><div class="card-value" id="s-tasks">—</div><div class="card-sub">任務佇列</div></div>
+  <div class="card"><div class="card-label">Memory</div><div class="card-value" id="s-mem">—</div><div class="card-sub" id="s-mem-sub">長期記憶條目</div></div>
+  <div class="card"><div class="card-label">Tools</div><div class="card-value" id="s-tools">—</div><div class="card-sub">已註冊工具</div></div>
+</div>
+
+<h2>快速操作</h2>
+<div class="actions">
+  <div class="card action-card">
+    <h3>啟動新 Agent</h3>
+    <p class="hint">從 helix.config.js 的角色定義 spawn 一個 agent 實例</p>
+    <input id="sp-role" placeholder="role_id（例：assistant）">
+    <input id="sp-name" placeholder="name（選填）">
+    <button onclick="spawnAgent()">Spawn</button>
+    <div class="result" id="sp-res"></div>
+  </div>
+  <div class="card action-card">
+    <h3>與 Agent 對話</h3>
+    <p class="hint">送一則 message 給已運行的 agent；或用 CLI <code>helix repl</code> 開互動模式</p>
+    <input id="ch-agent" placeholder="agent id">
+    <input id="ch-msg" placeholder="訊息內容">
+    <button onclick="chatAgent()">Send</button>
+    <div class="result" id="ch-res"></div>
+  </div>
+  <div class="card action-card">
+    <h3>執行 Eval Suite</h3>
+    <p class="hint">跑內建 benchmark 檢查 agent 品質</p>
+    <select id="ev-suite">
+      <option value="command-safety">command-safety（危險指令偵測）</option>
+      <option value="prompt-injection">prompt-injection（注入防禦）</option>
+      <option value="memory-recall">memory-recall（記憶召回）</option>
+    </select>
+    <button onclick="runEval()">Run Eval</button>
+    <div class="result" id="ev-res"></div>
+  </div>
+</div>
+
+<h2>近期活動</h2>
+<div class="activity">
+  <div class="card">
+    <div class="card-label" style="margin-bottom:8px">Trace Runs
+      <span style="float:right"><a href="/v2/debug.html" style="color:var(--accent);font-size:11px;text-decoration:none">完整查看 →</a></span>
+    </div>
+    <div id="trace-list"><div class="empty">載入中…</div></div>
+  </div>
+  <div class="card">
+    <div class="card-label" style="margin-bottom:8px">Alerts</div>
+    <div id="alert-list"><div class="empty">載入中…</div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <a href="/v2/debug.html">🔍 Debug Tools</a>
+  <a href="/api/health" target="_blank">🩺 API Health</a>
+  <a href="https://www.npmjs.com/package/helix-agent-framework" target="_blank" rel="noopener">📦 npm</a>
+  <a href="https://github.com/symbiosis11503/helix-framework" target="_blank" rel="noopener">🐙 GitHub</a>
+  <span class="ver" id="ver">Helix</span>
+</div>
+
+</div>
+<script>
+const BASE='';
+async function j(url,opt){try{const r=await fetch(BASE+url,opt);return await r.json()}catch{return null}}
+
+async function checkHealth(){
+  const d=await j('/api/health');const el=document.getElementById('hb');
+  if(d&&(d.status==='ok'||d.healthy)){
+    el.textContent='Healthy';el.className='badge badge-ok';
+    if(d.version)document.getElementById('ver').textContent='Helix v'+d.version;
+  } else {
+    el.textContent='Error';el.className='badge badge-error';
+  }
+}
+
+async function loadStats(){
+  const[agents,tasks,mem,tools]=await Promise.all([
+    j('/api/agents/instances'),
+    j('/api/tasks'),
+    j('/api/memory/v2/stats/default'),
+    j('/api/tools'),
+  ]);
+  const agentCount=agents?.agents?.length??'—';
+  document.getElementById('s-agents').textContent=agentCount;
+  document.getElementById('s-tasks').textContent=tasks?.count??tasks?.tasks?.length??'—';
+  if(mem){
+    document.getElementById('s-mem').textContent=mem.total??mem.total_entries??'—';
+    document.getElementById('s-mem-sub').textContent=`types: ${Object.keys(mem.by_type||{}).join(', ')||'default agent'}`;
+  }
+  document.getElementById('s-tools').textContent=tools?.count??tools?.tools?.length??'—';
+
+  // Show onboarding iff 0 agents and not dismissed
+  const dismissed = localStorage.getItem('_helix_onboard_dismissed')==='1';
+  if(agentCount===0 && !dismissed){
+    document.getElementById('onboard').classList.add('visible');
+  }
+}
+
+function dismissOnboard(){
+  localStorage.setItem('_helix_onboard_dismissed','1');
+  document.getElementById('onboard').classList.remove('visible');
+}
+
+async function loadTraces(){
+  const d=await j('/api/trace/runs?limit=5');const el=document.getElementById('trace-list');
+  const runs=d?.runs||[];
+  if(!runs.length){el.innerHTML='<div class="empty">尚無 trace；跑幾個 agent 任務會自動記錄</div>';return}
+  el.innerHTML=runs.map(t=>{
+    let ev=t.eval_score;if(typeof ev==='string'&&ev){try{ev=JSON.parse(ev)}catch{ev=null}}
+    const badge=ev?.summary?.badge;
+    const evalBadge=badge?`<span class="badge badge-${badge==='green'?'ok':badge==='yellow'?'running':'error'}" title="avg ${ev.summary.avg_score??'?'} / min ${ev.summary.min_score??'?'}">eval ${ev.summary.avg_score??'?'}</span>`:'';
+    return `<div class="list-item"><span class="mono">${t.agent_id||t.id||'—'}</span><span style="display:flex;gap:6px">${evalBadge}<span class="badge badge-${t.status==='completed'?'ok':t.status==='running'?'running':'error'}">${t.status||'—'}</span></span></div>`;
+  }).join('');
+}
+
+async function loadAlerts(){
+  const d=await j('/api/alerts/history?limit=5');const el=document.getElementById('alert-list');
+  const history=d?.history||[];
+  if(!history.length){el.innerHTML='<div class="empty">無告警（系統健康）</div>';return}
+  el.innerHTML=history.map(a=>`<div class="list-item"><span>${a.rule_id||a.id||'—'}</span><span style="color:var(--muted);font-size:11px">${a.fired_at||a.created_at||''}</span></div>`).join('');
+}
+
+async function spawnAgent(){
+  const role=document.getElementById('sp-role').value.trim();
+  if(!role){document.getElementById('sp-res').textContent='需要 role_id（在 helix.config.js 的 agents[] 內定義）';return}
+  const d=await j('/api/agents/spawn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role_id:role,name:document.getElementById('sp-name').value})});
+  document.getElementById('sp-res').textContent=d?JSON.stringify(d):'request failed';loadStats();
+}
+
+async function chatAgent(){
+  const agent=document.getElementById('ch-agent').value.trim();
+  const msg=document.getElementById('ch-msg').value.trim();
+  if(!agent||!msg){document.getElementById('ch-res').textContent='需要 agent id + message';return}
+  const d=await j('/api/agent/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent,message:msg})});
+  document.getElementById('ch-res').textContent=d?(d.reply||d.response||JSON.stringify(d)):'request failed';
+}
+
+async function runEval(){
+  const d=await j('/api/eval/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({suite:document.getElementById('ev-suite').value})});
+  document.getElementById('ev-res').textContent=d?JSON.stringify(d):'request failed';
+}
+
+checkHealth();loadStats();loadTraces();loadAlerts();
+setInterval(checkHealth,30000);
+</script>
+<script src="/v2/_debug-overlay.js"></script>
+</body>
+</html>

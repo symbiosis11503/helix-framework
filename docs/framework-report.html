@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Framework — Complete Capability Checklist</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --surface2: #1c2129; --border: #30363d;
+  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950;
+  --yellow: #d29922; --red: #f85149; --purple: #bc8cff; --cyan: #39d2c0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+
+.nav { position:fixed; top:0; left:0; width:220px; height:100vh; background:var(--surface); border-right:1px solid var(--border); padding:16px 0; overflow-y:auto; z-index:100; }
+.nav-title { padding:8px 16px; font-size:13px; font-weight:700; color:var(--accent); letter-spacing:0.5px; }
+.nav-section { padding:14px 16px 4px; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; font-weight:600; }
+.nav a { display:block; padding:5px 16px 5px 24px; color:var(--muted); text-decoration:none; font-size:12px; border-left:2px solid transparent; }
+.nav a:hover, .nav a.active { color:var(--text); background:rgba(88,166,255,0.08); border-left-color:var(--accent); }
+
+.main { margin-left:220px; padding:32px 40px; max-width:900px; }
+.page { display:block; margin-bottom:40px; padding-top:20px; border-top:2px solid var(--border); }
+.page:first-child { border-top:none; }
+
+h1 { font-size:28px; margin-bottom:4px; }
+h2 { font-size:20px; margin:28px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+h3 { font-size:15px; margin:16px 0 6px; color:var(--accent); }
+.subtitle { color:var(--muted); font-size:14px; margin-bottom:24px; }
+
+.card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin:12px 0; }
+.card h4 { font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.card ul { padding-left:18px; margin:0; }
+.card li { margin:3px 0; font-size:13px; color:var(--muted); }
+.card li strong { color:var(--text); }
+
+.num { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#000; font-size:11px; font-weight:700; flex-shrink:0; }
+
+.stat-row { display:flex; gap:16px; flex-wrap:wrap; margin:16px 0; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; flex:1; min-width:140px; text-align:center; }
+.stat .val { font-size:28px; font-weight:700; color:var(--accent); }
+.stat .label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th,td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+
+.tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; margin:1px 2px; }
+.tag-green { background:rgba(63,185,80,0.15); color:var(--green); }
+.tag-yellow { background:rgba(210,153,34,0.15); color:var(--yellow); }
+.tag-red { background:rgba(248,81,73,0.15); color:var(--red); }
+.tag-purple { background:rgba(188,140,255,0.15); color:var(--purple); }
+.tag-cyan { background:rgba(57,210,192,0.15); color:var(--cyan); }
+
+@media(max-width:768px) { .nav{display:none} .main{margin-left:0;padding:16px} .stat-row{flex-direction:column} }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-title">Agent Framework Checklist</div>
+  <a href="#page-overview" class="active">Overview</a>
+
+  <div class="nav-section">一、認知層</div>
+  <a href="#page-c1">1. 推理引擎</a>
+  <a href="#page-c2">2. 工具系統</a>
+  <a href="#page-c3">3. 技能系統</a>
+
+  <div class="nav-section">二、記憶層</div>
+  <a href="#page-m4">4. 對話記憶</a>
+  <a href="#page-m5">5. 長期記憶</a>
+  <a href="#page-m6">6. 知識治理</a>
+
+  <div class="nav-section">三、執行層</div>
+  <a href="#page-e7">7. 任務管理</a>
+  <a href="#page-e8">8. 工作流引擎</a>
+  <a href="#page-e9">9. 代理協作</a>
+  <a href="#page-e10">10. 檔案操作</a>
+  <a href="#page-e11">11. Runtime</a>
+
+  <div class="nav-section">四、整合層</div>
+  <a href="#page-i12">12. API 介面</a>
+  <a href="#page-i13">13. 外部服務</a>
+
+  <div class="nav-section">五、控制層</div>
+  <a href="#page-s14">14. 安全防護</a>
+  <a href="#page-s15">15. 權限控制</a>
+  <a href="#page-s16">16. 行為治理</a>
+
+  <div class="nav-section">六、可觀測層</div>
+  <a href="#page-o17">17. 追蹤與審計</a>
+  <a href="#page-o18">18. 監控與指標</a>
+
+  <div class="nav-section">七、產品層</div>
+  <a href="#page-p19">19. 使用者介面</a>
+  <a href="#page-p20">20. 部署與發布</a>
+
+  <div class="nav-section">分析</div>
+  <a href="#page-compare">框架對照表</a>
+  <a href="#page-sources">參考來源</a>
+</nav>
+
+<div class="main">
+
+<!-- OVERVIEW -->
+<div id="page-overview" class="page active">
+  <h1>AI Agent Framework</h1>
+  <p class="subtitle">Complete Capability Checklist — 綜合各大框架整理</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="val">7</div><div class="label">大面向</div></div>
+    <div class="stat"><div class="val">20</div><div class="label">大項</div></div>
+    <div class="stat"><div class="val">120+</div><div class="label">細項</div></div>
+    <div class="stat"><div class="val">8</div><div class="label">參考框架</div></div>
+  </div>
+
+  <h2>七大面向</h2>
+  <table>
+    <tr><th>面向</th><th>核心問題</th><th>大項數</th><th>涵蓋</th></tr>
+    <tr><td><span class="tag tag-purple">認知層</span></td><td>Agent 怎麼想、怎麼決策</td><td>3</td><td>推理 / 工具 / 技能</td></tr>
+    <tr><td><span class="tag tag-cyan">記憶層</span></td><td>Agent 怎麼記、怎麼找回</td><td>3</td><td>對話 / 長期 / 知識治理</td></tr>
+    <tr><td><span class="tag tag-green">執行層</span></td><td>Agent 怎麼做事</td><td>5</td><td>任務 / 工作流 / 協作 / 檔案 / Runtime</td></tr>
+    <tr><td><span class="tag tag-yellow">整合層</span></td><td>Agent 怎麼接外部世界</td><td>2</td><td>API / 外部服務</td></tr>
+    <tr><td><span class="tag tag-red">控制層</span></td><td>Agent 能不能做、做到哪</td><td>3</td><td>安全 / 權限 / 行為治理</td></tr>
+    <tr><td><span class="tag tag-purple">可觀測層</span></td><td>Agent 做了什麼、能不能查</td><td>2</td><td>追蹤審計 / 監控指標</td></tr>
+    <tr><td><span class="tag tag-cyan">產品層</span></td><td>人怎麼用、怎麼部署</td><td>2</td><td>UI / 部署發布</td></tr>
+  </table>
+
+  <h2>一句話判斷標準</h2>
+  <div class="card">
+    <p>一個成熟的 Agent Framework 不是看它「會不會叫 LLM」，而是看它有沒有同時處理：</p>
+    <ul style="list-style:none;padding:12px 0 0 0;font-size:16px;">
+      <li><strong>會做事</strong> — 工具 + 技能 + 任務 + 工作流</li>
+      <li><strong>記得住</strong> — 對話記憶 + 長期記憶 + 知識治理</li>
+      <li><strong>管得住</strong> — 安全 + 權限 + 行為治理</li>
+      <li><strong>查得到</strong> — 追蹤 + 審計 + 監控</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 1. 推理引擎 -->
+<div id="page-c1" class="page">
+  <h2><span class="num">1</span> 推理引擎 Reasoning Engine</h2>
+  <p class="subtitle">處理 Agent 怎麼思考、怎麼決策</p>
+  <div class="card"><h4>基礎能力</h4><ul>
+    <li><strong>單輪問答</strong> — 接收問題，回傳答案</li>
+    <li><strong>多輪對話</strong> — Session-aware，保持對話上下文</li>
+    <li><strong>結構化輸出</strong> — 依 JSON schema 回傳格式化結果</li>
+  </ul></div>
+  <div class="card"><h4>進階推理</h4><ul>
+    <li><strong>Plan-Act-Observe 循環</strong> — 計劃→執行→觀察→決策，反覆直到完成</li>
+    <li><strong>任務拆解</strong> — 將複雜任務分解為子目標</li>
+    <li><strong>反思與自我修正</strong> — 根據執行結果調整策略</li>
+    <li><strong>多步推理</strong> — 長鏈推理能力</li>
+  </ul></div>
+  <div class="card"><h4>模型管理</h4><ul>
+    <li><strong>多模型路由</strong> — 依成本/能力選擇不同模型</li>
+    <li><strong>Provider 切換</strong> — 支援多個 LLM 供應商</li>
+    <li><strong>Fallback 策略</strong> — 主模型失敗時自動切換</li>
+  </ul></div>
+</div>
+
+<!-- 2. 工具系統 -->
+<div id="page-c2" class="page">
+  <h2><span class="num">2</span> 工具系統 Tool System</h2>
+  <p class="subtitle">處理 Agent 能用哪些工具、怎麼呼叫</p>
+  <div class="card"><h4>工具生命週期</h4><ul>
+    <li><strong>動態註冊/反註冊</strong> — Runtime 新增或移除工具</li>
+    <li><strong>參數 Schema 定義</strong> — 每個工具有明確的輸入格式</li>
+    <li><strong>工具描述</strong> — LLM 可讀的工具說明</li>
+    <li><strong>工具分級</strong> — L1 讀取 / L2 寫入 / L3 破壞性</li>
+  </ul></div>
+  <div class="card"><h4>執行機制</h4><ul>
+    <li><strong>執行 Pipeline</strong> — 前置檢查 → 權限驗證 → 執行 → 後處理</li>
+    <li><strong>Hook 攔截</strong> — Before hook 可中止，After hook 可修改結果</li>
+    <li><strong>能力綁定</strong> — 工具與角色/能力的對應關係</li>
+    <li><strong>結果格式化</strong> — 工具輸出標準化</li>
+  </ul></div>
+  <div class="card"><h4>擴展性</h4><ul>
+    <li><strong>MCP 協議</strong> — 外部工具伺服器動態發現</li>
+    <li><strong>Plugin 機制</strong> — 第三方工具包載入</li>
+    <li><strong>Manifest 匯出</strong> — OpenAI/標準格式的工具清單</li>
+  </ul></div>
+</div>
+
+<!-- 3. 技能系統 -->
+<div id="page-c3" class="page">
+  <h2><span class="num">3</span> 技能系統 Skill System</h2>
+  <p class="subtitle">處理 Agent 會什麼、怎麼學新技能</p>
+  <div class="card"><h4>技能定義</h4><ul>
+    <li><strong>技能格式</strong> — Markdown 模板 / Prompt template / 程式碼</li>
+    <li><strong>Frontmatter 元資料</strong> — 名稱、描述、參數、標籤、前置條件</li>
+    <li><strong>分類與標籤</strong> — Category / Tag 組織</li>
+  </ul></div>
+  <div class="card"><h4>技能生命週期</h4><ul>
+    <li><strong>自動發現</strong> — 掃描目錄自動載入</li>
+    <li><strong>調用與注入</strong> — 將技能指令注入 Agent prompt</li>
+    <li><strong>版本管理</strong> — 技能更新與版本追蹤</li>
+    <li><strong>技能創造</strong> — Agent 自動產生新技能</li>
+    <li><strong>技能市集</strong> — 共享與發布技能包</li>
+  </ul></div>
+</div>
+
+<!-- 4. 對話記憶 -->
+<div id="page-m4" class="page">
+  <h2><span class="num">4</span> 對話記憶 Session Memory</h2>
+  <p class="subtitle">處理當前對話的上下文管理</p>
+  <div class="card"><h4>Session 管理</h4><ul>
+    <li><strong>Session 建立/切換/關閉</strong></li>
+    <li><strong>Context Window 管理</strong> — Token budget 分配</li>
+    <li><strong>多 Agent Session 隔離</strong></li>
+  </ul></div>
+  <div class="card"><h4>壓縮策略</h4><ul>
+    <li><strong>LLM 摘要壓縮</strong> — 用 LLM 生成結構化摘要</li>
+    <li><strong>Head/Tail 保護</strong> — 保留開頭和結尾訊息</li>
+    <li><strong>Session Chain</strong> — 壓縮後新 session 銜接舊 session</li>
+    <li><strong>Tool Output 裁剪</strong> — 壓縮前先截斷冗長工具輸出</li>
+  </ul></div>
+</div>
+
+<!-- 5. 長期記憶 -->
+<div id="page-m5" class="page">
+  <h2><span class="num">5</span> 長期記憶 Long-term Memory</h2>
+  <p class="subtitle">處理跨 Session 的持久化記憶</p>
+  <div class="card"><h4>記憶分層</h4><ul>
+    <li><strong>Episodic（情節記憶）</strong> — 發生過的事件和經驗</li>
+    <li><strong>Semantic（語義記憶）</strong> — 結構化知識和事實</li>
+    <li><strong>Procedural（程序記憶）</strong> — 學到的工作流和步驟</li>
+  </ul></div>
+  <div class="card"><h4>檢索機制</h4><ul>
+    <li><strong>全文搜尋</strong> — FTS5 / tsvector / ILIKE</li>
+    <li><strong>向量語義搜尋</strong> — Embedding + ANN index</li>
+    <li><strong>混合搜尋</strong> — 全文 + 向量結合</li>
+    <li><strong>Tag 檢索</strong> — 標籤匹配</li>
+  </ul></div>
+  <div class="card"><h4>記憶動態</h4><ul>
+    <li><strong>重要性評分</strong> — 0.0~1.0 評分</li>
+    <li><strong>時間衰減</strong> — 記憶隨時間降權</li>
+    <li><strong>記憶合併</strong> — 相關記憶合併去重</li>
+    <li><strong>自動提取</strong> — 從對話自動擷取重要事實</li>
+    <li><strong>Context 注入</strong> — 記憶自動注入 LLM prompt</li>
+  </ul></div>
+</div>
+
+<!-- 6. 知識治理 -->
+<div id="page-m6" class="page">
+  <h2><span class="num">6</span> 知識治理 Knowledge Governance</h2>
+  <p class="subtitle">處理知識的品質、可信度、生命週期</p>
+  <div class="card"><h4>知識管線</h4><ul>
+    <li><strong>原子化</strong> — 原始資料 → 知識原子（claims/atoms）</li>
+    <li><strong>分類</strong> — Topic branches 主題分支</li>
+    <li><strong>驗證</strong> — 規則檢查（斷鏈/孤頁）+ 語義檢查（矛盾/過期）</li>
+    <li><strong>晉升</strong> — Promote / Freeze / Archive</li>
+    <li><strong>編譯</strong> — Atoms → Report / Wiki / Cache</li>
+  </ul></div>
+  <div class="card"><h4>品質保證</h4><ul>
+    <li><strong>來源追溯</strong> — Provenance tracking</li>
+    <li><strong>可信度分級</strong> — Reliability tier</li>
+    <li><strong>去重</strong> — 重複偵測與合併</li>
+    <li><strong>Two-layer Lint</strong> — 先確定性檢查，再 LLM 語義檢查</li>
+  </ul></div>
+</div>
+
+<!-- 7. 任務管理 -->
+<div id="page-e7" class="page">
+  <h2><span class="num">7</span> 任務管理 Task Management</h2>
+  <p class="subtitle">處理任務的完整生命週期</p>
+  <div class="card"><h4>基礎</h4><ul>
+    <li><strong>任務生命週期</strong> — pending → running → done / failed</li>
+    <li><strong>優先序</strong> — critical / high / normal</li>
+    <li><strong>佇列管理</strong> — FIFO + 優先序排序</li>
+    <li><strong>進度回報</strong> — 即時狀態更新</li>
+  </ul></div>
+  <div class="card"><h4>長任務</h4><ul>
+    <li><strong>Checkpoint / Resume</strong> — 中斷後可恢復</li>
+    <li><strong>超時偵測</strong> — 自動暫停超時任務</li>
+    <li><strong>重試策略</strong> — 可配置重試次數與間隔</li>
+    <li><strong>部分結果</strong> — 失敗前已完成的步驟保留</li>
+  </ul></div>
+</div>
+
+<!-- 8. 工作流引擎 -->
+<div id="page-e8" class="page">
+  <h2><span class="num">8</span> 工作流引擎 Workflow Engine</h2>
+  <p class="subtitle">處理多步驟任務的編排</p>
+  <div class="card"><ul>
+    <li><strong>DAG 編排</strong> — 有向無環圖式任務依賴</li>
+    <li><strong>條件分支</strong> — 依結果選擇不同路徑</li>
+    <li><strong>平行執行</strong> — 獨立步驟同時進行</li>
+    <li><strong>子工作流</strong> — 巢狀工作流支援</li>
+    <li><strong>工作流模板</strong> — 可重用的流程模板</li>
+    <li><strong>版本化</strong> — 工作流定義版本追蹤</li>
+  </ul></div>
+</div>
+
+<!-- 9. 代理協作 -->
+<div id="page-e9" class="page">
+  <h2><span class="num">9</span> 代理協作 Agent Collaboration</h2>
+  <p class="subtitle">處理多 Agent 的分工與溝通</p>
+  <div class="card"><ul>
+    <li><strong>子代理委派</strong> — Parent 分配任務給 Child</li>
+    <li><strong>角色分工</strong> — 依角色指派不同能力</li>
+    <li><strong>任務交接</strong> — Agent 間 handoff</li>
+    <li><strong>並行上限</strong> — 防止過多子代理同時執行</li>
+    <li><strong>遞迴深度限制</strong> — 防止無限委派</li>
+    <li><strong>工具黑名單</strong> — 子代理不可用的工具</li>
+    <li><strong>Context 傳遞</strong> — Agent 間的上下文交接</li>
+    <li><strong>A2A 通訊</strong> — Agent-to-Agent 訊息協議</li>
+  </ul></div>
+</div>
+
+<!-- 10. 檔案操作 -->
+<div id="page-e10" class="page">
+  <h2><span class="num">10</span> 檔案操作 File System</h2>
+  <p class="subtitle">處理 Agent 對檔案的讀寫能力</p>
+  <div class="card"><ul>
+    <li><strong>檔案讀取</strong> — 帶行號，支援分段讀取</li>
+    <li><strong>精確編輯</strong> — 字串替換 + 唯一性檢查</li>
+    <li><strong>批次替換</strong> — Replace all 模式</li>
+    <li><strong>Dry-run</strong> — 預覽修改但不寫入</li>
+    <li><strong>Workspace 限制</strong> — 只能操作指定範圍</li>
+    <li><strong>Artifact 管理</strong> — 產出物追蹤</li>
+  </ul></div>
+</div>
+
+<!-- 11. Runtime -->
+<div id="page-e11" class="page">
+  <h2><span class="num">11</span> Runtime Loop</h2>
+  <p class="subtitle">處理 Agent 的底層執行機制</p>
+  <div class="card"><ul>
+    <li><strong>事件循環</strong> — Cron tick / interval 驅動</li>
+    <li><strong>背景執行</strong> — 非同步背景 worker</li>
+    <li><strong>Streaming</strong> — 即時串流輸出</li>
+    <li><strong>中斷/取消</strong> — 可中止執行中任務</li>
+    <li><strong>Heartbeat</strong> — 存活狀態探測</li>
+    <li><strong>Cron 排程</strong> — 定時觸發任務</li>
+    <li><strong>Batch 執行</strong> — 批次平行處理</li>
+  </ul></div>
+</div>
+
+<!-- 12. API 介面 -->
+<div id="page-i12" class="page">
+  <h2><span class="num">12</span> API 介面</h2>
+  <p class="subtitle">處理 Agent 的外部存取介面</p>
+  <div class="card"><ul>
+    <li><strong>RESTful API</strong> — 標準 HTTP endpoints</li>
+    <li><strong>WebSocket</strong> — 即時雙向通訊</li>
+    <li><strong>Webhook 接收</strong> — 接收外部事件回調</li>
+    <li><strong>API 版本管理</strong> — Versioning 策略</li>
+    <li><strong>Rate Limiting</strong> — 防止 API 濫用</li>
+    <li><strong>API 文件</strong> — OpenAPI / Swagger</li>
+  </ul></div>
+</div>
+
+<!-- 13. 外部服務 -->
+<div id="page-i13" class="page">
+  <h2><span class="num">13</span> 外部服務 External Services</h2>
+  <p class="subtitle">處理 Agent 與外部世界的串接</p>
+  <div class="card"><h4>認證</h4><ul>
+    <li><strong>OAuth 2.0</strong> — 第三方授權流程</li>
+    <li><strong>API Key 管理</strong> — 多 provider key 切換</li>
+    <li><strong>Service Account</strong> — 委派身份</li>
+  </ul></div>
+  <div class="card"><h4>通訊平台</h4><ul>
+    <li><strong>Telegram</strong> — Bot API + Webhook</li>
+    <li><strong>Discord</strong> — Bot + Interaction</li>
+    <li><strong>LINE</strong> — Messaging API + 簽章驗證</li>
+    <li><strong>Slack</strong> — Event API + 簽章驗證</li>
+    <li><strong>Email</strong> — SMTP / IMAP 整合</li>
+  </ul></div>
+  <div class="card"><h4>Web 能力</h4><ul>
+    <li><strong>Web Search</strong> — 搜尋引擎整合</li>
+    <li><strong>Web Scrape</strong> — 網頁內容擷取</li>
+    <li><strong>Web Interact</strong> — 瀏覽器自動化操作</li>
+    <li><strong>MCP Server</strong> — 外部工具伺服器</li>
+  </ul></div>
+</div>
+
+<!-- 14. 安全防護 -->
+<div id="page-s14" class="page">
+  <h2><span class="num">14</span> 安全防護 Security</h2>
+  <p class="subtitle">處理 Agent 的安全邊界</p>
+  <div class="card"><h4>輸入防護</h4><ul>
+    <li><strong>命令安全</strong> — 危險指令 pattern 偵測（rm -rf, DROP TABLE 等）</li>
+    <li><strong>Prompt Injection 防禦</strong> — 偵測注入指令</li>
+    <li><strong>輸入正規化</strong> — Unicode fullwidth / ANSI / 零寬字元清理</li>
+  </ul></div>
+  <div class="card"><h4>輸出防護</h4><ul>
+    <li><strong>輸出清洗</strong> — Sanitization</li>
+    <li><strong>Secret 外洩偵測</strong> — 防止 API key / password 在輸出中出現</li>
+  </ul></div>
+  <div class="card"><h4>系統防護</h4><ul>
+    <li><strong>CSP Headers</strong> — Content Security Policy</li>
+    <li><strong>WebSocket 認證</strong> — 未授權連線拒絕</li>
+    <li><strong>Secret 管理</strong> — 環境變數，不硬編碼</li>
+    <li><strong>Sandbox 隔離</strong> — 執行環境隔離</li>
+  </ul></div>
+</div>
+
+<!-- 15. 權限控制 -->
+<div id="page-s15" class="page">
+  <h2><span class="num">15</span> 權限控制 Access Control</h2>
+  <p class="subtitle">處理誰能做什麼</p>
+  <div class="card"><ul>
+    <li><strong>身份認證</strong> — Token / OAuth / SSO</li>
+    <li><strong>角色權限 RBAC</strong> — 管理員/操作員/觀察者</li>
+    <li><strong>能力綁定</strong> — Capability-based access</li>
+    <li><strong>審批工作流</strong> — Human-in-the-loop 審批</li>
+    <li><strong>多租戶隔離</strong> — Tenant 邊界</li>
+    <li><strong>Rate Limit</strong> — 濫用防護</li>
+  </ul></div>
+</div>
+
+<!-- 16. 行為治理 -->
+<div id="page-s16" class="page">
+  <h2><span class="num">16</span> 行為治理 Behavior Governance</h2>
+  <p class="subtitle">處理 Agent 的自主邊界</p>
+  <div class="card"><h4>自主模式</h4><ul>
+    <li><strong>關閉 (Off)</strong> — Agent 不主動行動</li>
+    <li><strong>建議 (Suggest-only)</strong> — 只建議，不執行</li>
+    <li><strong>有限自主 (Bounded)</strong> — 在規則內自主執行</li>
+  </ul></div>
+  <div class="card"><h4>控制機制</h4><ul>
+    <li><strong>Discovery Rules</strong> — 自主發現規則 + 冷卻時間</li>
+    <li><strong>自優化提案</strong> — 記錄但不直接改寫</li>
+    <li><strong>Hook 攔截</strong> — 生命週期攔截點</li>
+    <li><strong>Kill Switch</strong> — 緊急停止開關</li>
+    <li><strong>行為預算</strong> — 自主行為的範圍限制</li>
+    <li><strong>Human Override</strong> — 人類隨時可接管</li>
+  </ul></div>
+</div>
+
+<!-- 17. 追蹤與審計 -->
+<div id="page-o17" class="page">
+  <h2><span class="num">17</span> 追蹤與審計 Trace & Audit</h2>
+  <p class="subtitle">處理 Agent 做了什麼、為什麼</p>
+  <div class="card"><ul>
+    <li><strong>Request Trace</strong> — trace_id / span_id 請求追蹤</li>
+    <li><strong>工具調用記錄</strong> — 每次工具呼叫的輸入/輸出/耗時</li>
+    <li><strong>推理步驟記錄</strong> — Plan-Act-Observe 每步驟</li>
+    <li><strong>決策原因</strong> — 為什麼選這個工具/這個行動</li>
+    <li><strong>錯誤回放</strong> — 失敗時可重現上下文</li>
+    <li><strong>審計軌跡</strong> — Who / What / When / Why</li>
+    <li><strong>Evidence 分級</strong> — 證據可信度標記</li>
+    <li><strong>Replay / Postmortem</strong> — 事後重現分析</li>
+  </ul></div>
+</div>
+
+<!-- 18. 監控與指標 -->
+<div id="page-o18" class="page">
+  <h2><span class="num">18</span> 監控與指標 Health & Metrics</h2>
+  <p class="subtitle">處理系統健康與效能追蹤</p>
+  <div class="card"><ul>
+    <li><strong>Health Endpoint</strong> — 系統存活確認</li>
+    <li><strong>Readiness Probe</strong> — 服務就緒確認</li>
+    <li><strong>Token 用量統計</strong> — 各模型消耗</li>
+    <li><strong>成本統計</strong> — API 花費追蹤</li>
+    <li><strong>延遲指標</strong> — P50 / P95 / P99</li>
+    <li><strong>Session 統計</strong> — 活躍/壓縮/訊息數</li>
+    <li><strong>Memory 統計</strong> — 記憶總量/類型分布</li>
+    <li><strong>Fleet 狀態</strong> — 多節點健康監控</li>
+    <li><strong>告警機制</strong> — 異常自動通知</li>
+  </ul></div>
+</div>
+
+<!-- 19. 使用者介面 -->
+<div id="page-p19" class="page">
+  <h2><span class="num">19</span> 使用者介面 UI/UX</h2>
+  <p class="subtitle">處理人怎麼跟 Agent 互動</p>
+  <div class="card"><h4>介面形式</h4><ul>
+    <li><strong>Web Dashboard</strong> — 桌面瀏覽器介面</li>
+    <li><strong>Web App</strong> — 手機 responsive 介面</li>
+    <li><strong>PWA</strong> — 可安裝的漸進式 Web App</li>
+    <li><strong>CLI</strong> — 命令列介面</li>
+  </ul></div>
+  <div class="card"><h4>體驗設計</h4><ul>
+    <li><strong>通知系統</strong> — Non-blocking toast / push notification</li>
+    <li><strong>空態處理</strong> — Empty state 友善文案</li>
+    <li><strong>錯誤態</strong> — Error state 明確指引</li>
+    <li><strong>降級態</strong> — Degraded state 如實呈現</li>
+    <li><strong>Operator 體驗</strong> — 看得懂 Agent 在幹嘛</li>
+    <li><strong>Onboarding</strong> — 新手引導流程</li>
+    <li><strong>設定介面</strong> — 可視化設定</li>
+  </ul></div>
+</div>
+
+<!-- 20. 部署與發布 -->
+<div id="page-p20" class="page">
+  <h2><span class="num">20</span> 部署與發布 Deploy & Package</h2>
+  <p class="subtitle">處理怎麼部署、怎麼對外發布</p>
+  <div class="card"><h4>部署模式</h4><ul>
+    <li><strong>Local-first</strong> — 零配置本地啟動</li>
+    <li><strong>Self-host</strong> — 自建伺服器部署</li>
+    <li><strong>Cloud</strong> — 雲端託管</li>
+    <li><strong>Container</strong> — Docker / K8s</li>
+  </ul></div>
+  <div class="card"><h4>封裝</h4><ul>
+    <li><strong>Package</strong> — npm / pip / container image</li>
+    <li><strong>CLI Scaffold</strong> — init / login / doctor / start</li>
+    <li><strong>SDK / Library</strong> — 可嵌入的函式庫</li>
+    <li><strong>A/B 發行線</strong> — 內部版 / 對外版分離</li>
+  </ul></div>
+  <div class="card"><h4>維運</h4><ul>
+    <li><strong>環境變數管理</strong> — .env / secrets</li>
+    <li><strong>Schema Migration</strong> — DB 結構演進</li>
+    <li><strong>Release Checklist</strong> — 發布前檢查清單</li>
+    <li><strong>向後相容</strong> — Backward compatibility</li>
+    <li><strong>Smoke Test</strong> — 上線前驗證</li>
+  </ul></div>
+</div>
+
+<!-- COMPARISON -->
+<div id="page-compare" class="page">
+  <h2>框架對照表</h2>
+  <p class="subtitle">各框架在 7 大面向的覆蓋程度</p>
+  <table>
+    <tr><th>面向</th><th>Claude Code</th><th>OpenClaw</th><th>Hermes</th><th>Firecrawl</th><th>LangGraph</th><th>CrewAI</th><th>AutoGen</th></tr>
+    <tr><td>認知層</td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-green">強</span></td></tr>
+    <tr><td>記憶層</td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-red">弱</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td></tr>
+    <tr><td>執行層</td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td></tr>
+    <tr><td>整合層</td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td></tr>
+    <tr><td>控制層</td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td></tr>
+    <tr><td>可觀測層</td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-red">弱</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-red">弱</span></td><td><span class="tag tag-yellow">中</span></td></tr>
+    <tr><td>產品層</td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-yellow">CLI</span></td><td><span class="tag tag-green">強</span></td><td><span class="tag tag-red">Lib</span></td><td><span class="tag tag-yellow">中</span></td><td><span class="tag tag-yellow">中</span></td></tr>
+  </table>
+
+  <h3>各框架最強的面向</h3>
+  <div class="card"><ul>
+    <li><strong>Claude Code</strong> — 控制層（Hook 生命週期、MCP 協議、安全防護）</li>
+    <li><strong>OpenClaw</strong> — 可觀測層（Run/Span/Metrics 三層 trace）+ 控制層（Gateway 審批）</li>
+    <li><strong>Hermes</strong> — 記憶層（Knowledge 內化）+ 技能系統（SKILL.md 標準化）</li>
+    <li><strong>Firecrawl</strong> — 整合層（Web search/scrape/interact）+ 認知層（Deep Agent loop）</li>
+    <li><strong>LangGraph</strong> — 執行層（DAG 編排、State graph）</li>
+    <li><strong>CrewAI</strong> — 執行層（Multi-agent 角色協作）</li>
+    <li><strong>AutoGen</strong> — 認知層（Multi-agent 對話推理）</li>
+  </ul></div>
+</div>
+
+<!-- SOURCES -->
+<div id="page-sources" class="page">
+  <h2>參考來源</h2>
+  <div class="card"><ul>
+    <li><strong>Claude Code</strong> — Anthropic CLI agent (open source leak analysis, 520K LOC)</li>
+    <li><strong>OpenClaw</strong> — Run/Span/Metrics observability + Gateway approval</li>
+    <li><strong>Hermes</strong> — Skills system + Knowledge internalization + Command safety</li>
+    <li><strong>Firecrawl web-agent</strong> — SKILL.md + Plan-Act-Observe + Structured output</li>
+    <li><strong>llm-atomic-wiki</strong> — Atom layer + Topic branches + Two-layer lint</li>
+    <li><strong>LangGraph</strong> — State graph + DAG workflow orchestration</li>
+    <li><strong>CrewAI</strong> — Role-based multi-agent + Task delegation</li>
+    <li><strong>AutoGen</strong> — Conversational multi-agent + GroupChat</li>
+  </ul></div>
+  <p style="color:var(--muted);margin-top:16px;font-size:12px">Report generated 2026-04-19 by CC1 + Hermes. Synthesized from 8 frameworks.</p>
+</div>
+
+</div>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));
+  const p=document.getElementById('page-'+id);
+  if(p)p.classList.add('active');
+  if(event&&event.target)event.target.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

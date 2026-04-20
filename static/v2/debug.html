@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debug Tools · Helix</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950; --yellow:#d29922; --red:#f85149; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+.header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; }
+.header h1 { font-size:18px; }
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); padding:0 24px; }
+.tab { padding:10px 20px; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; font-size:13px; }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.content { padding:24px; max-width:1100px; }
+.panel { display:none; } .panel.active { display:block; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px; margin:12px 0; }
+.card h3 { font-size:14px; margin-bottom:8px; color:var(--accent); }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th,td { padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); }
+th { color:var(--muted); font-size:11px; text-transform:uppercase; }
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+.badge-ok { background:rgba(63,185,80,0.15); color:var(--green); }
+.badge-error { background:rgba(248,81,73,0.15); color:var(--red); }
+.badge-running { background:rgba(210,153,34,0.15); color:var(--yellow); }
+.timeline { position:relative; padding-left:24px; }
+.timeline-item { position:relative; padding:8px 0 16px; border-left:2px solid var(--border); padding-left:20px; }
+.timeline-item:last-child { border-left-color:transparent; }
+.timeline-dot { position:absolute; left:-7px; top:12px; width:12px; height:12px; border-radius:50%; }
+.dot-ok { background:var(--green); } .dot-error { background:var(--red); } .dot-running { background:var(--yellow); }
+.step-detail { font-size:12px; color:var(--muted); margin-top:4px; }
+.mono { font-family:'SF Mono',monospace; font-size:12px; }
+button { background:var(--accent); color:#000; border:none; padding:6px 16px; border-radius:6px; cursor:pointer; font-size:13px; }
+button:hover { opacity:0.9; }
+.refresh-row { display:flex; gap:12px; align-items:center; margin-bottom:16px; }
+input,select { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:4px; font-size:13px; }
+.empty { text-align:center; padding:40px; color:var(--muted); }
+@media(max-width:768px) { .content{padding:12px} .tabs{overflow-x:auto} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔍 Debug Tools</h1>
+  <span style="color:var(--muted);font-size:12px" id="health-badge">checking...</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('traces')">Trace Viewer</div>
+  <div class="tab" onclick="showTab('reasoning')">Reasoning Inspector</div>
+  <div class="tab" onclick="showTab('memory')">Memory Explorer</div>
+  <div class="tab" onclick="showTab('tools')">Tool Registry</div>
+</div>
+
+<div class="content">
+
+<!-- TRACE VIEWER -->
+<div id="panel-traces" class="panel active">
+  <div class="refresh-row">
+    <button onclick="loadTraces()">Refresh</button>
+    <select id="trace-hours" onchange="loadTraces()">
+      <option value="1">Last 1h</option>
+      <option value="6">Last 6h</option>
+      <option value="24" selected>Last 24h</option>
+    </select>
+    <span id="trace-stats" style="color:var(--muted);font-size:12px"></span>
+  </div>
+
+  <div id="trace-list"></div>
+</div>
+
+<!-- REASONING INSPECTOR -->
+<div id="panel-reasoning" class="panel">
+  <div class="refresh-row">
+    <input id="reason-task" placeholder="Task to reason about..." style="flex:1">
+    <button onclick="runReasoning()">Run Reasoning</button>
+  </div>
+  <div id="reasoning-output"></div>
+</div>
+
+<!-- MEMORY EXPLORER -->
+<div id="panel-memory" class="panel">
+  <div class="refresh-row">
+    <input id="mem-agent" placeholder="Agent ID" value="default">
+    <input id="mem-query" placeholder="Search query..." style="flex:1">
+    <button onclick="searchMemory()">Search</button>
+  </div>
+  <div id="memory-results"></div>
+</div>
+
+<!-- TOOL REGISTRY -->
+<div id="panel-tools" class="panel">
+  <div class="refresh-row">
+    <button onclick="loadTools()">Refresh</button>
+    <span id="tool-count" style="color:var(--muted);font-size:12px"></span>
+  </div>
+  <div id="tool-list"></div>
+</div>
+
+</div>
+
+<script>
+const BASE = '';
+
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+async function api(path) {
+  const res = await fetch(BASE + path);
+  return res.json();
+}
+
+// Health
+api('/api/health').then(d => {
+  document.getElementById('health-badge').innerHTML =
+    d.status === 'ok'
+      ? '<span class="badge badge-ok">healthy</span> v' + d.version
+      : '<span class="badge badge-error">error</span>';
+}).catch(() => {
+  document.getElementById('health-badge').innerHTML = '<span class="badge badge-error">offline</span>';
+});
+
+// TRACES
+async function loadTraces() {
+  const hours = document.getElementById('trace-hours').value;
+  try {
+    const stats = await api('/api/trace/stats?hours=' + hours);
+    document.getElementById('trace-stats').textContent =
+      `${stats.runs || 0} runs / ${stats.spans || 0} spans / ${stats.totalTokens || 0} tokens`;
+
+    const runs = await api('/api/trace/runs?limit=20');
+    const list = document.getElementById('trace-list');
+    if (!runs.runs || runs.runs.length === 0) {
+      list.innerHTML = '<div class="empty">No traces yet. Run an agent task to generate traces.</div>';
+      return;
+    }
+    list.innerHTML = runs.runs.map(r => {
+      // D1 Phase 2: parse eval_score (TEXT in SQLite, JSONB in PG)
+      let ev = r.eval_score;
+      if (typeof ev === 'string' && ev) { try { ev = JSON.parse(ev); } catch { ev = null; } }
+      const badge = ev?.summary?.badge;
+      const evalChip = badge
+        ? `<span class="badge badge-${badge === 'green' ? 'ok' : badge === 'yellow' ? 'running' : 'error'}" title="eval ${ev.summary.avg_score ?? '?'} / min ${ev.summary.min_score ?? '?'}">eval ${ev.summary.avg_score ?? '?'}</span>`
+        : '<span class="badge" style="background:rgba(139,148,158,0.15);color:var(--muted)" title="not yet scored — run helix trace backfill">eval —</span>';
+      return `
+      <div class="card" onclick="loadRunDetail('${r.id}')" style="cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3>${r.agent_id || 'unknown'} — ${r.id}</h3>
+          <span style="display:flex;gap:6px">
+            ${evalChip}
+            <span class="badge badge-${r.status === 'completed' ? 'ok' : r.status === 'running' ? 'running' : 'error'}">${r.status}</span>
+          </span>
+        </div>
+        <div class="step-detail">${r.started_at || ''}${r.eval_scored_at ? ' · eval ' + r.eval_scored_at : ''}</div>
+      </div>
+    `;}).join('');
+  } catch(e) {
+    document.getElementById('trace-list').innerHTML = '<div class="empty">Trace API not available: ' + e.message + '</div>';
+  }
+}
+
+async function loadRunDetail(runId) {
+  const run = await api('/api/trace/runs/' + runId);
+  const list = document.getElementById('trace-list');
+  let html = '<button onclick="loadTraces()" style="margin-bottom:12px">← Back</button>';
+  html += '<div class="card"><h3>Run: ' + run.id + '</h3>';
+  html += '<div class="step-detail">Agent: ' + (run.agent_id || '-') + ' | Status: ' + run.status + ' | Started: ' + (run.started_at || '') + '</div></div>';
+
+  if (run.spans && run.spans.length > 0) {
+    html += '<div class="timeline">';
+    for (const s of run.spans) {
+      const dotClass = s.status === 'ok' ? 'dot-ok' : s.status === 'error' ? 'dot-error' : 'dot-running';
+      html += `<div class="timeline-item">
+        <div class="timeline-dot ${dotClass}"></div>
+        <strong>${s.span_type}: ${s.name || s.tool_name || '-'}</strong>
+        <span class="badge badge-${s.status === 'ok' ? 'ok' : 'error'}" style="margin-left:8px">${s.status}</span>
+        ${s.duration_ms ? '<span style="color:var(--muted);margin-left:8px">' + s.duration_ms + 'ms</span>' : ''}
+        ${s.total_tokens ? '<span style="color:var(--muted);margin-left:8px">' + s.total_tokens + ' tokens</span>' : ''}
+        ${s.input_text ? '<div class="step-detail mono">Input: ' + s.input_text.slice(0,200) + '</div>' : ''}
+        ${s.output_text ? '<div class="step-detail mono">Output: ' + s.output_text.slice(0,200) + '</div>' : ''}
+        ${s.error_text ? '<div class="step-detail" style="color:var(--red)">Error: ' + s.error_text + '</div>' : ''}
+      </div>`;
+    }
+    html += '</div>';
+  } else {
+    html += '<div class="empty">No spans recorded for this run.</div>';
+  }
+  list.innerHTML = html;
+}
+
+// REASONING
+async function runReasoning() {
+  const task = document.getElementById('reason-task').value;
+  if (!task) return;
+  const output = document.getElementById('reasoning-output');
+  output.innerHTML = '<div class="card"><h3>Running reasoning...</h3></div>';
+
+  try {
+    const res = await fetch(BASE + '/api/agent/reason', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task, max_iterations: 5 }),
+    });
+    const data = await res.json();
+
+    let html = '<div class="card"><h3>Result: ' + (data.completed ? '✅ Completed' : '⚠️ Incomplete') + '</h3>';
+    html += '<div>' + (data.result || 'No result') + '</div>';
+    html += '<div class="step-detail">' + data.iterations + ' steps / ' + data.duration + 'ms</div></div>';
+
+    if (data.steps && data.steps.length > 0) {
+      html += '<div class="timeline">';
+      for (const s of data.steps) {
+        const dotClass = s.phase === 'complete' ? 'dot-ok' : s.error ? 'dot-error' : 'dot-running';
+        html += `<div class="timeline-item">
+          <div class="timeline-dot ${dotClass}"></div>
+          <strong>Step ${s.iteration}: ${s.phase}</strong>
+          ${s.durationMs ? '<span style="color:var(--muted);margin-left:8px">' + s.durationMs + 'ms</span>' : ''}
+          ${s.reasoning ? '<div class="step-detail">Reasoning: ' + s.reasoning + '</div>' : ''}
+          ${s.tool ? '<div class="step-detail">Tool: ' + s.tool + '</div>' : ''}
+          ${s.action ? '<div class="step-detail">Action: ' + s.action + '</div>' : ''}
+          ${s.result ? '<div class="step-detail mono">Result: ' + String(s.result).slice(0,300) + '</div>' : ''}
+          ${s.error ? '<div class="step-detail" style="color:var(--red)">Error: ' + s.error + '</div>' : ''}
+        </div>`;
+      }
+      html += '</div>';
+    }
+    output.innerHTML = html;
+  } catch(e) {
+    output.innerHTML = '<div class="card"><h3 style="color:var(--red)">Error</h3><div>' + e.message + '</div></div>';
+  }
+}
+
+// MEMORY
+async function searchMemory() {
+  const agentId = document.getElementById('mem-agent').value || 'default';
+  const q = document.getElementById('mem-query').value;
+  const results = document.getElementById('memory-results');
+
+  try {
+    const data = await fetch(BASE + '/api/memory/v2/recall', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId, query: q, limit: 20 }),
+    }).then(r => r.json());
+
+    if (!data.memories || data.memories.length === 0) {
+      results.innerHTML = '<div class="empty">No memories found.</div>';
+      return;
+    }
+
+    results.innerHTML = data.memories.map(m => `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between">
+          <h3>[${m.type}] ${m.summary || ''}</h3>
+          <span style="color:var(--muted);font-size:11px">importance: ${(m.effective_importance || m.importance || 0).toFixed(2)}</span>
+        </div>
+        <div style="font-size:13px;margin-top:4px">${m.content.slice(0, 300)}</div>
+        <div class="step-detail">decay: ${m.decay_factor} | access: ${m.access_count} | ${m.created_at}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    results.innerHTML = '<div class="empty">Memory API error: ' + e.message + '</div>';
+  }
+}
+
+// TOOLS
+async function loadTools() {
+  try {
+    const data = await api('/api/tools');
+    const list = document.getElementById('tool-list');
+    const tools = data.tools || [];
+    document.getElementById('tool-count').textContent = tools.length + ' tools registered';
+
+    if (tools.length === 0) {
+      list.innerHTML = '<div class="empty">No tools registered.</div>';
+      return;
+    }
+
+    list.innerHTML = '<table><tr><th>Name</th><th>Level</th><th>Category</th><th>Description</th></tr>' +
+      tools.map(t => `<tr>
+        <td><strong>${t.name}</strong></td>
+        <td><span class="badge badge-${t.level === 'L1' ? 'ok' : t.level === 'L3' ? 'error' : 'running'}">${t.level}</span></td>
+        <td>${t.category || '-'}</td>
+        <td style="color:var(--muted)">${(t.description || '').slice(0, 80)}</td>
+      </tr>`).join('') + '</table>';
+  } catch(e) {
+    document.getElementById('tool-list').innerHTML = '<div class="empty">Tools API error: ' + e.message + '</div>';
+  }
+}
+
+// Auto-load
+loadTraces();
+</script>
+<script src="/v2/_debug-overlay.js"></script>
+</body>
+</html>

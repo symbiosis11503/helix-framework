@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helix — Local-first AI Agent Framework</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1a1a2e; line-height:1.6; }
+    .hero { background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); color:#fff; padding:80px 20px; text-align:center; }
+    .hero h1 { font-size:3rem; margin-bottom:16px; }
+    .hero p { font-size:1.2rem; opacity:0.85; max-width:600px; margin:0 auto 32px; }
+    .hero code { background:rgba(255,255,255,0.15); padding:12px 24px; border-radius:8px; font-size:1rem; display:inline-block; }
+    .features { max-width:1000px; margin:60px auto; padding:0 20px; }
+    .features h2 { text-align:center; font-size:2rem; margin-bottom:40px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:24px; }
+    .card { border:1px solid #e2e8f0; border-radius:12px; padding:24px; }
+    .card h3 { font-size:1.1rem; margin-bottom:8px; }
+    .card p { font-size:0.9rem; color:#4a5568; }
+    .cta { text-align:center; padding:60px 20px; background:#f7fafc; }
+    .cta h2 { font-size:1.8rem; margin-bottom:16px; }
+    .cta code { background:#1a1a2e; color:#fff; padding:14px 28px; border-radius:8px; font-size:1.1rem; display:inline-block; }
+    .compare { max-width:1000px; margin:60px auto; padding:0 20px; }
+    .compare h2 { text-align:center; font-size:2rem; margin-bottom:24px; }
+    .compare table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+    .compare th, .compare td { padding:10px 14px; text-align:left; border-bottom:1px solid #e2e8f0; }
+    .compare th { background:#f7fafc; font-weight:600; }
+    footer { text-align:center; padding:40px 20px; color:#718096; font-size:0.85rem; }
+    @media(max-width:600px) { .hero h1{font-size:2rem;} .grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h1>Helix</h1>
+    <p>Local-first AI Agent Framework. Build, run, and govern AI agents on your machine. No cloud required.</p>
+    <code>npm install -g helix-agent-framework</code>
+  </div>
+
+  <div class="features">
+    <h2>What You Get</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Agent Runtime</h3>
+        <p>Spawn and manage AI agents with persistent session memory, auto-compression, and multi-provider LLM support (Gemini, Claude, OpenAI).</p>
+      </div>
+      <div class="card">
+        <h3>Context OS</h3>
+        <p>Session-grade conversation persistence with FTS search, parent chain checkpoints, and LLM-powered structured summary compression.</p>
+      </div>
+      <div class="card">
+        <h3>Delegation OS</h3>
+        <p>Isolated child agent execution with tool restrictions, recursion depth limits, and batch parallel support.</p>
+      </div>
+      <div class="card">
+        <h3>Execution Safety</h3>
+        <p>35+ dangerous command patterns, Unicode normalization, prompt injection defense, and interceptable hook lifecycle.</p>
+      </div>
+      <div class="card">
+        <h3>Workflow Engine</h3>
+        <p>DAG-based workflow execution with parallel branches, topological sorting, and per-node status tracking.</p>
+      </div>
+      <div class="card">
+        <h3>Tool Registry</h3>
+        <p>Dynamic tool registration with capability binding, role-based access control, and full hook chain integration.</p>
+      </div>
+      <div class="card">
+        <h3>MCP Client</h3>
+        <p>Connect to external MCP servers via stdio transport. Dynamic tool discovery and server lifecycle management.</p>
+      </div>
+      <div class="card">
+        <h3>Memory Manager</h3>
+        <p>Three-tier long-term memory (episodic / semantic / procedural) with importance scoring, time decay, and semantic recall via pgvector (optional).</p>
+      </div>
+      <div class="card">
+        <h3>Trace + Eval</h3>
+        <p>Run/span/metrics tracing with per-run eval score persistence (command-safety / prompt-injection suites), nightly backfill, and badge-ready UI.</p>
+      </div>
+      <div class="card">
+        <h3>Dashboard</h3>
+        <p>Minimal v2 web UI (index + debug) with live health, trace viewer, eval badges, and drop-in debug overlay (press <code>?</code>).</p>
+      </div>
+      <div class="card">
+        <h3>CLI REPL</h3>
+        <p><code>helix repl</code> with slash commands: <code>/agents</code>, <code>/memory</code>, <code>/switch</code>, <code>/save</code>, <code>/history</code>, <code>/session</code>, and more.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <h2>How Helix Compares</h2>
+    <table>
+      <tr><th></th><th>Helix</th><th>Claude Code</th><th>LangGraph</th></tr>
+      <tr><td>Deployment</td><td>Local-first CLI + server</td><td>CLI (cloud API)</td><td>Library (self-host)</td></tr>
+      <tr><td>Database</td><td>PG + SQLite dual</td><td>None</td><td>App-dependent</td></tr>
+      <tr><td>Memory (3-tier)</td><td>Built-in with decay + recall</td><td>Session only</td><td>Custom code</td></tr>
+      <tr><td>Workflow</td><td>DAG engine</td><td>None</td><td>Graph engine</td></tr>
+      <tr><td>Eval + Trace</td><td>Persisted scores + nightly backfill</td><td>None</td><td>LangSmith (cloud)</td></tr>
+      <tr><td>Hook Lifecycle</td><td>Interceptable + auth</td><td>25+ events</td><td>Callbacks</td></tr>
+      <tr><td>Prompt Injection Defense</td><td>7 patterns built-in</td><td>None</td><td>None</td></tr>
+      <tr><td>MCP</td><td>Stdio client</td><td>Stdio/SSE/HTTP/WS</td><td>No native</td></tr>
+    </table>
+  </div>
+
+  <div class="cta">
+    <h2>Get Started in 30 Seconds</h2>
+    <code>npx helix-agent-framework init && npx helix-agent-framework start</code>
+  </div>
+
+  <footer>
+    Helix &mdash; MIT License &mdash; Symbiosis
+  </footer>
+</body>
+</html>

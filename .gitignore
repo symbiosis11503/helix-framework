@@ -1,0 +1,12 @@
+node_modules/
+.helix/
+*.db
+*.db-journal
+*.db-wal
+.env
+.env.*
+.DS_Store
+
+# Internal audit / strategy docs (not for public repo)
+docs/plans/
+docs/reports/
