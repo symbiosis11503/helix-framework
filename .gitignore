@@ -17,3 +17,7 @@ design/raw/
 # Build artifacts (CI/local tmp — not versioned)
 dist/
 
+
+# Tauri build + generated artifacts
+desktop/tauri/src-tauri/target/
+desktop/tauri/src-tauri/gen/

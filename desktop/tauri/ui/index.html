@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Helix Desktop Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="eyebrow">Helix 0.10.0-dev</div>
+          <h1>Native Desktop Prototype</h1>
+          <p>先做 attach-first MVP：桌面殼負責檢查本機 runtime，ready 後載入 <code>/v2/</code>。</p>
+        </div>
+
+        <div class="status-card">
+          <div class="label">Runtime 狀態</div>
+          <div id="runtime-status" class="status waiting">檢查中…</div>
+          <div id="runtime-detail" class="detail">正在檢查 127.0.0.1:18860</div>
+          <div id="status-hint" class="status-hint">若尚未啟動，這裡會顯示 attach-first 的引導，不假裝桌面版已內建 runtime。</div>
+        </div>
+
+        <div class="actions actions-primary">
+          <button id="refresh-btn">重新檢查</button>
+          <button id="load-btn" disabled>載入 Console</button>
+        </div>
+        <div class="actions actions-secondary">
+          <button id="browser-btn" class="button-secondary" disabled>開瀏覽器版</button>
+          <button id="copy-btn" class="button-secondary">複製啟動指令</button>
+        </div>
+
+        <div class="steps">
+          <div class="label">Runtime not ready 導引</div>
+          <ol>
+            <li><code>helix init</code></li>
+            <li><code>helix login --provider gemini --api-key YOUR_KEY</code></li>
+            <li><code>helix start --port 18860</code></li>
+          </ol>
+          <p id="guide-copy" class="note">目前桌面殼不自動啟動 runtime。先把本機 Helix 跑起來，再回來按「重新檢查」。</p>
+        </div>
+
+        <div class="steps steps-compact">
+          <div class="label">Truth boundary</div>
+          <p class="note">這版是 Tauri MVP prototype，不假裝已完成 desktop packaging / signing / notarization，也不假裝已做 spawn mode。</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div id="empty-state" class="empty-state">
+          <div class="empty-state-inner">
+            <h2 id="empty-title">等待本機 Helix Runtime</h2>
+            <p id="empty-copy">當 <code>http://127.0.0.1:18860/api/health</code> 可連線時，這裡會載入 Helix Console。</p>
+          </div>
+        </div>
+        <iframe id="console-frame" title="Helix Console" hidden></iframe>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
