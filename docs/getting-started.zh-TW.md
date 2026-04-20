@@ -1,43 +1,43 @@
-# Getting Started
+# 快速開始
 
-[繁體中文](./getting-started.zh-TW.md)
+[English](./getting-started.md)
 
-## What is Helix?
+## Helix 是什麼？
 
-Helix is a local-first AI agent framework. It gives your agents tools, memory, reasoning, and governance — all running on your machine with zero cloud dependency.
+Helix 是一套 local-first 的 AI Agent 框架。它把工具、記憶、推理與治理能力整合在一起，全部都可以直接跑在你的機器上，不必依賴雲端後端才能開始使用。
 
-## Quick Install
+## 快速安裝
 
 ```bash
-# Install globally
+# 全域安裝
 npm install -g helix-agent-framework
 
-# Or use npx
+# 或直接用 npx
 npx helix-agent-framework init
 ```
 
-## 1. Initialize a Project
+## 1. 初始化專案
 
 ```bash
 mkdir my-agent && cd my-agent
 helix init
 ```
 
-This creates:
-- `helix.config.js` — configuration
-- `data/skills/` — skill definitions
-- `.helix/` — runtime data (SQLite DB, logs)
+這會建立：
+- `helix.config.js` — 設定檔
+- `data/skills/` — 技能定義
+- `.helix/` — runtime 資料（SQLite、logs）
 
-## 2. Set Your API Key
+## 2. 設定 API Key
 
 ```bash
 helix login
 ```
 
-Enter your API key (Gemini, OpenAI, or Anthropic). Or set it manually:
+依提示輸入你的 API key（Gemini、OpenAI 或 Anthropic）。也可以手動設定：
 
 ```bash
-# In helix.config.js
+# 在 helix.config.js
 export default {
   model: 'gemini-2.5-flash',
   apiKeyEnv: 'GEMINI_API_KEY',
@@ -45,43 +45,43 @@ export default {
 ```
 
 ```bash
-# In your shell
-export GEMINI_API_KEY=your-key-here
+# 在 shell 中
+export GEMINI_API_KEY=***
 ```
 
-## 3. Start the Runtime
+## 3. 啟動 Runtime
 
 ```bash
 helix start
 ```
 
-Output:
-```
+輸出範例：
+```bash
 [helix-lite] Helix Agent Runtime vX.Y.Z (lite mode)
 [helix-lite] http://127.0.0.1:18860
 [helix-lite] Built-in hooks registered (command-safety, injection-defense)
 ```
 
-## 4. Chat with an Agent
+## 4. 和 Agent 對話
 
 ```bash
 helix agent chat default
 ```
 
-Or via API:
+或用 API：
 ```bash
 curl -X POST http://localhost:18860/api/agent/chat \
   -H "Content-Type: application/json" \
   -d '{"agent": "default", "message": "Hello, what can you do?"}'
 ```
 
-## 5. Check Health
+## 5. 檢查系統健康度
 
 ```bash
 helix doctor
 ```
 
-```
+```text
 🩺 Helix Doctor
   ✅ Node.js: v22.x
   ✅ API Key: gemini
@@ -89,36 +89,36 @@ helix doctor
   ✅ Shared Core: 21/21 modules
 ```
 
-## Core Concepts
+## 核心概念
 
 ### Agents
-Agents are AI entities that can chat, use tools, remember context, and execute tasks.
+Agent 是可對話、可用工具、可保留上下文並執行任務的 AI 實體。
 
 ```bash
-# List agents
+# 列出 agents
 curl http://localhost:18860/api/agents/instances
 
-# Spawn a new agent
+# 送訊息給 agent
 curl -X POST http://localhost:18860/api/agent/chat \
   -d '{"agent": "researcher", "message": "Find info about Node.js 22"}'
 ```
 
-### Sessions & Memory
-Every conversation is persisted. Agents remember across sessions.
+### Sessions 與 Memory
+每段對話都會持久化保存；Agent 可以跨 session 記住上下文。
 
 ```bash
-# View sessions
+# 查看 sessions
 curl http://localhost:18860/api/sessions?agent_id=default
 
-# Search memory
+# 搜尋記憶
 curl -X POST http://localhost:18860/api/memory/v2/recall \
   -d '{"agent_id": "default", "query": "what did we discuss?"}'
 ```
 
 ### Skills
-Skills are markdown files that teach agents new abilities.
+Skills 是教 Agent 新能力的 Markdown 文件。
 
-Create `data/skills/research/web-search/SKILL.md`:
+建立 `data/skills/research/web-search/SKILL.md`：
 ```markdown
 ---
 name: web-search
@@ -129,22 +129,22 @@ tags: [web, search]
 Search the web for the given query and return structured results.
 ```
 
-Skills are auto-discovered on startup.
+Helix 啟動時會自動掃描技能。
 
 ### Tools
-Tools are programmatic capabilities. Use the tool registry:
+Tools 是可程式化呼叫的能力，透過 tool registry 管理：
 
 ```bash
-# List available tools
+# 列出可用工具
 curl http://localhost:18860/api/tools
 
-# Execute a tool
+# 執行工具
 curl -X POST http://localhost:18860/api/tools/execute \
   -d '{"name": "shell_exec", "params": {"command": "echo hello"}}'
 ```
 
 ### Reasoning
-For complex tasks, use the reasoning loop (Plan → Act → Observe):
+複雜任務可使用推理迴圈（Plan → Act → Observe）：
 
 ```bash
 curl -X POST http://localhost:18860/api/agent/reason \
@@ -152,7 +152,7 @@ curl -X POST http://localhost:18860/api/agent/reason \
 ```
 
 ### Streaming
-Get real-time responses via Server-Sent Events:
+透過 Server-Sent Events 取得即時回應：
 
 ```bash
 curl -N -X POST http://localhost:18860/api/agent/chat/stream \
@@ -160,10 +160,10 @@ curl -N -X POST http://localhost:18860/api/agent/chat/stream \
   -d '{"agent": "default", "message": "Write a haiku about coding"}'
 ```
 
-## Supported LLM Providers
+## 支援的 LLM Providers
 
-| Provider | Model Examples | Env Variable |
-|----------|---------------|-------------|
+| Provider | 模型範例 | 環境變數 |
+|---|---|---|
 | Google Gemini | gemini-2.5-flash | GEMINI_API_KEY |
 | Anthropic | claude-sonnet-4-6 | ANTHROPIC_API_KEY |
 | OpenAI | gpt-4o | OPENAI_API_KEY |
@@ -173,48 +173,48 @@ curl -N -X POST http://localhost:18860/api/agent/chat/stream \
 | Groq | llama-3.3-70b | GROQ_API_KEY |
 | Qwen | qwen-max | QWEN_API_KEY |
 | OpenRouter | any model | OPENROUTER_API_KEY |
-| Local (Ollama) | ollama/llama3 | (none needed) |
+| Local (Ollama) | ollama/llama3 | （不需） |
 
-## Evaluation & Benchmarks
+## Evaluation 與 Benchmarks
 
-Run built-in safety and quality benchmarks:
+執行內建安全與品質 benchmark：
 
 ```bash
-# Via CLI (works offline — no server needed)
+# CLI（離線可跑，不必先起 server）
 helix eval run command-safety
 helix eval run prompt-injection
 
-# View history
+# 查看歷史
 helix eval history
 ```
 
 ```bash
-# Via API
+# API
 curl -X POST http://localhost:18860/api/eval/run \
   -H "Content-Type: application/json" \
   -d '{"suite": "command-safety"}'
 ```
 
-Available suites: `command-safety` (11 cases), `prompt-injection` (12 cases), `memory-recall` (3 cases).
+可用 suites：`command-safety`（11 cases）、`prompt-injection`（12 cases）、`memory-recall`（3 cases）。
 
-## Security
+## 安全性
 
-Helix includes built-in security:
-- **Command Safety** — blocks dangerous shell commands (rm -rf, DROP TABLE, etc.)
-- **Prompt Injection Defense** — detects injection attempts in prompts
-- **2FA** — TOTP-based two-factor authentication
-- **RBAC** — role-based access control (admin/operator/viewer)
+Helix 內建：
+- **Command Safety** — 阻擋危險 shell 指令（如 `rm -rf`、`DROP TABLE`）
+- **Prompt Injection Defense** — 偵測 prompt 注入攻擊
+- **2FA** — TOTP 雙因素驗證
+- **RBAC** — 角色權限控制（admin / operator / viewer）
 
 ## Dashboard
 
-Access the web dashboard at `http://localhost:18860/v2/`:
-- **System Overview** — agent count, tasks, memory stats, tools
-- **Quick Actions** — spawn agents, chat, run evals
-- **Debug Tools** — trace viewer, reasoning inspector, memory explorer (`/v2/debug.html`)
+Web 控制台位於 `http://localhost:18860/v2/`：
+- **System Overview** — agent 數量、tasks、memory、tools
+- **Quick Actions** — spawn agents、chat、run evals
+- **Debug Tools** — trace viewer、reasoning inspector、memory explorer（`/v2/debug.html`）
 
-## Next Steps
+## 下一步
 
-- [Core Guide](./core-guide.md) — Deep dive into each module
-- [Config Reference](./CONFIG_REFERENCE.md) — All configuration options
-- [FAQ](./FAQ.md) — Common questions
-- [Examples](../examples/) — Copy-paste-ready sample agents (chatbot / research / cmd-runner)
+- [Core Guide（英文）](./core-guide.md) — 深入模組架構
+- [Config Reference（英文）](./CONFIG_REFERENCE.md) — 完整設定選項
+- [FAQ（英文）](./FAQ.md) — 常見問題
+- [Examples](../examples/) — 可直接複製使用的 sample agents（chatbot / research / cmd-runner）

@@ -10,3 +10,6 @@ node_modules/
 # Internal audit / strategy docs (not for public repo)
 docs/plans/
 docs/reports/
+
+# Design raw outputs (not shipped, can regenerate from design/generate.mjs)
+design/raw/

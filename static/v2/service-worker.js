@@ -9,8 +9,8 @@ const STATIC = [
   '/v2/debug.html',
   '/v2/_debug-overlay.js',
   '/v2/manifest.json',
-  '/v2/icon-192.svg',
-  '/v2/icon-512.svg',
+  '/v2/icon-192.png',
+  '/v2/icon-512.png',
 ];
 
 self.addEventListener('install', (ev) => {
