@@ -19,13 +19,12 @@ jobs:
         include:
           - os: macos-14       # Apple Silicon (arm64) — covers M1+ Macs
             target: darwin-arm64
+          - os: macos-13       # Intel (x86_64) — back in 0.9.1 for legacy Macs
+            target: darwin-x86_64
           - os: ubuntu-latest  # Linux x64
             target: linux-x86_64
-          # macos-13 (Intel x64) dropped from 0.9.0 — GitHub-hosted Intel Mac
-          # runners have multi-minute queue waits that block releases. Intel Mac
-          # users can use the arm64 tarball under Rosetta 2, or we can add back
-          # via a separate on-demand workflow.
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 

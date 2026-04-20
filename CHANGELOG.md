@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.1 — 2026-04-20
+
+### Added
+- macOS Intel (x86_64) portable tarball — `helix-portable-darwin-x86_64.tar.gz`
+- Restores macos-13 to the release.yml matrix (dropped from 0.9.0 due to GitHub Actions queue waits; adding back with `timeout-minutes: 20`)
+- Intel Mac users no longer need to rely on Rosetta 2
+
 ## 0.9.0 — 2026-04-20
 
 ### Added — Portable Tarball Distribution
