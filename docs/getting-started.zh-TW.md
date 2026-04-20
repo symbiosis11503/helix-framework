@@ -217,4 +217,5 @@ Web 控制台位於 `http://localhost:18860/v2/`：
 - [核心模組導覽](./core-guide.zh-TW.md) — 深入模組架構
 - [設定檔參考](./CONFIG_REFERENCE.zh-TW.md) — 完整設定選項
 - [常見問題 FAQ](./FAQ.zh-TW.md) — 常見問題
-- [範例專案](../examples/README.zh-TW.md) — 可直接複製使用的 sample agents（chatbot / research / cmd-runner）
+- [取得與安裝方式](./distribution.zh-TW.md) — npm / portable tarball / PWA / 未來桌面版
+- [範例專案](../examples/README.zh-TW.md) — 可直接複製使用的 sample agents（chatbot / research / cmd-runner)

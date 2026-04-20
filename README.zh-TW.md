@@ -16,6 +16,9 @@ Helix 是為專案工作區設計的獨立 AI Agent 框架，完全在本機用 
 npm install -g helix-agent-framework
 ```
 
+也可查看不同分發路徑：
+- [取得與安裝方式](./docs/distribution.zh-TW.md)
+
 ## 快速開始
 
 ```bash
