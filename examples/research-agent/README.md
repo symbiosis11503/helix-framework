@@ -1,5 +1,7 @@
 # Research Agent Example
 
+[繁體中文](./README.zh-TW.md)
+
 Multi-step agent with web search, long-term memory, and skill invocation.
 
 ## Run

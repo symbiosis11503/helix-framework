@@ -1,5 +1,7 @@
 # Helix Examples
 
+[繁體中文](./README.zh-TW.md)
+
 Three copy-paste-ready sample agents. Each subdirectory is a self-contained project — copy it out, run `helix start`, and you have a working agent.
 
 ## Which one to start with

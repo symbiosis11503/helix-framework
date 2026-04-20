@@ -1,5 +1,7 @@
 # Command Runner Example
 
+[繁體中文](./README.zh-TW.md)
+
 An agent that runs shell commands on your machine, with the built-in command-safety engine blocking dangerous patterns.
 
 ## Run

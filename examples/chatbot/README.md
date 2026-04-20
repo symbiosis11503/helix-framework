@@ -1,5 +1,7 @@
 # Chatbot Example
 
+[繁體中文](./README.zh-TW.md)
+
 Minimal single-agent setup. Good first contact with Helix.
 
 ## Run

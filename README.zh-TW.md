@@ -132,10 +132,11 @@ helix start
 
 ## 更多文件
 
-- [快速開始指南](./docs/getting-started.md)
-- [核心模組導覽](./docs/core-guide.md)
-- [設定檔參考](./docs/CONFIG_REFERENCE.md)
-- [常見問題](./docs/FAQ.md)
+- [快速開始指南](./docs/getting-started.zh-TW.md)
+- [核心模組導覽](./docs/core-guide.zh-TW.md)
+- [設定檔參考](./docs/CONFIG_REFERENCE.zh-TW.md)
+- [常見問題](./docs/FAQ.zh-TW.md)
+- [範例專案](./examples/README.zh-TW.md)
 
 ## 版本
 

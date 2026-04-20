@@ -1,5 +1,7 @@
 # Helix FAQ
 
+[繁體中文](./FAQ.zh-TW.md)
+
 ## Installation
 
 ### `npm install` fails with "better-sqlite3" build error
