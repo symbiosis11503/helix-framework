@@ -1437,6 +1437,18 @@ export async function startLiteServer(config = {}) {
 
   // ========== Start ==========
   const server = createServer(app);
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n[helix-lite] ❌ Port ${port} already in use on ${host}.`);
+      console.error(`[helix-lite]    Another process is bound to this port. Options:`);
+      console.error(`[helix-lite]      1. Pick a different port:  helix start --port 18961`);
+      console.error(`[helix-lite]      2. Find the conflicting process:  lsof -i :${port}`);
+      console.error(`[helix-lite]      3. Stop the existing helix:  helix status  (then kill its PID)`);
+      process.exit(1);
+    }
+    console.error(`[helix-lite] listen error:`, err.message);
+    process.exit(1);
+  });
   server.listen(port, host, () => {
     console.log(`[helix-lite] Helix Agent Runtime v${PKG_VERSION} (lite mode)`);
     console.log(`[helix-lite] http://${host}:${port}`);
