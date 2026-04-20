@@ -267,19 +267,24 @@ async function probeStartDeps(config) {
     result.critical.push(`Node.js ${process.version} 太舊，需要 >=18`);
   }
 
+  // pkg-bundled binaries ship all deps — skip import probes (they fail in pkg's VFS)
+  const isBundledBinary = !!process.pkg;
+
   // Critical: DB driver
   const dbType = config?.database?.type || 'sqlite';
-  if (dbType === 'sqlite') {
-    try { await import('better-sqlite3'); }
-    catch { result.critical.push('better-sqlite3 未安裝 — npm install better-sqlite3'); }
-  } else if (dbType === 'postgres' || dbType === 'pg') {
-    try { await import('pg'); }
-    catch { result.critical.push('pg 未安裝 — npm install pg'); }
-  }
+  if (!isBundledBinary) {
+    if (dbType === 'sqlite') {
+      try { await import('better-sqlite3'); }
+      catch { result.critical.push('better-sqlite3 未安裝 — npm install better-sqlite3'); }
+    } else if (dbType === 'postgres' || dbType === 'pg') {
+      try { await import('pg'); }
+      catch { result.critical.push('pg 未安裝 — npm install pg'); }
+    }
 
-  // Critical: express
-  try { await import('express'); }
-  catch { result.critical.push('express 未安裝 — npm install express'); }
+    // Critical: express
+    try { await import('express'); }
+    catch { result.critical.push('express 未安裝 — npm install express'); }
+  }
 
   // Warning: API key
   const auth = loadAuth();
