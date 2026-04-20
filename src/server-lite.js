@@ -22,14 +22,20 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Read version from package.json at module load so /api/health and startup banner
-// never drift from the published tarball.
+// never drift from the published tarball. Tries same-dir first (portable bundle
+// layout), then parent (npm install layout). Verifies name matches to avoid
+// picking up user's project package.json when bundle sits beside it.
 let PKG_VERSION = 'unknown';
-try {
-  const pkgPath = join(__dirname, '..', 'package.json');
-  if (existsSync(pkgPath)) {
-    PKG_VERSION = JSON.parse(readFileSync(pkgPath, 'utf8')).version || 'unknown';
-  }
-} catch { /* leave as unknown */ }
+for (const pkgPath of [join(__dirname, 'package.json'), join(__dirname, '..', 'package.json')]) {
+  try {
+    if (!existsSync(pkgPath)) continue;
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    if (pkg.name === 'helix-agent-framework' && pkg.version) {
+      PKG_VERSION = pkg.version;
+      break;
+    }
+  } catch { /* try next */ }
+}
 
 export async function startLiteServer(config = {}) {
   const port = config.server?.port || 18860;
