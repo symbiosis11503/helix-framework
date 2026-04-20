@@ -214,7 +214,7 @@ Web 控制台位於 `http://localhost:18860/v2/`：
 
 ## 下一步
 
-- [Core Guide（英文）](./core-guide.md) — 深入模組架構
-- [Config Reference（英文）](./CONFIG_REFERENCE.md) — 完整設定選項
-- [FAQ（英文）](./FAQ.md) — 常見問題
-- [Examples](../examples/) — 可直接複製使用的 sample agents（chatbot / research / cmd-runner）
+- [核心模組導覽](./core-guide.zh-TW.md) — 深入模組架構
+- [設定檔參考](./CONFIG_REFERENCE.zh-TW.md) — 完整設定選項
+- [常見問題 FAQ](./FAQ.zh-TW.md) — 常見問題
+- [範例專案](../examples/README.zh-TW.md) — 可直接複製使用的 sample agents（chatbot / research / cmd-runner）

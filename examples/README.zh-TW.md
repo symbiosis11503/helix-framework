@@ -44,4 +44,4 @@ helix start
 - `skills[]`
 - `hooks[]`
 
-完整設定請看：[`docs/CONFIG_REFERENCE.md`](../docs/CONFIG_REFERENCE.md)
+完整設定請看：[`docs/CONFIG_REFERENCE.zh-TW.md`](../docs/CONFIG_REFERENCE.zh-TW.md)
