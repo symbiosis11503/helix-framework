@@ -1,0 +1,57 @@
+name: release-intel-mac-append
+
+# On-demand Intel macOS tarball builder. Runs only when manually triggered,
+# so the macos-13 GitHub-hosted runner queue time (which can be 15+ minutes)
+# doesn't block main releases. Output is attached to an existing GitHub
+# Release identified by `tag`.
+#
+# Usage: Actions → release-intel-mac-append → Run workflow → enter existing tag (e.g. v0.9.1)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to append the Intel Mac tarball to (e.g. v0.9.1)'
+        required: true
+        type: string
+
+jobs:
+  build-and-append:
+    runs-on: macos-13
+    timeout-minutes: 60  # generous — Intel queue can be slow; we're not blocking anything
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout at tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps (incl. native better-sqlite3 for x86_64)
+        run: npm install
+
+      - name: Run tests (fail append if broken)
+        run: npm test
+
+      - name: Build portable tarball
+        run: ./scripts/build-portable.sh
+
+      - name: Verify portable runs
+        run: |
+          mkdir -p /tmp/helix-verify
+          cd /tmp/helix-verify
+          tar -xzf "$GITHUB_WORKSPACE/dist/helix-portable-darwin-x86_64.tar.gz"
+          ./helix-portable-darwin-x86_64/helix --version
+
+      - name: Upload to existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ inputs.tag }}" \
+            dist/helix-portable-darwin-x86_64.tar.gz \
+            --clobber
