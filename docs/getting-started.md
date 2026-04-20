@@ -55,7 +55,7 @@ helix start
 
 Output:
 ```
-[helix-lite] Helix Agent Runtime v0.4.1 (lite mode)
+[helix-lite] Helix Agent Runtime v0.7.0 (lite mode)
 [helix-lite] http://127.0.0.1:18860
 [helix-lite] Built-in hooks registered (command-safety, injection-defense)
 ```
@@ -215,4 +215,4 @@ Access the web dashboard at `http://localhost:18860/v2/`:
 - [Core Guide](./core-guide.md) — Deep dive into each module
 - [Config Reference](./CONFIG_REFERENCE.md) — All configuration options
 - [FAQ](./FAQ.md) — Common questions
-- [API Reference](./api-reference.md) — Complete API documentation
+- [Examples](../examples/) — Copy-paste-ready sample agents (chatbot / research / cmd-runner)

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.8.0 — 2026-04-20
+
+### Added — CI / Tests (adoption readiness sprint)
+- `.github/workflows/test.yml` — matrix on Node 20 / 22 / 24, runs syntax checks across `src/*.js` + `bin/*.js`, `npm test`, and `npm pack --dry-run`
+- `tests/integration.test.mjs` — 16 new integration tests covering `trace-lite` (startRun/Span/eval round-trip/stats/listRunsNeedingEval), `session-store` (CRUD/stats/context), `eval-lite` (suites/end-to-end/history), and CLI (version/help/fallback). Uses temp SQLite
+- Total test suite: **28 tests** (was 12) — runs in ~300ms
+
+### Added — Examples Directory
+- `examples/chatbot/` — minimal single-agent scaffold (Gemini + session memory)
+- `examples/research-agent/` — multi-step with skills, memory-v2 decay, web-search
+- `examples/cmd-runner/` — shell command agent with command-safety + injection-defense hooks
+- `examples/README.md` — which-to-pick table + copy-out instructions
+
+### Added — Console v3
+- 4th action card: **Run Workflow** — lists `/api/workflow-defs`, spawns via `POST .../run`
+- actions grid switched to `auto-fit` so 4 cards reflow gracefully on mobile
+
+### Fixed — Version Drift
+- `/api/health` now reads `package.json` version at module load (was hardcoded `0.4.1`)
+- Startup banner reads same (was hardcoded `0.4.1`)
+- `bin/helix-memory-mcp.js` MCP `serverInfo.version` now dynamic
+- `docs/getting-started.md` — updated stale `v0.4.1` in example output, replaced dead `api-reference.md` link with examples pointer
+
 ## 0.7.0 — 2026-04-20
 
 ### Added — Console UX (Plan #3)

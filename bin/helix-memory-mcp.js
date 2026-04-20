@@ -15,8 +15,18 @@
 
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
+import { readFileSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { initDb } from '../src/db.js';
 import * as mm from '../src/memory-manager.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+let PKG_VERSION = 'unknown';
+try {
+  const p = join(__dirname, '..', 'package.json');
+  if (existsSync(p)) PKG_VERSION = JSON.parse(readFileSync(p, 'utf8')).version || 'unknown';
+} catch { /* ignore */ }
 
 const AGENT_ID = process.env.HELIX_AGENT_ID || 'cc1';
 const DB_TYPE = process.env.HELIX_DB_TYPE || 'sqlite';
@@ -212,7 +222,7 @@ rl.on('line', async (line) => {
         sendResponse(id, {
           protocolVersion: '2024-11-05',
           capabilities: { tools: {} },
-          serverInfo: { name: 'helix-memory', version: '0.4.1' },
+          serverInfo: { name: 'helix-memory', version: PKG_VERSION },
         });
         break;
 

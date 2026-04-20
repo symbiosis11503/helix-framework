@@ -21,6 +21,16 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Read version from package.json at module load so /api/health and startup banner
+// never drift from the published tarball.
+let PKG_VERSION = 'unknown';
+try {
+  const pkgPath = join(__dirname, '..', 'package.json');
+  if (existsSync(pkgPath)) {
+    PKG_VERSION = JSON.parse(readFileSync(pkgPath, 'utf8')).version || 'unknown';
+  }
+} catch { /* leave as unknown */ }
+
 export async function startLiteServer(config = {}) {
   const port = config.server?.port || 18860;
   const host = config.server?.host || '127.0.0.1';
@@ -51,7 +61,7 @@ export async function startLiteServer(config = {}) {
 
   // ========== Health ==========
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', version: '0.4.1', mode: 'lite', uptime: (Date.now() - startTime) / 1000 });
+    res.json({ status: 'ok', version: PKG_VERSION, mode: 'lite', uptime: (Date.now() - startTime) / 1000 });
   });
 
   app.get('/api/readiness', async (_req, res) => {
@@ -1428,7 +1438,7 @@ export async function startLiteServer(config = {}) {
   // ========== Start ==========
   const server = createServer(app);
   server.listen(port, host, () => {
-    console.log(`[helix-lite] Helix Agent Runtime v0.4.1 (lite mode)`);
+    console.log(`[helix-lite] Helix Agent Runtime v${PKG_VERSION} (lite mode)`);
     console.log(`[helix-lite] http://${host}:${port}`);
     console.log(`[helix-lite] Dashboard: http://${host}:${port}/v2/`);
   });
