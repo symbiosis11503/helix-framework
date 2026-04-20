@@ -4,6 +4,8 @@
 [![node](https://img.shields.io/node/v/helix-agent-framework.svg)](https://www.npmjs.com/package/helix-agent-framework)
 [![license](https://img.shields.io/npm/l/helix-agent-framework.svg)](./LICENSE)
 
+**[繁體中文版 →](./README.zh-TW.md)**
+
 > Build and run AI agents locally. No cloud required, no PostgreSQL required.
 
 Helix is a standalone AI agent framework for project workspaces. It runs entirely on your machine with SQLite — no external services needed.
