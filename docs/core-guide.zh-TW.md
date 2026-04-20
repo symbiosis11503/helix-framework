@@ -1,19 +1,18 @@
-# Core Guide
+# 核心模組導覽
 
-[繁體中文](./core-guide.zh-TW.md)
+[English](./core-guide.md)
 
-Deep dive into Helix's 19 shared-core modules.
+Helix 19 個 shared-core 模組的深入介紹。程式碼範例維持英文（直接貼到你的專案可用），說明文字為繁中。
 
-## Architecture Overview
+## 架構概覽
 
 ```
 ┌─────────────────────────────────────────┐
-│              Your Application            │
+│              你的應用                    │
 ├─────────────────────────────────────────┤
 │  API Layer (server-lite.js / Express)    │
 ├──────┬──────┬──────┬──────┬─────────────┤
-│Cogni-│Memo- │Exec- │Cont- │  Product    │
-│tion  │ry    │ution │rol   │             │
+│認知  │記憶  │執行  │控制  │  產品層     │
 ├──────┼──────┼──────┼──────┼─────────────┤
 │reason│session│work- │auth  │  trace-lite │
 │tools │memory │flow  │2fa   │  skills     │
@@ -27,12 +26,12 @@ Deep dive into Helix's 19 shared-core modules.
 
 ## 1. LLM Provider (`llm-provider.js`)
 
-Connect to any LLM with a single function call.
+一個函式呼叫連接任何 LLM。
 
 ```javascript
 import { chat, chatStream, chatJSON } from './src/llm-provider.js';
 
-// Basic chat
+// 基本對話
 const result = await chat({
   model: 'gemini-2.5-flash',
   apiKey: process.env.GEMINI_API_KEY,
@@ -40,7 +39,7 @@ const result = await chat({
   message: 'What is Node.js?',
 });
 
-// Streaming
+// 串流
 await chatStream({
   model: 'gpt-4o',
   apiKey: process.env.OPENAI_API_KEY,
@@ -49,7 +48,7 @@ await chatStream({
   onChunk: (text) => process.stdout.write(text),
 });
 
-// Structured JSON output
+// 結構化 JSON 輸出
 const data = await chatJSON({
   model: 'deepseek-chat',
   apiKey: process.env.DEEPSEEK_API_KEY,
@@ -57,95 +56,86 @@ const data = await chatJSON({
   message: 'Apple released iPhone 16 in September 2024.',
   options: { jsonSchema: { products: [], companies: [], dates: [] } },
 });
-console.log(data.structured); // { products: [...], ... }
+console.log(data.structured);
 ```
 
 ## 2. Session Store (`session-store.js`)
 
-Per-message conversation persistence with compression.
+逐訊息對話持久化 + 自動壓縮。
 
 ```javascript
 import * as ss from './src/session-store.js';
 
-// Create session
 const { id } = await ss.createSession({ agentId: 'my-agent' });
-
-// Add messages
 await ss.appendMessage({ sessionId: id, role: 'user', content: 'Hello' });
 await ss.appendMessage({ sessionId: id, role: 'assistant', content: 'Hi there!' });
 
-// Build context for next LLM call
+// 建構下次 LLM 呼叫用的 context
 const ctx = await ss.buildSessionContext(id, { maxTokens: 8000 });
 
-// Search across conversations
+// 跨對話搜尋
 const results = await ss.searchMessages('my-agent', 'deployment issue');
 
-// Auto-compress when too large
+// 長對話自動壓縮
 const summarizer = ss.createLLMSummarizer({ apiKey, model });
 await ss.compressSession(id, summarizer);
 ```
 
 ## 3. Memory Manager (`memory-manager.js`)
 
-Three-tier long-term memory with decay.
+三層長期記憶 + 衰減。
 
 ```javascript
 import * as mm from './src/memory-manager.js';
 
-// Remember something
+// 記住一件事
 await mm.remember({
   agentId: 'my-agent',
-  type: 'episodic',     // or 'semantic', 'procedural'
+  type: 'episodic',     // 'episodic' | 'semantic' | 'procedural'
   content: 'User prefers dark mode and concise answers',
   summary: 'UI preference',
   importance: 0.8,
   tags: ['preference', 'ui'],
 });
 
-// Recall relevant memories
+// 召回相關記憶
 const memories = await mm.recall('my-agent', 'user preferences');
 
-// Build memory context for LLM prompt
-const ctx = await mm.buildMemoryContext('my-agent', 'current query', { maxTokens: 2000 });
-
-// Auto-extract from conversation
+// 自動從 session 抽取
 await mm.extractFromSession('my-agent', sessionId);
 
-// Decay old memories
+// 時間衰減
 await mm.decayMemories('my-agent', { decayRate: 0.02 });
 ```
 
 ## 4. Knowledge (`knowledge.js`)
 
-Atom-based knowledge governance pipeline.
+Atom 原子式知識治理管線。
 
 ```javascript
 import * as k from './src/knowledge.js';
 
-// Create atoms
+// 建立 atom
 await k.createAtom({
   agentId: 'my-agent',
   content: 'PostgreSQL supports JSONB for document storage',
   topic: 'database',
   tags: ['pg', 'json'],
-  reliabilityTier: 1,  // 1=verified, 2=unverified, 3=disputed
+  reliabilityTier: 1,  // 1=已驗證 / 2=未驗證 / 3=有爭議
 });
 
-// Promote pipeline: draft → reviewed → promoted
+// 提升管線：draft → reviewed → promoted
 await k.reviewAtom(atomId, { reviewedBy: 'human' });
 await k.promoteAtom(atomId);
 
-// Two-layer lint
-const lint1 = await k.lintDeterministic('my-agent'); // duplicates, empty, missing topic
-const lint2 = await k.lintSemantic('my-agent', { summarizeFn }); // contradictions, outdated
-
-// Compile to report
-await k.compile('my-agent', { topic: 'database', title: 'DB Knowledge Report' });
+// 兩層 lint
+const lint1 = await k.lintDeterministic('my-agent'); // 重複 / 空 / 缺 topic
+const lint2 = await k.lintSemantic('my-agent', { summarizeFn }); // 矛盾 / 過時
 ```
 
 ## 5. Agent Reasoning (`agent-reasoning.js`)
 
-Plan-Act-Observe loop for complex tasks.
+Plan-Act-Observe 迴圈處理複雜任務。
 
 ```javascript
 import { reason } from './src/agent-reasoning.js';
@@ -158,19 +148,18 @@ const result = await reason({
   onStep: (step) => console.log(`Step ${step.iteration}: ${step.action}`),
 });
 
-console.log(result.result);    // Final answer
-console.log(result.iterations); // How many steps
-console.log(result.steps);     // Full trace
+console.log(result.result);     // 最終答案
+console.log(result.iterations); // 步驟數
+console.log(result.steps);      // 完整 trace
 ```
 
 ## 6. Tool Registry (`tool-registry.js`)
 
-Dynamic tool management with capability binding.
+動態工具管理 + capability 綁定。
 
 ```javascript
 import * as tr from './src/tool-registry.js';
 
-// Register a tool
 tr.register('weather', {
   description: 'Get weather for a city',
   parameters: { city: { type: 'string', required: true } },
@@ -180,40 +169,34 @@ tr.register('weather', {
   },
 });
 
-// Bind capabilities
 tr.bindCapabilities('weather', ['read', 'web']);
 
-// Execute with full pipeline (hooks → validate → execute → after hooks)
+// 走完整 pipeline：hooks → validate → execute → after hooks
 const result = await tr.execute('weather', { city: 'Taipei' });
 ```
 
 ## 7. Skills (`skills.js`)
 
-Auto-discovered SKILL.md procedural knowledge.
+SKILL.md 自動發現 + 程序性知識。
 
 ```javascript
 import * as sk from './src/skills.js';
 
-// List skills
 const skills = sk.listSkills();
-const categories = sk.listCategories();
-
-// Get full skill
 const skill = sk.getSkill('research/web-search');
 
-// Build invocation prompt
+// 建構 LLM invocation prompt
 const prompt = sk.buildSkillInvocation('research/web-search', 'Find AI agent frameworks');
-// → Ready to inject into LLM context
 ```
 
 ## 8. Delegation (`delegation.js`)
 
-Isolated child agent execution.
+隔離子 agent 執行。
 
 ```javascript
 import { delegate, delegateBatch } from './src/delegation.js';
 
-// Single delegation
+// 單次委派
 const result = await delegate({
   parentAgentId: 'main',
   task: 'Summarize this document',
@@ -221,7 +204,7 @@ const result = await delegate({
   timeoutMs: 60000,
 });
 
-// Parallel batch
+// 平行批次
 const results = await delegateBatch({
   parentAgentId: 'main',
   tasks: ['Task A', 'Task B', 'Task C'],
@@ -230,7 +213,7 @@ const results = await delegateBatch({
 
 ## 9. Workflow (`workflow.js`)
 
-DAG-based task orchestration.
+DAG 任務編排引擎。
 
 ```javascript
 import * as wf from './src/workflow.js';
@@ -245,103 +228,86 @@ const { id } = await wf.createWorkflow({
 });
 
 const run = await wf.executeWorkflow(id, {
-  executeFn: async (step, ctx) => { /* execute step */ },
+  executeFn: async (step, ctx) => { /* 執行 step */ },
 });
 ```
 
-## 10. Security
+## 10. 安全
 
-### Command Safety (`command-safety.js`)
+### 指令安全 (`command-safety.js`)
 ```javascript
 import { isSafe, inspectCommand } from './src/command-safety.js';
 
-isSafe('ls -la');           // { safe: true }
-isSafe('rm -rf /');         // { safe: false, level: 'block', ... }
-inspectCommand('DROP TABLE users'); // { level: 'block', category: 'database', ... }
+isSafe('ls -la');                    // { safe: true }
+isSafe('rm -rf /');                  // { safe: false, level: 'block', ... }
+inspectCommand('DROP TABLE users');  // { level: 'block', category: 'database' }
 ```
 
-### Auth (`auth.js`) + 2FA (`two-factor.js`)
+### 認證 (`auth.js`) + 2FA (`two-factor.js`)
 ```javascript
 import * as auth from './src/auth.js';
 import * as tfa from './src/two-factor.js';
 
-// Create API key
 const { key } = await auth.createApiKey({ name: 'my-app', role: 'operator' });
-
-// Validate
 const result = await auth.validateKey(key);
 
-// Setup 2FA
 const { qrUri, backupCodes } = await tfa.setup('user1');
-// User scans QR → enters code
 await tfa.verifySetup('user1', '123456');
-// On login
 await tfa.verify('user1', '654321');
 ```
 
 ## 11. Gateway (`gateway-adapter.js`)
 
-Connect to messaging platforms.
+連接訊息平台（Telegram / Discord / LINE / Slack）。
 
 ```javascript
 import { createTelegramAdapter, processMessage } from './src/gateway-adapter.js';
 
 const telegram = createTelegramAdapter(process.env.TELEGRAM_BOT_TOKEN);
-// In webhook handler:
 const msg = telegram.parseWebhook(webhookBody);
 const result = await processMessage('telegram', msg, { model: 'gemini-2.5-flash' });
 await telegram.sendMessage(msg.chatId, result.reply);
 ```
 
-## 12. Observability (`trace-lite.js`)
+## 12. 可觀測性 (`trace-lite.js`)
 
-Run/Span/Metrics tracing.
+Run / Span / Metrics 追蹤。
 
 ```javascript
 import * as tr from './src/trace-lite.js';
 
 const run = await tr.startRun({ agentId: 'my-agent' });
 const span = await tr.startSpan({ runId: run.id, spanType: 'tool', name: 'web-search' });
-// ... do work ...
 await tr.endSpan(span.id, { status: 'ok', durationMs: 150 });
 await tr.recordMetrics(span.id, { provider: 'gemini', promptTokens: 500, completionTokens: 200 });
 await tr.endRun(run.id);
 
-// Query
 const stats = await tr.traceStats({ hours: 24 });
 ```
 
-## 13. Evaluation (`eval-lite.js`)
+## 13. Eval (`eval-lite.js`)
 
-Built-in benchmark runner with regression gates.
+內建 benchmark 執行器 + 迴歸閘門。
 
 ```javascript
 import * as ev from './src/eval-lite.js';
 
 await ev.initEvalTables();
 
-// Run built-in suites
-const cs = await ev.evalCommandSafety();       // 11 cases
-const pi = await ev.evalPromptInjection();     // 12 cases
-const mr = await ev.evalMemoryRecall('test');  // 3 cases (needs DB)
+// 內建 suite
+const cs = await ev.evalCommandSafety();        // 11 cases
+const pi = await ev.evalPromptInjection();      // 12 cases
+const mr = await ev.evalMemoryRecall('test');   // 3 cases
 
-console.log(cs.score, pi.score); // 100, 100
-
-// Custom benchmark
+// 自訂 benchmark
 const result = await ev.runBenchmark({
   suite: 'my-suite',
-  cases: [
-    { input: 'hello', expected: 'greeting' },
-    { input: 'bye', expected: 'farewell' },
-  ],
+  cases: [ { input: 'hello', expected: 'greeting' } ],
   executeFn: async (input) => classify(input),
   scoreFn: (output, expected) => ({ pass: output === expected, score: output === expected ? 1 : 0 }),
 });
 
-// Regression gate (block if score drops >5%)
+// 迴歸閘門（分數掉 >5% 就 block）
 const gate = await ev.checkRegression(baselineRunId, currentRunId);
 if (gate.regression) throw new Error(`Score dropped by ${gate.delta}%`);
-
-// History
-const history = await ev.getEvalHistory({ suite: 'command-safety', limit: 10 });
 ```
