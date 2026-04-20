@@ -1,5 +1,7 @@
 # Contributing to Helix
 
+[繁體中文](./CONTRIBUTING.zh-TW.md)
+
 Thank you for your interest in contributing to Helix!
 
 ## Getting Started

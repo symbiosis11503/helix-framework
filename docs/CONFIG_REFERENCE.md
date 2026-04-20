@@ -1,5 +1,7 @@
 # Helix Configuration Reference
 
+[繁體中文](./CONFIG_REFERENCE.zh-TW.md)
+
 ## helix.config.js
 
 ```js
