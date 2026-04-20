@@ -16,6 +16,8 @@ Helix is a standalone AI agent framework for project workspaces. It runs entirel
 npm install -g helix-agent-framework
 ```
 
+See [distribution paths](./docs/distribution.md) for all options (npm / portable tarball / PWA / planned Tauri desktop).
+
 ## Quick Start
 
 ```bash

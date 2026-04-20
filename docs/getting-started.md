@@ -217,4 +217,5 @@ Access the web dashboard at `http://localhost:18860/v2/`:
 - [Core Guide](./core-guide.md) — Deep dive into each module
 - [Config Reference](./CONFIG_REFERENCE.md) — All configuration options
 - [FAQ](./FAQ.md) — Common questions
+- [Distribution Paths](./distribution.md) — npm / portable tarball / PWA / planned Tauri desktop
 - [Examples](../examples/) — Copy-paste-ready sample agents (chatbot / research / cmd-runner)

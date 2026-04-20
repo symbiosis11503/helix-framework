@@ -1,6 +1,6 @@
 # 取得與安裝方式
 
-[English](../README.md)
+[English](./distribution.md)
 
 Helix 目前有 4 條分發路線，分別適合不同使用者：
 
