@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.9.0 — 2026-04-20
+
+### Added — Portable Tarball Distribution
+- New `scripts/build-portable.sh` packages node binary + esbuild-bundled Helix + native deps into a download-and-run tarball per OS/arch
+- New `.github/workflows/release.yml` matrix builds portable tarballs on tag push or workflow_dispatch, attaches to GitHub Release
+- First portable release: **v0.9.0** on GitHub
+  - `helix-portable-darwin-arm64.tar.gz` (32.6 MB) — macOS Apple Silicon
+  - `helix-portable-linux-x86_64.tar.gz` (38.3 MB) — Linux x64
+  - Intel Mac users run arm64 via Rosetta 2 (macos-13 runner dropped from matrix due to queue waits)
+- Usage: `tar -xzf helix-portable-<os>-<arch>.tar.gz && cd helix-portable-<os>-<arch> && ./helix init && ./helix start`
+
+### Added — Bilingual Documentation
+- `README.zh-TW.md` — 繁體中文 README with 三柱 positioning (繁中介面 × 輕量系統 × 簡單直覺)
+- `docs/distribution.md` + `docs/distribution.zh-TW.md` — four distribution paths with "which one for me" guide
+- `docs/core-guide.zh-TW.md` — 13 shared-core modules in Chinese
+- `docs/CONFIG_REFERENCE.zh-TW.md` — config reference in Chinese
+- `docs/FAQ.zh-TW.md` — FAQ in Chinese
+- `CONTRIBUTING.zh-TW.md` — contribution guide in Chinese
+- `examples/README.zh-TW.md` + each example's `README.zh-TW.md`
+- Bilingual cross-links at top of every doc; internal links follow user's chosen language
+
+### Added — esbuild Bundle Script
+- `npm run build:bundle` produces `dist/helix-bundle.mjs` (1.4 MB single-file ESM) for packaging pipelines
+- better-sqlite3 and pg externalized (kept as native deps that travel beside the bundle)
+
+### Fixed
+- `PKG_VERSION` lookup in `server-lite.js` now checks same-dir first (for portable bundles) before parent (for npm installs), and verifies `pkg.name === 'helix-agent-framework'` so it doesn't read the user's project package.json by mistake
+- Previous portable builds reported `version: "unknown"` when a user-project package.json was next to the extract directory
+
 ## 0.8.1 — 2026-04-20
 
 ### Added — PWA (Installable Web App)

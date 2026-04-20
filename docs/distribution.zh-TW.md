@@ -60,16 +60,22 @@ portable tarball 內含：
 - 目前 OS/arch 對應的 native modules
 - `README.txt`
 
+### 目前已發布的 release assets（v0.9.0）
+- Release 頁：`https://github.com/symbiosis11503/helix-framework/releases/tag/v0.9.0`
+- macOS（Apple Silicon）：`helix-portable-darwin-arm64.tar.gz`
+- Linux（x86_64）：`helix-portable-linux-x86_64.tar.gz`
+
 ### 使用方式
 
 ```bash
-# 1. 解壓
+# 1. 從 GitHub Releases 下載對應平台的檔案
+# 2. 解壓
 mkdir my-helix
 cd my-helix
 tar -xzf helix-portable-<os>-<arch>.tar.gz
 cd helix-portable-<os>-<arch>
 
-# 2. 啟動
+# 3. 啟動
 ./helix init
 ./helix login --provider gemini --api-key YOUR_KEY
 ./helix start

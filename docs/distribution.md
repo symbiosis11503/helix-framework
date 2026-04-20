@@ -60,16 +60,22 @@ A portable tarball contains:
 - native modules compiled for this OS / arch
 - `README.txt`
 
+### Current release assets (v0.9.0)
+- Release page: `https://github.com/symbiosis11503/helix-framework/releases/tag/v0.9.0`
+- macOS (Apple Silicon): `helix-portable-darwin-arm64.tar.gz`
+- Linux (x86_64): `helix-portable-linux-x86_64.tar.gz`
+
 ### Usage
 
 ```bash
-# 1. Extract
+# 1. Download the matching asset from GitHub Releases
+# 2. Extract
 mkdir my-helix
 cd my-helix
 tar -xzf helix-portable-<os>-<arch>.tar.gz
 cd helix-portable-<os>-<arch>
 
-# 2. Run
+# 3. Run
 ./helix init
 ./helix login --provider gemini --api-key YOUR_KEY
 ./helix start

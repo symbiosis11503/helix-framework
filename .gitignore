@@ -13,3 +13,7 @@ docs/reports/
 
 # Design raw outputs (not shipped, can regenerate from design/generate.mjs)
 design/raw/
+
+# Build artifacts (CI/local tmp — not versioned)
+dist/
+
