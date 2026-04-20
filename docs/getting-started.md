@@ -55,7 +55,7 @@ helix start
 
 Output:
 ```
-[helix-lite] Helix Agent Runtime v0.7.0 (lite mode)
+[helix-lite] Helix Agent Runtime vX.Y.Z (lite mode)
 [helix-lite] http://127.0.0.1:18860
 [helix-lite] Built-in hooks registered (command-safety, injection-defense)
 ```
