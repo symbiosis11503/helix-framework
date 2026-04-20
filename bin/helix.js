@@ -14,7 +14,7 @@ import { join, resolve } from 'path';
 import { execSync } from 'child_process';
 import { createInterface } from 'readline';
 
-const VERSION = '0.8.0';
+const VERSION = '0.8.1';
 const HOME_DIR = join(process.env.HOME || process.env.USERPROFILE || '.', '.helix');
 const CONFIG_PATH = join(HOME_DIR, 'config.json');
 const AUTH_PATH = join(HOME_DIR, 'auth.json');

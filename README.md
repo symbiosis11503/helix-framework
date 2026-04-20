@@ -118,7 +118,7 @@ helix start
 
 ## Version
 
-0.8.0
+0.8.1
 
 ## License
 

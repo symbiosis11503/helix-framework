@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="36" fill="#0d1117"/>
+  <g transform="translate(48, 36) scale(6)">
+    <path d="M4 2v20M4 12h12c3 0 6-2 6-5s-3-5-6-5H8M4 22h12c3 0 6-2 6-5s-3-5-6-5" stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  <text x="96" y="165" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="700" fill="#58a6ff">Helix</text>
+</svg>

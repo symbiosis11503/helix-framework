@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.1 — 2026-04-20
+
+### Added — PWA (Installable Web App)
+- `static/v2/manifest.json` — W3C Web App Manifest (zh-TW, standalone display, dark theme)
+- `static/v2/icon-192.svg` + `icon-512.svg` — any + maskable purpose
+- `static/v2/service-worker.js` — cache-first for static assets, never caches `/api/*`
+- `index.html` + `debug.html` — meta tags, theme-color, apple-touch-icon, SW registration
+- Result: `http://localhost:18860/v2/` shows browser "Install Helix" affordance → opens in standalone window with Dock/Start icon
+
+### Fixed
+- Port conflict (EADDRINUSE) now fails fast with 3 actionable remediation paths instead of raw Node crash
+
 ## 0.8.0 — 2026-04-20
 
 ### Added — CI / Tests (adoption readiness sprint)

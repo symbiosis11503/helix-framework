@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Helix Console</title>
+<meta name="description" content="Helix Console — 繁中介面 × 輕量系統 × 簡單直覺的 local-first AI Agent runtime">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="/v2/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/v2/icon-192.svg">
+<link rel="apple-touch-icon" href="/v2/icon-192.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Helix">
 <style>
 :root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -237,6 +245,14 @@ async function runWorkflow(){
 
 checkHealth();loadStats();loadTraces();loadAlerts();loadWorkflows();
 setInterval(checkHealth,30000);
+
+// PWA: register service worker so browsers surface "Install Helix" affordance
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/v2/service-worker.js', { scope: '/v2/' })
+      .catch(err => console.warn('[helix-pwa] sw register failed:', err.message));
+  });
+}
 </script>
 <script src="/v2/_debug-overlay.js"></script>
 </body>
