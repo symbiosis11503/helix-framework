@@ -34,7 +34,7 @@ What is explicitly **not** locked by 1.0:
 - [x] GitHub issue + PR templates
 - [x] `examples/` each has a one-command smoke script (`examples/*/smoke.sh`)
 - [x] CI matrix across macOS arm64 + Linux x64 + Node 20/22/24
-- [ ] `docs/migration/1.0.md` — API contract diff versus 0.9.x
+- [x] `docs/migration/1.0.md` — API contract diff versus 0.9.x
 - [ ] Public Discord / discussion channel for external users
 - [ ] Intel Mac tarball (deferred; tracked separately — GitHub-hosted macos-13 runner queue time is the blocker)
 

@@ -34,7 +34,7 @@ Helix 目前是 **0.10.0**。1.0.0 會鎖定一組穩定的對外 API — 團隊
 - [x] GitHub issue + PR template
 - [x] `examples/` 每個加 one-command smoke（`examples/*/smoke.sh`）
 - [x] CI matrix 覆蓋 macOS arm64 + Linux x64 + Node 20/22/24
-- [ ] `docs/migration/1.0.md` — 與 0.9.x 的 API 變更
+- [x] `docs/migration/1.0.md` — 與 0.9.x 的 API 變更
 - [ ] 對外 Discord / 討論頻道
 - [ ] Intel Mac tarball（另排時程；GitHub-hosted macos-13 runner 排隊是 blocker）
 
