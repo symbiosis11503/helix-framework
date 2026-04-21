@@ -8,11 +8,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-14]
         node-version: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,14 +28,26 @@ jobs:
 
       - name: Syntax check (src)
         run: |
-          for f in src/*.js; do
-            node --check "$f"
+          for f in src/*.js src/tools/*.js; do
+            [ -f "$f" ] && node --check "$f"
           done
 
       - name: Syntax check (bin)
         run: |
           for f in bin/*.js; do
             node --check "$f"
+          done
+
+      - name: Syntax check (example configs)
+        run: |
+          for f in examples/*/helix.config.js; do
+            [ -f "$f" ] && node --check "$f"
+          done
+
+      - name: Example smoke (no API keys — static checks only)
+        run: |
+          for s in examples/*/smoke.sh; do
+            [ -f "$s" ] && bash "$s" || exit 1
           done
 
       - name: Run smoke tests

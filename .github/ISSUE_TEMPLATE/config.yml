@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/wei/helix-framework/tree/main/docs
+    about: Check the docs first — most common questions are answered there.
+  - name: Examples
+    url: https://github.com/wei/helix-framework/tree/main/examples
+    about: Working sample agents (chatbot, cmd-runner, research-agent) you can copy and run.

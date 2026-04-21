@@ -63,6 +63,17 @@ export async function chat({ model, apiKey, systemPrompt, message, options = {} 
     case 'local':
       result = await callOpenAICompat({ model: model.replace('ollama/', ''), apiKey: 'ollama', systemPrompt: effectiveSystemPrompt, message, options, baseUrl: process.env.LOCAL_LLM_URL || 'http://localhost:11434/v1', provider: 'local' });
       break;
+    case 'oauth-gpt': {
+      const baseUrl = process.env.OAUTH_GPT_BRIDGE_URL;
+      if (!baseUrl) throw new Error('oauth-gpt: OAUTH_GPT_BRIDGE_URL not set');
+      result = await callOpenAICompat({
+        model: model.replace(/^oauth-gpt\//, ''),
+        apiKey: apiKey || process.env.OAUTH_GPT_BRIDGE_TOKEN || '',
+        systemPrompt: effectiveSystemPrompt, message, options,
+        baseUrl, provider: 'oauth-gpt',
+      });
+      break;
+    }
     default:
       result = await callGemini({ model, apiKey, systemPrompt: effectiveSystemPrompt, message, options });
   }
@@ -90,6 +101,7 @@ export async function chat({ model, apiKey, systemPrompt, message, options = {} 
 export function detectProvider(model) {
   if (!model) return 'gemini';
   const m = model.toLowerCase();
+  if (m.startsWith('oauth-gpt/') || m === 'oauth-gpt') return 'oauth-gpt';
   if (m.includes('gemini') || m.includes('gemma')) return 'gemini';
   if (m.includes('claude') || m.includes('anthropic')) return 'anthropic';
   if (m.includes('gpt') || m.includes('o1-') || m.includes('o3') || m.includes('o4')) return 'openai';
@@ -118,6 +130,7 @@ export function detectKeyEnv(provider) {
     case 'qwen': return 'QWEN_API_KEY';
     case 'openrouter': return 'OPENROUTER_API_KEY';
     case 'local': return '';
+    case 'oauth-gpt': return 'OAUTH_GPT_BRIDGE_TOKEN';
     default: return 'GEMINI_API_KEY';
   }
 }
@@ -137,6 +150,7 @@ export function listProviders() {
     { id: 'qwen', name: 'Alibaba Qwen', keyEnv: 'QWEN_API_KEY', models: ['qwen-turbo', 'qwen-plus', 'qwen-max'] },
     { id: 'openrouter', name: 'OpenRouter', keyEnv: 'OPENROUTER_API_KEY', models: ['(any model via OpenRouter)'] },
     { id: 'local', name: 'Local (Ollama/vLLM)', keyEnv: '', models: ['(any local model)'] },
+    { id: 'oauth-gpt', name: 'OAuth GPT Bridge', keyEnv: 'OAUTH_GPT_BRIDGE_TOKEN', models: ['oauth-gpt/<model>'] },
   ];
 }
 
@@ -332,13 +346,15 @@ export async function chatStream({ model, apiKey, systemPrompt, message, options
       qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       openrouter: 'https://openrouter.ai/api/v1',
       local: process.env.LOCAL_LLM_URL || 'http://localhost:11434/v1',
+      'oauth-gpt': process.env.OAUTH_GPT_BRIDGE_URL || '',
     };
     const base = baseUrls[provider] || baseUrls.openai;
+    if (provider === 'oauth-gpt' && !base) throw new Error('oauth-gpt: OAUTH_GPT_BRIDGE_URL not set');
     url = `${base}/chat/completions`;
     headers = { 'Content-Type': 'application/json' };
     if (apiKey && apiKey !== 'ollama') headers['Authorization'] = `Bearer ${apiKey}`;
     body = JSON.stringify({
-      model: model.replace('ollama/', ''), stream: true,
+      model: model.replace('ollama/', '').replace(/^oauth-gpt\//, ''), stream: true,
       messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
       max_tokens: options.maxTokens || 4096,
       ...(options.temperature !== undefined ? { temperature: options.temperature } : {}),

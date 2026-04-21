@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.10.0 — 2026-04-21
+
+### Added — Productization for 1.0.0 readiness
+- `docs/road-to-1.0.md` + `docs/road-to-1.0.zh-TW.md` — explicit semver commitment, list of which contracts get locked at 1.0 (CLI, HTTP `/api/v1/*`, config shape, SKILL.md, tool-registry) and which internals stay flexible
+- `.github/ISSUE_TEMPLATE/bug_report.md` + `feature_request.md` + `config.yml` — blank issues disabled; external bug reporters get structured fields (env, repro, logs)
+- `.github/PULL_REQUEST_TEMPLATE.md` — scope checkboxes + test plan + breaking-change call-out
+- `examples/{chatbot,cmd-runner,research-agent}/smoke.sh` — one-command smoke per example with smart CLI fallback (`helix` global → `node bin/helix.js` from source); skips runtime boot when no API key is set so CI runs cleanly
+
+### Added — Workstation Client Tool (for VPS-OC integration)
+- `src/tools/workstation.js` — 4 tools: `workstation.call` (submit task spec, poll to terminal), `workstation.health`, `workstation.capabilities`, `workstation.cancel`. Conforms to `docs/contracts/workstation-api.md`
+- `docs/contracts/workstation-api.md` — bilingual-friendly contract for the VPS-OC workstation runtime: endpoints, error codes, lifecycle, truth boundary, reset/checkpoint policies
+
+### Added — `oauth-gpt` Provider Slot
+- `src/llm-provider.js` recognizes model pattern `oauth-gpt/<model>` and routes via `OAUTH_GPT_BRIDGE_URL` + `OAUTH_GPT_BRIDGE_TOKEN` (OpenAI-compatible). No consumer-session details touched in framework core.
+
+### Added — Workflow Checkpoint + Retry Utilities
+- `src/workflow-checkpoint.js` — save/load/clear/list/runWithCheckpoint. Failed step persists state; resumed run skips completed steps.
+- `src/retry-policy.js` — exponential backoff `retry()`, `createCircuitBreaker()`, `isTransientError()` helper.
+
+### Added — Spec Compiler Skill
+- `data/skills/workstation/spec-compiler/SKILL.md` — turns a rough natural-language task into a structured workstation spec (goal / success_criteria / allowed_paths / forbidden / steps / decision_policy / output_format). Targets metered LLM brains (one well-bounded run instead of many round-trips).
+
+### Changed — README & Docs
+- `README.en.md` rewritten to feature-parity with `README.md` (10 LLM providers, 21 modules, full CLI, badges, links to docs/road-to-1.0)
+- Examples README documents the new `smoke.sh` flow
+
+### Changed — CI
+- `.github/workflows/test.yml` matrix now covers `ubuntu-latest` + `macos-14` × Node 20/22/24
+- New step: syntax-check every `examples/*/helix.config.js`
+- New step: run every `examples/*/smoke.sh`
+
+### Tests
+- 53 tests total (was 28). 45 pass, 8 e2e-workstation skipped when `WORKSTATION_URL` not set
+- New: `tests/workstation.test.mjs` (4), `tests/workflow-checkpoint.test.mjs` (6), `tests/retry-policy.test.mjs` (7), `tests/e2e-workstation.test.mjs` (8 — 9-gate cross-check skeleton)
+- **First full 9-gate baseline against live VPS-OC + brain bridge: 8/8 pass** (2026-04-21 03:59 UTC) — real LLM completion through OAuth GPT bridge in 8 seconds end-to-end
+
+### Fixed
+- `src/tools/workstation.js` accepts both `succeeded` and `completed` as terminal-success status (different runtime conventions); previously only `succeeded` was recognized, causing polls to wait until timeout when runtime returned `completed`
+
+### Added — Workstation CLI Wrapper
+- `helix workstation run "<goal>" [--timeout N] [--model M]` — submits a task to a configured VPS-OC Manus workstation and live-polls to terminal state, printing result inline
+- `helix workstation status <task_id>` — query one task
+- `helix workstation cancel <task_id>`
+- `helix workstation health` — no-auth endpoint probe, shows brain-bridge reachability + latency
+- `helix workstation capabilities` — available tools, brain_models, reset_mode, limits
+- Env: `WORKSTATION_URL` (required), `WORKSTATION_TOKEN` (required for all but health). One-command path from install to running a real LLM-backed task inside a fresh Docker container.
+
 ## 0.9.1 — 2026-04-20
 
 ### Attempted

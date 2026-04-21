@@ -37,6 +37,18 @@ helix login --provider gemini --api-key YOUR_KEY
 helix start
 ```
 
+## Smoke test (verify your install)
+
+Each example ships a `smoke.sh` that checks config parse + CLI reachability + runtime boot. Safe to run in CI.
+
+```bash
+bash examples/chatbot/smoke.sh
+bash examples/cmd-runner/smoke.sh
+bash examples/research-agent/smoke.sh
+```
+
+If no API key is set, the script verifies the static parts (config, CLI, doctor) and skips the runtime-boot step rather than failing.
+
 ## Building your own
 
 After running an example, copy its `helix.config.js` into your own project directory and customize `agents[]`, `skills[]`, and `hooks[]` to fit.

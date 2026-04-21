@@ -14,7 +14,7 @@ import { join, resolve } from 'path';
 import { execSync } from 'child_process';
 import { createInterface } from 'readline';
 
-const VERSION = '0.9.1';
+const VERSION = '0.10.0';
 const HOME_DIR = join(process.env.HOME || process.env.USERPROFILE || '.', '.helix');
 const CONFIG_PATH = join(HOME_DIR, 'config.json');
 const AUTH_PATH = join(HOME_DIR, 'auth.json');
@@ -828,6 +828,169 @@ async function cmdTraceBackfill() {
   } catch (e) { console.error('Error:', e.message); }
 }
 
+// ========== Workstation (VPS-OC Manus integration) ==========
+
+function workstationConfig() {
+  const url = process.env.WORKSTATION_URL;
+  const token = process.env.WORKSTATION_TOKEN;
+  if (!url) throw new Error('WORKSTATION_URL not set. export WORKSTATION_URL=https://... and WORKSTATION_TOKEN=... before using workstation commands.');
+  return { url, token };
+}
+
+function authHeader(token) {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+async function cmdWorkstationHealth() {
+  try {
+    const { url } = workstationConfig();
+    const res = await fetch(`${url}/api/workstation/health`);
+    const data = await res.json().catch(() => ({}));
+    const ok = data.status === 'ok';
+    console.log(`\n${ok ? '✅' : '⚠️'}  Workstation ${url}`);
+    console.log(`   status:        ${data.status || res.status}`);
+    if (data.version) console.log(`   version:       ${data.version}`);
+    if (data.uptime) console.log(`   uptime:        ${Math.round(data.uptime)}s`);
+    if (data.brain_bridge) {
+      console.log(`   brain_bridge:  reachable=${data.brain_bridge.reachable} latency=${data.brain_bridge.latency_ms ?? '?'}ms model=${data.brain_bridge.model ?? 'n/a'}`);
+    }
+    if (data.services) {
+      const s = Object.entries(data.services).map(([k, v]) => `${k}=${v ? '✓' : '✗'}`).join(' ');
+      console.log(`   services:      ${s}`);
+    }
+    if (data.tasks) console.log(`   tasks:         active=${data.tasks.active} total=${data.tasks.total}`);
+  } catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
+}
+
+async function cmdWorkstationCapabilities() {
+  try {
+    const { url, token } = workstationConfig();
+    if (!token) { console.log('❌ WORKSTATION_TOKEN required for capabilities'); process.exit(1); }
+    const res = await fetch(`${url}/api/workstation/capabilities`, { headers: authHeader(token) });
+    if (!res.ok) { console.log(`❌ HTTP ${res.status}`); process.exit(1); }
+    const data = await res.json();
+    console.log(`\n🛠  Capabilities`);
+    if (Array.isArray(data.capabilities)) {
+      for (const c of data.capabilities) {
+        console.log(`   ${c.available ? '✓' : '✗'} ${c.name.padEnd(12)} ${c.description || ''}`);
+      }
+    }
+    if (Array.isArray(data.brain_models)) console.log(`   brain_models: ${data.brain_models.join(', ') || '(none attached)'}`);
+    if (data.reset_mode) console.log(`   reset_mode:   ${data.reset_mode}`);
+    if (data.limits) console.log(`   limits:       ${JSON.stringify(data.limits)}`);
+  } catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
+}
+
+async function cmdWorkstationRun() {
+  try {
+    const { url, token } = workstationConfig();
+    if (!token) { console.log('❌ WORKSTATION_TOKEN required to submit tasks'); process.exit(1); }
+
+    // Goal: positional arg after `run`, OR --goal, OR stdin
+    let goal = null;
+    const args = process.argv.slice(4);
+    const flagIdx = args.findIndex(a => a === '--goal');
+    if (flagIdx >= 0) goal = args[flagIdx + 1];
+    else if (args[0] && !args[0].startsWith('--')) goal = args[0];
+    if (!goal) {
+      console.log('Usage: helix workstation run "<goal>" [--timeout N] [--model M] [--poll N]');
+      process.exit(1);
+    }
+
+    const timeoutSec = parseInt(getFlag('--timeout') || '600', 10);
+    const pollSec = parseInt(getFlag('--poll') || '2', 10);
+    const model = getFlag('--model');
+
+    const body = { goal, timeout_sec: timeoutSec };
+    if (model) body.brain_model = model;
+
+    console.log(`\n▶ Submitting task…`);
+    console.log(`  goal:    ${goal}`);
+    console.log(`  timeout: ${timeoutSec}s`);
+    if (model) console.log(`  model:   ${model}`);
+
+    const submit = await fetch(`${url}/api/workstation/task`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeader(token) },
+      body: JSON.stringify(body),
+    });
+    if (!submit.ok) {
+      const text = await submit.text().catch(() => '');
+      console.log(`❌ submit ${submit.status}: ${text.slice(0, 200)}`);
+      process.exit(1);
+    }
+    const submitted = await submit.json();
+    const taskId = submitted.task_id || submitted.id;
+    console.log(`  task_id: ${taskId}`);
+    console.log(`  status:  ${submitted.status}`);
+    console.log('\n⏳ Polling…');
+
+    const startedAt = Date.now();
+    let lastStatus = null;
+    while (true) {
+      if (Date.now() - startedAt > timeoutSec * 1000) {
+        console.log(`\n⏱  Client timeout after ${timeoutSec}s. Task may still be running — cancel with: helix workstation cancel ${taskId}`);
+        process.exit(2);
+      }
+      await new Promise(r => setTimeout(r, pollSec * 1000));
+      const poll = await fetch(`${url}/api/workstation/task/${taskId}`, { headers: authHeader(token) });
+      if (!poll.ok) { console.log(`\n❌ poll ${poll.status}`); process.exit(1); }
+      const state = await poll.json();
+      if (state.status !== lastStatus) {
+        process.stdout.write(`  [${new Date().toISOString()}] status: ${state.status}\n`);
+        lastStatus = state.status;
+      }
+      if (['succeeded', 'completed', 'failed', 'cancelled'].includes(state.status)) {
+        const dur = ((Date.now() - startedAt) / 1000).toFixed(1);
+        const icon = (state.status === 'succeeded' || state.status === 'completed') ? '✅' : state.status === 'cancelled' ? '⊝' : '❌';
+        console.log(`\n${icon} ${state.status} in ${dur}s`);
+        if (state.result) {
+          if (typeof state.result === 'string') console.log(state.result);
+          else if (state.result.content) console.log('\n' + state.result.content);
+          else console.log('\n' + JSON.stringify(state.result, null, 2));
+        }
+        if (state.error) console.log(`\n⚠ error: ${JSON.stringify(state.error)}`);
+        process.exit(state.status === 'failed' ? 1 : 0);
+      }
+    }
+  } catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
+}
+
+async function cmdWorkstationStatus() {
+  try {
+    const { url, token } = workstationConfig();
+    if (!token) { console.log('❌ WORKSTATION_TOKEN required'); process.exit(1); }
+    const taskId = process.argv[4];
+    if (!taskId) { console.log('Usage: helix workstation status <task_id>'); process.exit(1); }
+    const res = await fetch(`${url}/api/workstation/task/${taskId}`, { headers: authHeader(token) });
+    if (!res.ok) { console.log(`❌ HTTP ${res.status}`); process.exit(1); }
+    const data = await res.json();
+    console.log(`\n📋 Task ${taskId}`);
+    console.log(`   status:     ${data.status}`);
+    console.log(`   created:    ${data.created_at}`);
+    if (data.updated_at && data.updated_at !== data.created_at) console.log(`   updated:    ${data.updated_at}`);
+    if (data.goal) console.log(`   goal:       ${data.goal}`);
+    if (data.result?.content) console.log(`   result:     ${data.result.content.slice(0, 200)}`);
+    if (data.error) console.log(`   error:      ${JSON.stringify(data.error)}`);
+  } catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
+}
+
+async function cmdWorkstationCancel() {
+  try {
+    const { url, token } = workstationConfig();
+    if (!token) { console.log('❌ WORKSTATION_TOKEN required'); process.exit(1); }
+    const taskId = process.argv[4];
+    if (!taskId) { console.log('Usage: helix workstation cancel <task_id>'); process.exit(1); }
+    const res = await fetch(`${url}/api/workstation/task/${taskId}/cancel`, {
+      method: 'POST',
+      headers: authHeader(token),
+    });
+    if (!res.ok) { console.log(`❌ HTTP ${res.status}`); process.exit(1); }
+    const data = await res.json();
+    console.log(`\n⊝ ${data.status || 'cancelled'}: ${taskId}`);
+  } catch (e) { console.error(`❌ ${e.message}`); process.exit(1); }
+}
+
 // ========== Helper ==========
 
 async function getRunningPort() {
@@ -881,6 +1044,14 @@ switch (cmd) {
     break;
   case 'export': await cmdExport(); break;
   case 'import': await cmdImport(); break;
+  case 'workstation':
+    if (subcmd === 'run') await cmdWorkstationRun();
+    else if (subcmd === 'status') await cmdWorkstationStatus();
+    else if (subcmd === 'cancel') await cmdWorkstationCancel();
+    else if (subcmd === 'health') await cmdWorkstationHealth();
+    else if (subcmd === 'capabilities') await cmdWorkstationCapabilities();
+    else console.log('Usage: helix workstation <run "<goal>" | status <id> | cancel <id> | health | capabilities>\nEnv: WORKSTATION_URL (required), WORKSTATION_TOKEN (required for non-health commands)');
+    break;
   case '-v': case '--version': console.log(`helix v${VERSION}`); break;
   default:
     console.log(`
@@ -905,6 +1076,12 @@ Commands:
   helix trace backfill [--limit N]  觸發 eval 補跑（需 ADMIN_TOKEN）
   helix export           匯出工作區資料 (JSON)
   helix import <file>    匯入工作區資料
+  helix workstation run "<goal>"        丟任務到 VPS-OC Manus workstation（即時輸出結果）
+  helix workstation status <task_id>    查 task 狀態
+  helix workstation cancel <task_id>    取消 task
+  helix workstation health              workstation 健康 + brain bridge 狀態
+  helix workstation capabilities        workstation 能力 / 可用 brain models
+      env: WORKSTATION_URL=... WORKSTATION_TOKEN=...
   helix -v               顯示版本
 `);
 }

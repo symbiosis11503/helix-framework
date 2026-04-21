@@ -122,7 +122,7 @@ helix start
 
 ## Version
 
-0.9.1
+0.10.0
 
 ## License
 
