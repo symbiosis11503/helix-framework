@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.11.0 — 2026-04-22 (unreleased)
+
+### Added — Single-binary distribution (Bun SEA)
+- `bun build --compile` produces a self-contained `helix` executable per target. Users no longer need to install Node.js / npm; one file, chmod +x, run.
+- Four targets ship with each release:
+  - `helix-darwin-arm64` (~60 MB) — Apple Silicon
+  - `helix-darwin-x64` (~65 MB) — Intel Mac
+  - `helix-linux-x64` (~96 MB)
+  - `helix-linux-arm64` (~96 MB)
+- `better-sqlite3` native addon verified compatible under Bun — no code changes or adapter needed
+- `scripts/install-binary.sh` — one-liner installer with platform detection, SHA256 verification, and install-to-`/usr/local/bin` (works under both `bash` and `zsh`):
+  ```
+  curl -fsSL https://raw.githubusercontent.com/helix-symbiosis/helix-agent-framework/main/scripts/install-binary.sh | bash
+  ```
+- Full CLI surface confirmed working in binary form: `helix --version / --help / init / doctor / start / agent / memory / eval / trace / workstation`
+- Binary e2e smoke against VPS-OC workstation: `./helix-darwin-x64 workstation health` → live brain bridge + sandbox services check, no Node.js on host
+
+### Added — YouTube ingest skill
+- `data/skills/research/youtube-ingest/SKILL.md` — skill contract for agent-callable video → transcript
+- `src/tools/youtube-ingest.js` — `youtube.ingest` tool (L2 read-only). 3-stage pipeline:
+  1. Caption probe via `yt-dlp` (official/auto captions, free, exact)
+  2. Audio ASR fallback via OpenAI Whisper API (no captions → mp3 extract → whisper-1)
+  3. Returns `{transcript, caption_source, provenance, confidence}` for caller summarization
+- Real-world validation: 57-minute Chinese grant-program briefing → full transcript in ~3 minutes, ~$0.34 cost
+- Whisper upload via `curl` subprocess (reliable for 20+ MB mp3; Node fetch + FormData + Blob was truncating at ~15 KB due to multipart boundary issues on large files)
+- Audio >25 MB automatically split via `ffmpeg -f segment -segment_time 600` into 10-minute chunks, transcribed sequentially and concatenated. Supports arbitrarily long videos. `provenance.chunked: true` + `chunk_seconds: 600` surfaced when multi-chunk path was taken (and `confidence` drops to `low` to reflect merge joint uncertainty)
+- Tests: `tests/youtube-ingest.test.mjs` (7/7 pass) — URL parsing, tool registration, error paths
+
+### Notes on Bun vs Node parity
+- Bun currently runs the production CLI fine but `bun test` does not recognize `import { test } from 'node:test'`; dev tests still run under Node.js. This does not affect shipped binaries.
+
+### Migration notes — 0.10.0 → 0.11.0
+
+**Nothing breaks.** 0.11.0 is additive: same CLI, same HTTP `/api/v1/*`, same `helix.config.js`, same SKILL.md / tool-registry contract. All locked surfaces from [`docs/road-to-1.0`](./docs/road-to-1.0.md) remain untouched.
+
+- If you installed via `npm i -g helix-agent-framework@0.10` and want to keep it that way: no action needed, `npm update -g helix-agent-framework` when 0.11.0 publishes to npm.
+- If you want to switch to the single-binary install: uninstall the npm package first (`npm uninstall -g helix-agent-framework`) so `/usr/local/bin/helix` points to the binary rather than the npm shim. Your existing `helix.config.js` / `.helix/` data directory carries over unchanged.
+- New `youtube.ingest` tool requires `yt-dlp` (`brew install yt-dlp` / `apt install yt-dlp`) and `ffmpeg` (for >25 MB audio chunk split). Without them, the tool returns a clear error; the rest of Helix works normally.
+- New Whisper ASR fallback requires `OPENAI_API_KEY` env var. Without it, `youtube.ingest` still works on videos that have captions — it only errors on caption-less videos that need ASR.
+
 ## 0.10.0 — 2026-04-21
 
 ### Added — Productization for 1.0.0 readiness

@@ -12,6 +12,16 @@ Helix 是為專案工作區設計的獨立 AI Agent 框架，完全在本機用 
 
 ## 安裝
 
+**單一檔案（不用裝 Node.js）** — 0.11.0+
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/helix-symbiosis/helix-agent-framework/main/scripts/install-binary.sh | bash
+```
+
+自動偵測 macOS / Linux × arm64 / x64，驗證 SHA256 後裝到 `/usr/local/bin/helix`。
+
+**透過 npm**（需先裝 Node.js 20+）
+
 ```bash
 npm install -g helix-agent-framework
 ```

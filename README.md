@@ -12,11 +12,21 @@ Helix is a standalone AI agent framework for project workspaces. It runs entirel
 
 ## Install
 
+**Single binary (no Node.js required)** — 0.11.0+
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/helix-symbiosis/helix-agent-framework/main/scripts/install-binary.sh | bash
+```
+
+Auto-detects macOS / Linux × arm64 / x64, verifies SHA256, installs to `/usr/local/bin/helix`.
+
+**Via npm** (requires Node.js 20+)
+
 ```bash
 npm install -g helix-agent-framework
 ```
 
-See [distribution paths](./docs/distribution.md) for all options (npm / portable tarball / PWA / planned Tauri desktop).
+See [distribution paths](./docs/distribution.md) for all options (npm / single binary / portable tarball / PWA / planned Tauri desktop).
 
 ## Quick Start
 
