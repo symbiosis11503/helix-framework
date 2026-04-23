@@ -1008,7 +1008,157 @@ async function getRunningPort() {
 const cmd = process.argv[2];
 const subcmd = process.argv[3];
 
+// ========== threads-coach CLI ==========
+
+async function loadThreadsCoach() {
+  const modulePath = new URL('../src/tools/threads-coach.js', import.meta.url).href;
+  return import(modulePath);
+}
+
+function tcArg(name, fallback = null) {
+  const i = process.argv.indexOf(name);
+  if (i === -1) return fallback;
+  return process.argv[i + 1];
+}
+
+function tcFlag(name) {
+  return process.argv.includes(name);
+}
+
+async function cmdThreadsCoachSetup() {
+  const handle = tcArg('--handle');
+  if (!handle) { console.error('Usage: helix threads-coach setup --handle <handle>'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  console.log(`📥 Setting up tracker for @${handle} (this scrapes via sbs-vps Playwright)...`);
+  const r = await tc.setup({ handle });
+  console.log(JSON.stringify(r, null, 2));
+}
+
+async function cmdThreadsCoachRefresh() {
+  const handle = tcArg('--handle');
+  if (!handle) { console.error('Usage: helix threads-coach refresh --handle <handle>'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.refresh({ handle, since: tcArg('--since') });
+  console.log(JSON.stringify(r, null, 2));
+}
+
+async function cmdThreadsCoachVoice() {
+  const handle = tcArg('--handle');
+  if (!handle) { console.error('Usage: helix threads-coach voice --handle <handle> [--write]'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.voice({ handle, write_markdown: tcFlag('--write') });
+  if (!r.ok) { console.error(JSON.stringify(r, null, 2)); process.exit(1); }
+  console.log(`\n🎯 Voice fingerprint for @${handle}\n`);
+  console.log(`   Posts analyzed: ${r.analysis.posts_analyzed} (${r.analysis.posts_with_metrics} with metrics)`);
+  console.log(`   Dominant hook:  ${r.analysis.summary.dominant_hook}`);
+  console.log(`   Tone lean:      ${r.analysis.summary.tone_lean}`);
+  console.log(`   Perspective:    ${r.analysis.summary.perspective}`);
+  console.log(`   Avg chars/post: ${r.analysis.avg_chars_per_post}`);
+  if (r.analysis.top_performers.length) {
+    console.log(`\n   Top performers:`);
+    for (const tp of r.analysis.top_performers.slice(0, 3)) {
+      console.log(`     ${tp.id}  score=${tp.score}  hooks=[${tp.hook_types.join(',')}]`);
+    }
+  }
+  if (r.markdown_path) console.log(`\n   📄 brand_voice.md → ${r.markdown_path}`);
+  else console.log(`\n   (use --write to persist brand_voice.md)`);
+}
+
+async function cmdThreadsCoachAnalyze() {
+  const handle = tcArg('--handle');
+  const text = tcArg('--text');
+  if (!text) { console.error('Usage: helix threads-coach analyze --text "<post>" [--handle <handle>]'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.analyze({ handle, post_text: text });
+  console.log(`\n🔍 Analyze (data_path: ${r.data_path})\n`);
+  const scan = r.deterministic_scan.text_only;
+  console.log(`   Verdict: ${scan.summary.verdict.toUpperCase()}`);
+  console.log(`   Hits:     ${scan.summary.hits_count}`);
+  console.log(`   Warnings: ${scan.summary.warnings_count}`);
+  if (scan.hits.length) {
+    console.log(`\n   ❌ Red lines hit:`);
+    for (const h of scan.hits) console.log(`      ${h.rule}: ${h.label}`);
+  }
+  if (scan.warnings.length) {
+    console.log(`\n   ⚠️  Warnings:`);
+    for (const w of scan.warnings) console.log(`      ${w.rule}: ${w.label}`);
+  }
+  const cmp = r.deterministic_scan.tracker_comparisons;
+  if (cmp.r4_originality.available) {
+    console.log(`\n   R4 originality: max similarity ${cmp.r4_originality.max_similarity} (${cmp.r4_originality.verdict})`);
+    console.log(`   R5 same-topic:  ${cmp.r5_consecutive_topic.high_sim_in_recent_3} high-sim in recent 3 (${cmp.r5_consecutive_topic.verdict})`);
+  }
+}
+
+async function cmdThreadsCoachTopics() {
+  const handle = tcArg('--handle');
+  if (!handle) { console.error('Usage: helix threads-coach topics --handle <handle> [--limit N]'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.topics({ handle, limit: parseInt(tcArg('--limit') || '5', 10) });
+  if (!r.ok) { console.error(JSON.stringify(r, null, 2)); process.exit(1); }
+  console.log(`\n💡 Topic candidates (${r.mined.unmet_count} unmet + ${r.mined.extension_count} extension)\n`);
+  for (let i = 0; i < r.mined.candidates.length; i++) {
+    const c = r.mined.candidates[i];
+    console.log(`   ${i + 1}. [${c.angle}] freshness=${c.freshness_score} fatigue=${c.fatigue_risk}`);
+    console.log(`      ${(c.question || c.hint || '').slice(0, 100)}`);
+    if (c.asker) console.log(`      asked by @${c.asker} on ${c.source_post_url}`);
+  }
+}
+
+async function cmdThreadsCoachPredict() {
+  const handle = tcArg('--handle');
+  const text = tcArg('--text');
+  if (!handle || !text) { console.error('Usage: helix threads-coach predict --handle <handle> --text "<post>"'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.predict({ handle, post_text: text });
+  if (!r.baseline.ok) { console.error(JSON.stringify(r.baseline, null, 2)); process.exit(1); }
+  const b = r.baseline;
+  console.log(`\n📊 Predict (hook: ${b.candidate_hook}, sample_size: ${b.sample_size}, confidence: ${b.confidence})\n`);
+  for (const sig of ['likes', 'replies', 'reposts', 'shares']) {
+    const p = b.predicted[sig];
+    if (!p) continue;
+    console.log(`   ${sig.padEnd(8)}: p25=${p.p25}  p50=${p.p50}  p75=${p.p75}  max=${p.max}`);
+  }
+  console.log(`\n   Main signal predicted: ${b.main_signal}`);
+  if (b.caveats.length) {
+    console.log(`\n   Caveats:`);
+    for (const c of b.caveats) console.log(`     • ${c}`);
+  }
+}
+
+async function cmdThreadsCoachDraft() {
+  const topic = tcArg('--topic');
+  if (!topic) { console.error('Usage: helix threads-coach draft --topic "<X>" [--signal replies|sends|time_spent] [--audience b2b|kol] [--handle <h>]'); process.exit(1); }
+  const tc = await loadThreadsCoach();
+  const r = await tc.draft({
+    handle: tcArg('--handle'),
+    topic,
+    target_signal: tcArg('--signal') || 'replies',
+    target_audience: tcArg('--audience') || 'b2b',
+  });
+  console.log(`\n✏️  Draft scaffolds for: ${topic}\n`);
+  console.log(`   Target: ${r.target_signal} signal × ${r.target_audience} audience\n`);
+  for (const v of r.scaffolds.versions) {
+    console.log(`   ── ${v.label} (${v.hook_type}) ──`);
+    console.log(`      Hook: ${v.hook.instruction}`);
+    console.log(`      Examples: ${v.hook.examples.slice(0, 2).join(' | ')}`);
+    console.log(`      Expected signals: ${JSON.stringify(v.expected_signals)}`);
+    console.log(`      Audience fit: ${v.audience_fit}\n`);
+  }
+}
+
 switch (cmd) {
+  case 'threads-coach': {
+    if (subcmd === 'setup') await cmdThreadsCoachSetup();
+    else if (subcmd === 'refresh') await cmdThreadsCoachRefresh();
+    else if (subcmd === 'voice') await cmdThreadsCoachVoice();
+    else if (subcmd === 'analyze') await cmdThreadsCoachAnalyze();
+    else if (subcmd === 'topics') await cmdThreadsCoachTopics();
+    else if (subcmd === 'predict') await cmdThreadsCoachPredict();
+    else if (subcmd === 'draft') await cmdThreadsCoachDraft();
+    else console.log('Usage: helix threads-coach <setup|refresh|voice|analyze|topics|predict|draft> [--handle X --text Y --topic Z ...]');
+    break;
+  }
   case 'init': await cmdInit(); break;
   case 'login': await cmdLogin(); break;
   case 'doctor': await cmdDoctor(); break;
@@ -1082,6 +1232,13 @@ Commands:
   helix workstation health              workstation 健康 + brain bridge 狀態
   helix workstation capabilities        workstation 能力 / 可用 brain models
       env: WORKSTATION_URL=... WORKSTATION_TOKEN=...
+  helix threads-coach setup --handle X        從 Threads profile 抓 tracker.json
+  helix threads-coach refresh --handle X      增量更新 tracker
+  helix threads-coach voice --handle X [--write]   產 brand_voice fingerprint
+  helix threads-coach analyze --text "..."    紅線掃描（R1-R12 + tracker R4/R5）
+  helix threads-coach topics --handle X       主題候選（unmet demand + extension）
+  helix threads-coach predict --handle X --text "..."   24h 表現預測
+  helix threads-coach draft --topic "X" [--signal replies] [--audience b2b]   3 個 scaffold
   helix -v               顯示版本
 `);
 }
