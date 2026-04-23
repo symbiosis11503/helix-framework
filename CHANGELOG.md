@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.12.0 — 2026-04-23 (unreleased)
+
+### Added — `threads-coach` skill (Threads growth decision system)
+- `data/skills/threads-coach/` — 8 sub-skills + 3 knowledge files + scrape script, totalling ~2600 lines, fully original (no fork from `ak-threads-booster`)
+- 8 sub-skills covering the full publish loop:
+  - **Data layer**: `setup` (first-time scrape) / `refresh` (incremental update) / `voice` (brand_voice fingerprint)
+  - **Pre-publish**: `topics` (next-post candidates) / `draft` (1-3 versions) / `analyze` (3-pass scan) / `predict` (24h range)
+  - **Post-publish**: `review` (predicted vs actual + lessons)
+- `knowledge/algorithm-base.md` — 12 red lines (R1-R12) + 14 signals (S1-S14), every rule cites Meta announcement date / US Patent number / Facebook Papers leak (verifiable, not folklore)
+- `knowledge/psychology.md` — audience behavior reasoning (why each signal carries the weight it does)
+- `knowledge/data-confidence.md` — Directional/Weak/Usable/Strong/Deep tier rubric for sample-N gating
+- B2B / niche account weighting in every sub-skill (small audience, deep conversion → S1 sends weight ↓, S2 replies + S8 Trust Graph ↑)
+- `scripts/playwright-scrape.mjs` — wraps existing `sbs-vps:/opt/symbiosis-helix/scripts/playwright-threads.mjs` over SSH, no separate Playwright install required
+- `src/tools/threads-coach.js` — `threads.coach.{setup,refresh,analyze,topics,draft,predict,review,voice}` registered as Helix tools (`setup/refresh` = L3 write, others = L2 read)
+- `src/tools/threads-coach/red-line-scanner.js` — deterministic pattern-matched scanner for R1/R2/R6/R7/R10/R12 + tracker-based R4/R5. No LLM required for the deterministic part; signal scoring (S1-S14) layered on by caller via skill spec + knowledge context
+- `tests/threads-coach.test.mjs` — 25/25 pass (sub-skill loading, knowledge slice loading, tool registration, red-line scanner pattern match coverage, tracker comparison)
+
+### Notes vs `ak-threads-booster` (MIT, gitlab.com/akseolabs/AK-Threads-booster)
+- Coverage overlaps because both build on Meta's public algorithm material — convergence in conclusions is expected
+- Code and content fully self-written. No fork, no copy, no derived files
+- Differences: every rule in algorithm-base.md cites a specific source ID; B2B niche weighting is first-class; `predict` mandates calibration log; `analyze` uses deterministic scanner before LLM signal evaluation; integrated with Helix events (`threads_coach_*` event types)
+
 ## 0.11.0 — 2026-04-22 (unreleased)
 
 ### Added — Single-binary distribution (Bun SEA)

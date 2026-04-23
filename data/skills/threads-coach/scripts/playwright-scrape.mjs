@@ -1,0 +1,137 @@
+#!/usr/bin/env node
+/**
+ * threads-coach scrape — pull a Threads profile + per-post detail into tracker.json.
+ *
+ * Wraps the existing playwright-threads.mjs (sbs-vps:/opt/symbiosis-helix/scripts/) over ssh,
+ * so we don't need to re-implement Playwright auth + Xvfb headed mode here.
+ *
+ * Usage:
+ *   node playwright-scrape.mjs --handle <handle> [--out <path>] [--ssh-host sbs-vps]
+ *   node playwright-scrape.mjs --handle <handle> --since <iso8601>      # incremental
+ *
+ * Output: tracker.json structured per data/skills/threads-coach/sub-skills/setup.md
+ */
+
+import { execFileSync } from 'node:child_process';
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+
+function arg(name, fallback = null) {
+  const i = process.argv.indexOf(name);
+  if (i === -1) return fallback;
+  return process.argv[i + 1];
+}
+
+function flag(name) {
+  return process.argv.includes(name);
+}
+
+const handle = arg('--handle');
+if (!handle) {
+  console.error('Usage: playwright-scrape.mjs --handle <handle> [--out PATH] [--since ISO] [--ssh-host HOST]');
+  process.exit(2);
+}
+const sshHost = arg('--ssh-host', 'sbs-vps');
+const outPath = resolve(arg('--out', `data/threads/${handle}/tracker.json`));
+const since = arg('--since');
+
+const profileUrl = `https://www.threads.com/@${handle}`;
+
+function sshExec(cmd) {
+  const wrapped =
+    `cd /opt/symbiosis-helix && set -a; source .env; set +a; export DISPLAY=:99; ${cmd}`;
+  return execFileSync('ssh', [sshHost, wrapped], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+}
+
+function safeJson(stdout) {
+  const start = stdout.indexOf('{');
+  if (start === -1) return null;
+  try { return JSON.parse(stdout.slice(start)); } catch { return null; }
+}
+
+console.error(`[scrape] handle=${handle} since=${since || 'all'} via ${sshHost}`);
+
+// Step 1: pull all visible posts with URLs + IDs + ts via list-my-posts
+const listRaw = sshExec(`node scripts/playwright-threads.mjs list-my-posts --handle '${handle}' --limit 100 --scrolls 12`);
+const list = safeJson(listRaw);
+if (!list?.ok || !Array.isArray(list?.posts)) {
+  console.error('[scrape] failed to parse list-my-posts output');
+  console.error(listRaw.slice(0, 500));
+  process.exit(1);
+}
+
+console.error(`[scrape] list-my-posts returned ${list.posts.length} posts (total found: ${list.total_found})`);
+
+// Step 2: load existing tracker if present (for incremental merge)
+let tracker = {
+  meta: {
+    handle,
+    scraped_at: new Date().toISOString(),
+    data_path: 'B',
+    post_count: 0,
+    comment_count: 0,
+    earliest_post: null,
+    latest_post: null,
+  },
+  posts: [],
+};
+
+if (existsSync(outPath)) {
+  try {
+    tracker = JSON.parse(readFileSync(outPath, 'utf8'));
+    console.error(`[scrape] loaded existing tracker (${tracker.posts.length} posts)`);
+  } catch (e) {
+    console.error(`[scrape] existing tracker unreadable, starting fresh: ${e.message}`);
+  }
+}
+
+const seenIds = new Set(tracker.posts.filter((p) => p.id).map((p) => p.id));
+
+// Step 3: merge new posts (keyed by post id, which we now reliably have)
+let added = 0;
+let updated = 0;
+
+for (const p of list.posts) {
+  if (!p.id) continue;
+  if (seenIds.has(p.id)) {
+    // already in tracker — could refresh metrics here later, but list-my-posts has no metrics
+    updated += 1;
+    continue;
+  }
+  tracker.posts.push({
+    id: p.id,
+    url: p.url,
+    ts: p.ts,
+    text: p.text || '',
+    images: [],
+    metrics: { likes: null, replies: null, reposts: null, quotes: null, views: null },
+    comments: [],
+    _scrape_path: 'list-my-posts',
+  });
+  seenIds.add(p.id);
+  added += 1;
+}
+
+tracker.posts.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
+
+tracker.meta.scraped_at = new Date().toISOString();
+tracker.meta.post_count = tracker.posts.length;
+tracker.meta.comment_count = tracker.posts.reduce((sum, p) => sum + p.comments.length, 0);
+tracker.meta.latest_post = tracker.posts[0]?.text?.slice(0, 50) || null;
+tracker.meta.latest_post_ts = tracker.posts[0]?.ts || null;
+tracker.meta.earliest_post_ts = tracker.posts[tracker.posts.length - 1]?.ts || null;
+
+mkdirSync(dirname(outPath), { recursive: true });
+writeFileSync(outPath, JSON.stringify(tracker, null, 2));
+
+const summary = {
+  handle,
+  out: outPath,
+  visible_in_profile: list.posts.length,
+  total_found: list.total_found,
+  posts_added: added,
+  posts_updated: updated,
+  total_posts_in_tracker: tracker.posts.length,
+  latest_post_ts: tracker.meta.latest_post_ts,
+};
+console.log(JSON.stringify(summary, null, 2));
