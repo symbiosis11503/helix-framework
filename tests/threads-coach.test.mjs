@@ -339,6 +339,107 @@ test('metrics regex: handles partial UI text (only some counts visible)', () => 
   assert.strictEqual(parseInt(m[1], 10), 2);
 });
 
+// ---- Topics miner tests ----
+
+import { mineUnmetDemand, mineExtensionTopics, mineTopics } from '../src/tools/threads-coach/topics-miner.js';
+
+test('mineUnmetDemand: finds questions in comments not answered in subsequent posts', () => {
+  const tracker = {
+    posts: [
+      {
+        id: 'p1',
+        url: 'https://t.test/p1',
+        ts: '2026-04-20',
+        text: '怎麼用 Bun SEA 編譯 helix 框架的初步分享筆記',
+        comments: [
+          { author: 'commentor1', text: 'Bun SEA 在 Linux 跑生產有什麼坑？想了解細節', ts: '2026-04-20T01:00:00Z' },
+          { author: 'commentor2', text: '推 Bun SEA 路線', ts: '2026-04-20T02:00:00Z' },
+        ],
+      },
+      {
+        id: 'p2',
+        url: 'https://t.test/p2',
+        ts: '2026-04-22',
+        text: 'Helix Framework 0.12 新功能 demo',
+        comments: [],
+      },
+    ],
+  };
+  const out = mineUnmetDemand(tracker);
+  assert.ok(out.length >= 1);
+  const q = out.find((x) => x.asker === 'commentor1');
+  assert.ok(q);
+  assert.strictEqual(q.status, 'unanswered');
+});
+
+test('mineExtensionTopics: surfaces top-engagement posts as extension seeds', () => {
+  const tracker = {
+    posts: [
+      { id: 'low', text: '一般文字內容', metrics: { likes: 1, replies: 0 } },
+      { id: 'high', text: 'Git hooks 是 CI 起手式', metrics: { likes: 30, replies: 5, shares: 10 } },
+      { id: 'mid', text: '中等表現的內容', metrics: { likes: 5, replies: 1 } },
+      { id: 'p4', text: '另一篇', metrics: { likes: 2, replies: 0 } },
+    ],
+  };
+  const out = mineExtensionTopics(tracker);
+  assert.ok(out.length >= 1);
+  assert.strictEqual(out[0].seed_post_id, 'high');
+});
+
+test('mineTopics: returns mixed candidates with freshness scores', () => {
+  const tracker = {
+    posts: [
+      {
+        id: 'p1',
+        ts: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
+        text: '舊文：講 AI Agent 記憶系統的實作細節',
+        comments: [
+          { author: 'commentor', text: '想了解 Helix 怎麼處理長期記憶？怎麼做？' },
+        ],
+        metrics: { likes: 10, replies: 3, shares: 2 },
+      },
+      {
+        id: 'p2',
+        ts: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+        text: '新文：Threads 經營策略小心得',
+        metrics: { likes: 5, replies: 1, shares: 0 },
+      },
+    ],
+  };
+  const out = mineTopics(tracker, { limit: 3 });
+  assert.ok(out.candidates.length > 0);
+  assert.ok('freshness_score' in out.candidates[0]);
+  assert.ok('fatigue_risk' in out.candidates[0]);
+});
+
+// ---- Predict baseline tests ----
+
+import { predictPost } from '../src/tools/threads-coach/predict-baseline.js';
+
+test('predictPost: returns p25/p50/p75 from comparable history', () => {
+  const tracker = {
+    posts: [
+      { id: 'p1', text: 'Git hooks 是最容易的 CI 起手式', metrics: { likes: 30, replies: 5, shares: 10 } },
+      { id: 'p2', text: 'Git rebase 注意事項分享', metrics: { likes: 20, replies: 3, shares: 5 } },
+      { id: 'p3', text: 'Git workflow 進階技巧', metrics: { likes: 15, replies: 2, shares: 3 } },
+      { id: 'p4', text: 'Git 心得整理筆記', metrics: { likes: 10, replies: 1, shares: 2 } },
+      { id: 'p5', text: 'Git 入門快速上手', metrics: { likes: 5, replies: 0, shares: 1 } },
+    ],
+  };
+  const r = predictPost('Git hooks 進階用法的心得', tracker);
+  assert.strictEqual(r.ok, true);
+  assert.ok(r.predicted.likes);
+  assert.ok(r.predicted.likes.p25 <= r.predicted.likes.p50);
+  assert.ok(r.predicted.likes.p50 <= r.predicted.likes.p75);
+  assert.ok(['low', 'medium', 'high'].includes(r.confidence));
+});
+
+test('predictPost: returns error when no comparable posts', () => {
+  const tracker = { posts: [] };
+  const r = predictPost('某篇文', tracker);
+  assert.strictEqual(r.ok, false);
+});
+
 test('voice: integrates analysis output when tracker has posts', async () => {
   const posts = Array.from({ length: 7 }, (_, i) => ({
     id: `p${i}`,

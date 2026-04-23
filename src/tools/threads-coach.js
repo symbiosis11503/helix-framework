@@ -30,6 +30,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scanRedLines, scanTrackerComparisons } from './threads-coach/red-line-scanner.js';
 import { analyzeVoice, renderVoiceMarkdown } from './threads-coach/voice-analyzer.js';
+import { mineTopics } from './threads-coach/topics-miner.js';
+import { predictPost } from './threads-coach/predict-baseline.js';
 
 const execFileP = promisify(execFile);
 
@@ -165,12 +167,26 @@ export async function topics({ handle, dataDir = DEFAULT_DATA_DIR, limit = 5 }) 
   }
   const knowledge = await loadKnowledge(['algorithm-base', 'data-confidence']);
   const skill = await loadSubSkill('topics');
+
+  const mined = mineTopics(tracker, { limit });
+
+  await logEvent({
+    event_type: 'threads_coach_topics',
+    account: handle,
+    payload: {
+      candidates_returned: mined.candidates.length,
+      unmet_count: mined.unmet_count,
+      extension_count: mined.extension_count,
+    },
+  });
+
   return {
     ok: true,
     sub_skill: 'topics',
     handle,
     limit,
     tracker_summary: { post_count: tracker.posts.length, comment_count: tracker.meta.comment_count },
+    mined,
     skill_spec: skill,
     knowledge,
   };
@@ -203,12 +219,27 @@ export async function predict({ handle, post_text, dataDir = DEFAULT_DATA_DIR })
   }
   const knowledge = await loadKnowledge(['algorithm-base', 'data-confidence']);
   const skill = await loadSubSkill('predict');
+
+  const baseline = predictPost(post_text, tracker);
+
+  await logEvent({
+    event_type: 'threads_coach_predict',
+    account: handle,
+    payload: {
+      candidate_hook: baseline.candidate_hook,
+      sample_size: baseline.sample_size || 0,
+      confidence: baseline.confidence,
+      main_signal: baseline.main_signal,
+    },
+  });
+
   return {
     ok: true,
     sub_skill: 'predict',
     handle,
     post_text,
     tracker_summary: { post_count: tracker.posts.length },
+    baseline,
     skill_spec: skill,
     knowledge,
   };
