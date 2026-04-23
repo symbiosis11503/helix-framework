@@ -234,3 +234,122 @@ test('analyze: logEvent failure does not break the call', async () => {
   const r = await analyze({ post_text: '正常文字' });
   assert.strictEqual(r.ok, true);
 });
+
+// ---- Voice analyzer tests ----
+
+import { analyzeVoice, renderVoiceMarkdown } from '../src/tools/threads-coach/voice-analyzer.js';
+
+test('analyzeVoice: rejects when fewer than 5 posts', () => {
+  const tracker = { posts: [{ text: '一篇文'.repeat(20) }] };
+  const r = analyzeVoice(tracker);
+  assert.strictEqual(r.ok, false);
+  assert.match(r.error, /needs >= 5/);
+});
+
+test('analyzeVoice: produces summary when >= 5 posts', () => {
+  const tracker = {
+    posts: [
+      { id: 'a', text: '今天我發現一個 bug。原因是缺少測試。我們的做法是先補測試再 fix。你會怎麼處理？' },
+      { id: 'b', text: '其實大部分人搞錯了 git rebase。我自己踩過這個坑。重點是不要 rebase 已 push 的 commit。' },
+      { id: 'c', text: '3 種 Bun SEA 的雷：1. native module 2. dynamic import 3. file path。我們的解法是先測試。' },
+      { id: 'd', text: '昨天客戶問我為什麼 Helix 不用 LangChain。我發現很多人不知道差異。簡單說 LangChain 太重。' },
+      { id: 'e', text: '我們系統壞了，第一反應不是修，是先看 log。Grafana dashboard 是必要的，不是可有可無。' },
+      { id: 'f', text: 'AI Agent 的記憶系統怎麼做？我發現分層比單一向量庫穩。短期 / 中期 / 長期 三層。' },
+    ],
+  };
+  const r = analyzeVoice(tracker);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.posts_analyzed, 6);
+  assert.ok(r.hook_distribution);
+  assert.ok(r.tone_totals);
+  assert.ok(r.summary.dominant_hook);
+  assert.ok(typeof r.avg_chars_per_post === 'number');
+});
+
+test('analyzeVoice: detects historically used forbidden phrases', () => {
+  const tracker = {
+    posts: [
+      { id: 'a', text: '今天踩到的雷是 git rebase。寫起來才發現很多人沒注意 push 後 rebase 的問題。' },
+      { id: 'b', text: '99% 的人都不知道這個 npm 指令，可以一鍵清理 stale dependencies。' },
+      { id: 'c', text: '正常一點的內容，講框架選擇的時候要考慮 ecosystem 大小。' },
+      { id: 'd', text: '另一篇講 AI Agent 記憶系統的內容，分層設計比單一向量穩。' },
+      { id: 'e', text: '又一篇談 Bun 的好處，啟動速度比 Node 快兩倍以上。' },
+    ],
+  };
+  const r = analyzeVoice(tracker);
+  assert.strictEqual(r.ok, true);
+  const r2Hits = r.forbidden_phrases_used.filter((f) => f.rule === 'R2');
+  assert.ok(r2Hits.length > 0, 'should flag clickbait');
+});
+
+test('analyzeVoice: ranks top performers when metrics present', () => {
+  const tracker = {
+    posts: [
+      { id: 'low', text: '一篇普通的文字內容講 Node.js 框架選擇。'.repeat(2), metrics: { likes: 1, replies: 0 } },
+      { id: 'high', text: 'Git hooks 是最容易的 CI 起手式，比 Jenkins 簡單多了。'.repeat(2), metrics: { likes: 30, replies: 5, shares: 10 } },
+      { id: 'mid', text: '中間表現的文字講 Bun SEA 編譯實測心得。'.repeat(2), metrics: { likes: 5, replies: 1 } },
+      { id: 'p1', text: '另一個沒 metrics 的文章內容講 Helix 框架設計理念。', metrics: { likes: null } },
+      { id: 'p2', text: '又一個沒 metrics 的內容談 Threads 經營策略。', metrics: { likes: null } },
+    ],
+  };
+  const r = analyzeVoice(tracker);
+  assert.strictEqual(r.ok, true);
+  assert.ok(r.top_performers.length > 0);
+  assert.strictEqual(r.top_performers[0].id, 'high');
+});
+
+test('renderVoiceMarkdown: produces markdown with required sections', () => {
+  const tracker = {
+    posts: Array.from({ length: 6 }, (_, i) => ({
+      id: `p${i}`,
+      text: `今天我發現第 ${i} 個有趣的點。其實大家都搞錯了。我們的做法是 X。你會怎麼想？`,
+    })),
+  };
+  const analysis = analyzeVoice(tracker);
+  const md = renderVoiceMarkdown(analysis, 'test-handle');
+  assert.match(md, /Brand Voice — test-handle/);
+  assert.match(md, /## Summary/);
+  assert.match(md, /## Hook Distribution/);
+  assert.match(md, /## Manual Refinements/);
+});
+
+// ---- Metrics extraction regex sanity (mirrors playwright-scrape.mjs extractMetricsFromText) ----
+
+test('metrics regex: parses Threads UI engagement counts from "讚24回覆9轉發1分享4"', () => {
+  const text = '讚24回覆9轉發1分享4';
+  const out = {};
+  const patterns = [
+    [/讚\s*(\d+)/g, 'likes'],
+    [/回覆\s*(\d+)/g, 'replies'],
+    [/轉發\s*(\d+)/g, 'reposts'],
+    [/分享\s*(\d+)/g, 'shares'],
+  ];
+  for (const [re, field] of patterns) {
+    re.lastIndex = 0;
+    const m = re.exec(text);
+    if (m) out[field] = parseInt(m[1], 10);
+  }
+  assert.deepStrictEqual(out, { likes: 24, replies: 9, reposts: 1, shares: 4 });
+});
+
+test('metrics regex: handles partial UI text (only some counts visible)', () => {
+  const text = '讚2回覆轉發分享';
+  const m = text.match(/讚\s*(\d+)/);
+  assert.ok(m);
+  assert.strictEqual(parseInt(m[1], 10), 2);
+});
+
+test('voice: integrates analysis output when tracker has posts', async () => {
+  const posts = Array.from({ length: 7 }, (_, i) => ({
+    id: `p${i}`,
+    text: `今天的文字 ${i}：我發現很多事情都比想像中複雜。其實大部分人搞錯了。你怎麼處理？`,
+  }));
+  await withTempTracker('voice-test', posts, async (dataDir) => {
+    const r = await voice({ handle: 'voice-test', dataDir });
+    assert.strictEqual(r.ok, true);
+    assert.ok(r.analysis);
+    assert.strictEqual(r.analysis.ok, true);
+    assert.ok(r.markdown.includes('Brand Voice — voice-test'));
+    assert.strictEqual(r.markdown_path, null, 'markdown_path null without write_markdown flag');
+  });
+});

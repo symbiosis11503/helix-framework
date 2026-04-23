@@ -29,6 +29,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scanRedLines, scanTrackerComparisons } from './threads-coach/red-line-scanner.js';
+import { analyzeVoice, renderVoiceMarkdown } from './threads-coach/voice-analyzer.js';
 
 const execFileP = promisify(execFile);
 
@@ -230,16 +231,39 @@ export async function review({ handle, post_id, actual_metrics, dataDir = DEFAUL
   };
 }
 
-export async function voice({ handle, dataDir = DEFAULT_DATA_DIR }) {
+export async function voice({ handle, dataDir = DEFAULT_DATA_DIR, write_markdown = false }) {
   if (!handle) throw new Error('handle required');
   const tracker = await readTracker(handle, dataDir);
   if (!tracker) return { ok: false, sub_skill: 'voice', error: `no tracker for ${handle}` };
   const skill = await loadSubSkill('voice');
+
+  const analysis = analyzeVoice(tracker);
+  const markdown = renderVoiceMarkdown(analysis, handle);
+
+  let markdown_path = null;
+  if (write_markdown && analysis.ok) {
+    markdown_path = path.join(dataDir, handle, 'brand_voice.md');
+    await fs.writeFile(markdown_path, markdown);
+  }
+
+  await logEvent({
+    event_type: 'threads_coach_voice',
+    account: handle,
+    payload: {
+      posts_analyzed: analysis.posts_analyzed,
+      dominant_hook: analysis.summary?.dominant_hook,
+      forbidden_phrases_used: analysis.forbidden_phrases_used?.length || 0,
+    },
+  });
+
   return {
     ok: true,
     sub_skill: 'voice',
     handle,
     posts_available: tracker.posts.length,
+    analysis,
+    markdown,
+    markdown_path,
     skill_spec: skill,
   };
 }

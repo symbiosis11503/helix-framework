@@ -51,6 +51,34 @@ function safeJson(stdout) {
   try { return JSON.parse(stdout.slice(start)); } catch { return null; }
 }
 
+// Extract engagement metrics from Threads UI text — patterns like "讚24" / "回覆9" / "轉發1" / "分享10"
+// observed in list-my-posts output. Parses from any single text blob.
+function extractMetricsFromText(text) {
+  if (!text || typeof text !== 'string') return {};
+  const out = {};
+  const patterns = [
+    [/讚\s*(\d+)/g, 'likes'],
+    [/回覆\s*(\d+)/g, 'replies'],
+    [/轉發\s*(\d+)/g, 'reposts'],
+    [/分享\s*(\d+)/g, 'shares'],
+    [/Like[s]?\s*(\d+)/gi, 'likes'],
+    [/Repl(?:y|ies)?\s*(\d+)/gi, 'replies'],
+    [/Repost[s]?\s*(\d+)/gi, 'reposts'],
+    [/Share[s]?\s*(\d+)/gi, 'shares'],
+  ];
+  for (const [re, field] of patterns) {
+    re.lastIndex = 0;
+    let m;
+    let max = 0;
+    while ((m = re.exec(text))) {
+      const n = parseInt(m[1], 10);
+      if (!Number.isNaN(n) && n > max) max = n;
+    }
+    if (max > 0) out[field] = max;
+  }
+  return out;
+}
+
 console.error(`[scrape] handle=${handle} since=${since || 'all'} via ${sshHost}`);
 
 // Step 1: pull all visible posts with URLs + IDs + ts via list-my-posts
@@ -96,17 +124,34 @@ let updated = 0;
 for (const p of list.posts) {
   if (!p.id) continue;
   if (seenIds.has(p.id)) {
-    // already in tracker — could refresh metrics here later, but list-my-posts has no metrics
+    // already in tracker — refresh metrics from latest scrape (Threads engagement counts change over time)
+    const existing = tracker.posts.find((x) => x.id === p.id);
+    if (existing && p.text) {
+      const fresh = extractMetricsFromText(p.text);
+      for (const k of ['likes', 'replies', 'reposts', 'shares']) {
+        if (fresh[k] != null) existing.metrics[k] = fresh[k];
+      }
+      // refresh visible text snapshot (Threads occasionally edits post text)
+      existing.text = p.text;
+    }
     updated += 1;
     continue;
   }
+  const parsedMetrics = extractMetricsFromText(p.text);
   tracker.posts.push({
     id: p.id,
     url: p.url,
     ts: p.ts,
     text: p.text || '',
     images: [],
-    metrics: { likes: null, replies: null, reposts: null, quotes: null, views: null },
+    metrics: {
+      likes: parsedMetrics.likes ?? null,
+      replies: parsedMetrics.replies ?? null,
+      reposts: parsedMetrics.reposts ?? null,
+      shares: parsedMetrics.shares ?? null,
+      quotes: null,
+      views: null,
+    },
     comments: [],
     _scrape_path: 'list-my-posts',
   });
