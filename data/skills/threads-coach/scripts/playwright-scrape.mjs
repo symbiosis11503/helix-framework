@@ -26,6 +26,8 @@ function flag(name) {
   return process.argv.includes(name);
 }
 
+const enrich = !process.argv.includes('--no-enrich');
+
 const handle = arg('--handle');
 if (!handle) {
   console.error('Usage: playwright-scrape.mjs --handle <handle> [--out PATH] [--since ISO] [--ssh-host HOST]');
@@ -110,6 +112,42 @@ for (const p of list.posts) {
   });
   seenIds.add(p.id);
   added += 1;
+}
+
+// Step 4: enrich newly added posts with full detail (comments + engagement) via fetch-post
+let enriched = 0;
+let enrichmentErrors = 0;
+if (enrich && added > 0) {
+  console.error(`[scrape] enriching ${added} new posts via fetch-post (this takes ~5s per post)...`);
+  const newlyAdded = tracker.posts.filter((p) => p._scrape_path === 'list-my-posts' && p.comments.length === 0);
+  for (const p of newlyAdded) {
+    if (!p.url) continue;
+    try {
+      const detailRaw = sshExec(`node scripts/playwright-threads.mjs fetch-post --post-url '${p.url}'`);
+      const detail = safeJson(detailRaw);
+      if (detail?.post) {
+        if (Array.isArray(detail.comments)) {
+          p.comments = detail.comments.map((c) => ({
+            author: c.author,
+            text: c.text,
+            ts: c.time || c.ts || null,
+          }));
+        }
+        if (detail.post.engagement) {
+          p.metrics = { ...p.metrics, ...detail.post.engagement };
+        }
+        if (detail.post.images) {
+          p.images = detail.post.images.map((img) => ({ src: img.src, alt: img.alt }));
+        }
+        p._scrape_path = 'list-my-posts+enriched';
+        enriched += 1;
+      }
+    } catch (e) {
+      console.error(`[scrape] enrich fail for ${p.id}: ${e.message.slice(0, 100)}`);
+      enrichmentErrors += 1;
+    }
+  }
+  console.error(`[scrape] enriched ${enriched} posts (${enrichmentErrors} errors)`);
 }
 
 tracker.posts.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));

@@ -228,3 +228,9 @@ test('analyze: integrates deterministic scan into output', async () => {
   assert.strictEqual(r.deterministic_scan.text_only.summary.verdict, 'block');
   assert.ok(r.deterministic_scan.text_only.hits.find((h) => h.rule === 'R1'));
 });
+
+test('analyze: logEvent failure does not break the call', async () => {
+  // db.js has no init in test context — logEvent should swallow the error
+  const r = await analyze({ post_text: '正常文字' });
+  assert.strictEqual(r.ok, true);
+});

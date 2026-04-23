@@ -31,6 +31,18 @@ import { fileURLToPath } from 'node:url';
 import { scanRedLines, scanTrackerComparisons } from './threads-coach/red-line-scanner.js';
 
 const execFileP = promisify(execFile);
+
+async function logEvent({ event_type, account, payload = {}, status = 'ok' }) {
+  try {
+    const { query } = await import('../db.js');
+    await query(
+      `INSERT INTO event_log (event_type, risk_level, actor, actor_context, status, notes) VALUES (?, ?, ?, ?, ?, ?)`,
+      [event_type, 'info', account || 'threads-coach', JSON.stringify(payload), status, ''],
+    );
+  } catch {
+    // db not initialized in this context — silent skip; events still surface in returned objects
+  }
+}
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_ROOT = path.resolve(__dirname, '../../data/skills/threads-coach');
 const DEFAULT_DATA_DIR = path.resolve(__dirname, '../../data/threads');
@@ -70,6 +82,11 @@ export async function setup({ handle, dataDir = DEFAULT_DATA_DIR }) {
     maxBuffer: 32 * 1024 * 1024,
   });
   const summary = JSON.parse(stdout.slice(stdout.indexOf('{')));
+  await logEvent({
+    event_type: 'threads_coach_setup',
+    account: handle,
+    payload: { posts_added: summary.posts_added, posts_in_tracker: summary.total_posts_in_tracker },
+  });
   return {
     ok: true,
     sub_skill: 'setup',
@@ -87,6 +104,11 @@ export async function refresh({ handle, dataDir = DEFAULT_DATA_DIR, since = null
   if (since) args.push('--since', since);
   const { stdout } = await execFileP('node', args, { timeout: 180_000, maxBuffer: 32 * 1024 * 1024 });
   const summary = JSON.parse(stdout.slice(stdout.indexOf('{')));
+  await logEvent({
+    event_type: 'threads_coach_refresh',
+    account: handle,
+    payload: { posts_added: summary.posts_added, posts_in_tracker: summary.total_posts_in_tracker },
+  });
   return { ok: true, sub_skill: 'refresh', handle, ...summary };
 }
 
@@ -102,6 +124,18 @@ export async function analyze({ handle, post_text, dataDir = DEFAULT_DATA_DIR, s
     tracker_comparisons: scanTrackerComparisons(post_text, tracker, scanOpts),
   };
 
+  await logEvent({
+    event_type: 'threads_coach_analyze',
+    account: handle || 'anonymous',
+    payload: {
+      data_path,
+      verdict: deterministic.text_only.summary.verdict,
+      hits: deterministic.text_only.summary.hits_count,
+      warnings: deterministic.text_only.summary.warnings_count,
+      r4_max_sim: deterministic.tracker_comparisons.r4_originality.max_similarity ?? null,
+    },
+    status: deterministic.text_only.summary.verdict === 'block' ? 'warn' : 'ok',
+  });
   return {
     ok: true,
     sub_skill: 'analyze',
