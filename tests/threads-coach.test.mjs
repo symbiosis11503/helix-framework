@@ -440,6 +440,103 @@ test('predictPost: returns error when no comparable posts', () => {
   assert.strictEqual(r.ok, false);
 });
 
+// ---- Draft generator tests ----
+
+import { generateDraftScaffolds } from '../src/tools/threads-coach/draft-generator.js';
+
+test('generateDraftScaffolds: returns 3 differentiated versions', () => {
+  const r = generateDraftScaffolds({
+    topic: 'B2B niche LINE@ 切入策略',
+    target_signal: 'replies',
+    target_audience: 'b2b',
+  });
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.versions.length, 3);
+  const labels = r.versions.map((v) => v.hook_type);
+  assert.deepStrictEqual(labels.sort(), ['contrarian', 'framework', 'story']);
+});
+
+test('generateDraftScaffolds: B2B audience adjusts forbidden patterns', () => {
+  const r = generateDraftScaffolds({
+    topic: 'X',
+    target_signal: 'replies',
+    target_audience: 'b2b',
+  });
+  assert.ok(r.audience_guardrails.must_avoid.includes('hashtag_stuffing'));
+  assert.ok(r.audience_guardrails.must_avoid.includes('engagement_bait_R1'));
+});
+
+test('generateDraftScaffolds: requires topic', () => {
+  assert.throws(() => generateDraftScaffolds({}), /topic required/);
+});
+
+// ---- Review evaluator tests ----
+
+import { reviewPost } from '../src/tools/threads-coach/review-evaluator.js';
+
+test('reviewPost: classifies actual within IQR as good prediction', () => {
+  const r = reviewPost({
+    post_id: 'p1',
+    predicted: {
+      likes: { p25: 10, p50: 20, p75: 30 },
+      replies: { p25: 1, p50: 3, p75: 5 },
+      main_signal: 'replies',
+    },
+    actual_metrics: { likes: 22, replies: 4 },
+  });
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.comparisons.likes.classification, 'within_iqr');
+  assert.strictEqual(r.comparisons.replies.classification, 'within_iqr');
+  assert.strictEqual(r.main_signal_match.fired, true);
+});
+
+test('reviewPost: classifies actual far above p75 as positive lesson', () => {
+  const r = reviewPost({
+    post_id: 'p1',
+    predicted: {
+      likes: { p25: 10, p50: 20, p75: 30 },
+      main_signal: 'likes',
+    },
+    actual_metrics: { likes: 80 },
+  });
+  assert.strictEqual(r.comparisons.likes.landing, 'above_p75');
+  const positive = r.lessons.find((l) => l.type === 'positive');
+  assert.ok(positive);
+});
+
+test('reviewPost: detects severe deviation below', () => {
+  const r = reviewPost({
+    post_id: 'p1',
+    predicted: {
+      likes: { p25: 18, p50: 20, p75: 22 },  // tight IQR, makes deviation more severe
+      main_signal: 'likes',
+    },
+    actual_metrics: { likes: 8 },  // dev = |8-20|/4 = 3.0 → severe
+  });
+  assert.strictEqual(r.comparisons.likes.classification, 'severe');
+  assert.strictEqual(r.comparisons.likes.landing, 'below_p25');
+  const negative = r.lessons.find((l) => l.type === 'negative');
+  assert.ok(negative);
+});
+
+test('reviewPost: confirms diversity caveat when likes below_p25', () => {
+  const r = reviewPost({
+    post_id: 'p1',
+    predicted: { likes: { p25: 10, p50: 20, p75: 30 } },
+    actual_metrics: { likes: 5 },
+    caveats_at_predict_time: ['近 7 天已發 2 篇同主題鄰域，diversity 風險，p50 預估下修 30%'],
+  });
+  const confirmed = r.caveat_verification.find((c) => c.verdict === 'confirmed');
+  assert.ok(confirmed);
+});
+
+test('reviewPost: requires post_id and actual_metrics', () => {
+  const r1 = reviewPost({});
+  assert.strictEqual(r1.ok, false);
+  const r2 = reviewPost({ post_id: 'x' });
+  assert.strictEqual(r2.ok, false);
+});
+
 test('voice: integrates analysis output when tracker has posts', async () => {
   const posts = Array.from({ length: 7 }, (_, i) => ({
     id: `p${i}`,

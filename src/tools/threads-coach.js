@@ -32,6 +32,8 @@ import { scanRedLines, scanTrackerComparisons } from './threads-coach/red-line-s
 import { analyzeVoice, renderVoiceMarkdown } from './threads-coach/voice-analyzer.js';
 import { mineTopics } from './threads-coach/topics-miner.js';
 import { predictPost } from './threads-coach/predict-baseline.js';
+import { generateDraftScaffolds } from './threads-coach/draft-generator.js';
+import { reviewPost } from './threads-coach/review-evaluator.js';
 
 const execFileP = promisify(execFile);
 
@@ -192,11 +194,30 @@ export async function topics({ handle, dataDir = DEFAULT_DATA_DIR, limit = 5 }) 
   };
 }
 
-export async function draft({ handle, topic, angle, target_signal, target_audience, dataDir = DEFAULT_DATA_DIR }) {
+export async function draft({ handle, topic, angle, target_signal, target_audience = 'b2b', dataDir = DEFAULT_DATA_DIR }) {
   if (!topic) throw new Error('topic required');
   const tracker = handle ? await readTracker(handle, dataDir) : null;
   const knowledge = await loadKnowledge(['algorithm-base', 'psychology']);
   const skill = await loadSubSkill('draft');
+
+  const scaffolds = generateDraftScaffolds({
+    topic,
+    angle,
+    target_signal,
+    target_audience,
+    tracker,
+  });
+
+  await logEvent({
+    event_type: 'threads_coach_draft',
+    account: handle || 'anonymous',
+    payload: {
+      topic,
+      target_signal,
+      versions_generated: scaffolds.versions.length,
+    },
+  });
+
   return {
     ok: true,
     sub_skill: 'draft',
@@ -206,6 +227,7 @@ export async function draft({ handle, topic, angle, target_signal, target_audien
     target_signal,
     target_audience,
     tracker_summary: tracker ? { post_count: tracker.posts.length } : null,
+    scaffolds,
     skill_spec: skill,
     knowledge,
   };
@@ -245,17 +267,57 @@ export async function predict({ handle, post_text, dataDir = DEFAULT_DATA_DIR })
   };
 }
 
-export async function review({ handle, post_id, actual_metrics, dataDir = DEFAULT_DATA_DIR }) {
+export async function review({
+  handle,
+  post_id,
+  actual_metrics,
+  predicted = null,
+  caveats_at_predict_time = [],
+  comments_count = null,
+  meaningful_comments_ratio = null,
+  dataDir = DEFAULT_DATA_DIR,
+}) {
   if (!handle || !post_id) throw new Error('handle and post_id required');
   const tracker = await readTracker(handle, dataDir);
   const knowledge = await loadKnowledge(['algorithm-base']);
   const skill = await loadSubSkill('review');
+
+  // If predicted not supplied, try to derive from tracker post text
+  let resolvedPredicted = predicted;
+  if (!resolvedPredicted && tracker?.posts) {
+    const post = tracker.posts.find((p) => p.id === post_id);
+    if (post?.text) {
+      const baseline = predictPost(post.text, tracker);
+      if (baseline.ok) resolvedPredicted = baseline.predicted;
+      if (baseline.main_signal) resolvedPredicted = { ...resolvedPredicted, main_signal: baseline.main_signal };
+    }
+  }
+
+  const evaluation = reviewPost({
+    post_id,
+    predicted: resolvedPredicted,
+    actual_metrics,
+    caveats_at_predict_time,
+    comments_count,
+    meaningful_comments_ratio,
+  });
+
+  await logEvent({
+    event_type: 'threads_coach_review',
+    account: handle,
+    payload: {
+      post_id,
+      lessons_count: evaluation.summary?.lessons_count || 0,
+      main_signal_fired: evaluation.summary?.main_signal_fired,
+    },
+  });
+
   return {
     ok: true,
     sub_skill: 'review',
     handle,
     post_id,
-    actual_metrics,
+    evaluation,
     tracker_present: !!tracker,
     skill_spec: skill,
     knowledge,
