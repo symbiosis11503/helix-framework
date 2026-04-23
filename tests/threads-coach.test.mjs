@@ -537,6 +537,29 @@ test('reviewPost: requires post_id and actual_metrics', () => {
   assert.strictEqual(r2.ok, false);
 });
 
+test('analyzeVoice: scrape-noise filtering removes username + duplicated body + engagement suffix', () => {
+  // Mimics the actual list-my-posts text format which duplicates body 2-3 times
+  const dirtyText =
+    'symbiosis115032天更多重構不需要大爆炸重寫，小步快跑更安全。每次改 bug 順手清理動到的檔案，5 分鐘整理。\n' +
+    'symbiosis115032天更多重構不需要大爆炸重寫，小步快跑更安全。每次改 bug 順手清理動到的檔案，5 分鐘整理。\n' +
+    '重構不需要大爆炸重寫，小步快跑更安全。每次改 bug 順手清理動到的檔案，5 分鐘整理。\n' +
+    '讚6回覆轉發分享';
+  const tracker = {
+    posts: Array.from({ length: 5 }, (_, i) => ({
+      id: `p${i}`,
+      text: dirtyText.replace('重構', `主題 ${i} 重構`),
+    })),
+  };
+  const r = analyzeVoice(tracker);
+  assert.strictEqual(r.ok, true);
+  // username should NOT show up in top phrases
+  const usernameInTop = r.top_phrases.find((p) => p.phrase === 'symbiosis11503');
+  assert.strictEqual(usernameInTop, undefined, 'username should be stripped from top phrases');
+  // engagement counts (讚N回覆) should NOT show as top phrases
+  const engagementInTop = r.top_phrases.find((p) => /^讚\d+/.test(p.phrase) || /^回覆\d+/.test(p.phrase));
+  assert.strictEqual(engagementInTop, undefined, 'engagement counts should be stripped');
+});
+
 test('voice: integrates analysis output when tracker has posts', async () => {
   const posts = Array.from({ length: 7 }, (_, i) => ({
     id: `p${i}`,

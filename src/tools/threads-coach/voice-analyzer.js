@@ -37,19 +37,52 @@ const TONE_KEYWORDS = {
   community: ['我們', '大家', '同行'],
 };
 
-function tokenizeShortPhrases(text, minLen = 3, maxLen = 8) {
-  // Simple sliding window for Chinese; not as good as proper tokenization but sufficient
+// Strip Threads scrape header noise: "<username><relTime>更多" repeated multiple times
+// before actual post body. Also strip trailing engagement text "讚N回覆N轉發N分享N".
+function cleanScrapeText(text) {
+  if (!text) return '';
+  let cleaned = text;
+  // Remove username header pattern (handle + relative time + 更多). Also strip standalone handle.
+  cleaned = cleaned.replace(/[a-zA-Z0-9_.]+\s*\d+\s*(?:小時|分鐘|天|週|月|年)\s*(?:更多)?/g, ' ');
+  // Strip standalone usernames that look like Threads handles (alphanumeric + digits, length 5-30)
+  cleaned = cleaned.replace(/\b[a-z][a-z0-9_.]{4,29}\b(?=\s|$)/gi, (match) => {
+    // Keep camelCase / words with caps in middle (likely real terms like "GitHub", "Terraform")
+    if (/[A-Z]/.test(match.slice(1))) return match;
+    // Keep mostly-letter terms (likely English words)
+    const digits = (match.match(/\d/g) || []).length;
+    if (digits === 0) return match;
+    return ' ';
+  });
+  // Remove engagement text suffix
+  cleaned = cleaned.replace(/讚\d*回覆\d*轉發\d*分享\d*/g, ' ');
+  cleaned = cleaned.replace(/讚\s*\d*\s*回覆\s*\d*\s*轉發\s*\d*\s*分享\s*\d*/g, ' ');
+  // Remove leading "更多" alone
+  cleaned = cleaned.replace(/(?:^|\s)更多(?=\s|$)/g, ' ');
+  // Collapse repeats of the same paragraph (Threads scrape often duplicates the body 2-3x)
+  const lines = cleaned.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const seen = new Set();
+  const unique = [];
+  for (const l of lines) {
+    if (l.length < 5) continue;
+    if (seen.has(l)) continue;
+    seen.add(l);
+    unique.push(l);
+  }
+  return unique.join('\n').replace(/\s+/g, ' ').trim();
+}
+
+function tokenizeShortPhrases(text, minLen = 3, maxLen = 6) {
+  // Stricter: only count phrases that aren't pure n-gram explosion of a single word.
+  // We split on ALL whitespace + punctuation first, then only count whole resulting tokens.
   const phrases = new Map();
-  const sentences = text.split(/[。！？!?\n]+/).filter((s) => s.length >= minLen);
-  for (const s of sentences) {
-    for (let len = minLen; len <= Math.min(maxLen, s.length); len++) {
-      for (let i = 0; i + len <= s.length; i++) {
-        const phrase = s.slice(i, i + len).trim();
-        if (!phrase || phrase.length < minLen) continue;
-        if (/[，,;；:：()（）「」『』""''《》【】]/.test(phrase)) continue;
-        phrases.set(phrase, (phrases.get(phrase) || 0) + 1);
-      }
-    }
+  const tokens = text
+    .split(/[\s、，。！？!?,.;；:：()（）「」『』""''《》【】「」/\\\-—_=+*&^%$#@!~`|<>]+/)
+    .filter((t) => t && t.length >= minLen && t.length <= maxLen * 4);
+  for (const t of tokens) {
+    // Skip pure ASCII identifiers (file extensions, URLs, etc.) — keep meaningful words
+    if (/^[a-zA-Z]+$/.test(t) && t.length < 4) continue;
+    if (/^\d+$/.test(t)) continue;
+    phrases.set(t, (phrases.get(t) || 0) + 1);
   }
   return phrases;
 }
@@ -103,27 +136,30 @@ export function analyzeVoice(tracker, opts = {}) {
   const exclamationByPost = [];
 
   for (const p of posts) {
-    const hooks = classifyHook(p.text);
+    const cleanText = cleanScrapeText(p.text);
+    if (cleanText.length < 20) continue;
+
+    const hooks = classifyHook(cleanText);
     for (const h of hooks) hookCounts[h] = (hookCounts[h] || 0) + 1;
 
-    const endings = classifyEnding(p.text);
+    const endings = classifyEnding(cleanText);
     for (const e of endings) endingCounts[e] = (endingCounts[e] || 0) + 1;
 
-    const tone = countToneKeywords(p.text);
+    const tone = countToneKeywords(cleanText);
     for (const [k, v] of Object.entries(tone)) toneTotals[k] += v;
 
-    const scan = scanRedLines(p.text);
+    const scan = scanRedLines(cleanText);
     for (const hit of scan.hits) {
-      forbiddenHits.push({ post_id: p.id, rule: hit.rule, sample: p.text.slice(0, 60) });
+      forbiddenHits.push({ post_id: p.id, rule: hit.rule, sample: cleanText.slice(0, 60) });
     }
 
-    const phrases = tokenizeShortPhrases(p.text);
+    const phrases = tokenizeShortPhrases(cleanText);
     for (const [phrase, count] of phrases.entries()) {
       allPhrases.set(phrase, (allPhrases.get(phrase) || 0) + count);
     }
 
-    wordCountByPost.push([...p.text].length);
-    exclamationByPost.push((p.text.match(/[!！]/g) || []).length);
+    wordCountByPost.push([...cleanText].length);
+    exclamationByPost.push((cleanText.match(/[!！]/g) || []).length);
   }
 
   // Top phrases (frequency >= 2 across multiple posts)

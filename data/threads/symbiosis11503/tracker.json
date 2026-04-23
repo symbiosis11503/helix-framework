@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "handle": "symbiosis11503",
+    "scraped_at": "2026-04-23T04:17:00.007Z",
+    "data_path": "B",
+    "post_count": 7,
+    "comment_count": 0,
+    "earliest_post": null,
+    "latest_post": "symbiosis115032天更多一人公司需要 Infrastructure as Code 嗎？",
+    "latest_post_ts": "2026-04-20T13:23:48.000Z",
+    "earliest_post_ts": "2026-04-19T23:11:00.000Z"
+  },
+  "posts": [
+    {
+      "id": "DXWuNK9iZG1",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXWuNK9iZG1",
+      "ts": "2026-04-20T13:23:48.000Z",
+      "text": "symbiosis115032天更多一人公司需要 Infrastructure as Code 嗎？不需要 Terraform 全套。但把伺服器設定文件化，是必要的。我的最低限度 IaC：一個 markdown 文件，記錄每台機器裝了什麼、開了哪些 port、跑了哪些服務。一組 shell script，能從零把服務建回來。不用 Ansible，不用 Puppet。就是你手動做的步驟寫成腳本。docker-compose.yml 本身就是 IaC。服務怎麼跑、port 怎麼對、volume 掛哪裡，全在一個檔案裡。為什麼重要：你的 VPS 被駭了，需要重建。你買了新機器，要搬環境。你三個月後回來，忘了當初怎麼設定的。如果重建一台機器需要超過一小時的手動操作，那就值得花時間寫成腳本。不需要完美。能跑的腳本 + 有更新的文件，比精緻但沒人維護的 Terraform 配置有用。讚9回覆轉發分享3\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n一人公司需要 Infrastructure as Code 嗎？不需要 Terraform 全套。但把伺服器設定文件化，是必要的。我的最低限度 IaC：一個 markdown 文件，記錄每台機器裝了什麼、開了哪些 port、跑了哪些服務。一組 shell script，能從零把服務建回來。不用 Ansible，不用 Puppet。就是你手動做的步驟寫成腳本。docker-compose.yml 本身就是 IaC。服務怎麼跑、port 怎麼對、volume 掛哪裡，全在一個檔案裡。為什麼重要：你的 VPS 被駭了，需要重建。你買了新機器，要搬環境。你三個月後回來，忘了當初怎麼設定的。如果重建一台機器需要超過一小時的手動操作，那就值得花時間寫成腳本。不需要完美。能跑的腳本 + 有更新的文件，比精緻但沒人維護的 Terraform 配置有用。讚9回覆轉發分享3\n一人公司需要 Infrastructure as Code 嗎？不需要 Terraform 全套。但把伺服器設定文件化，是必要的。我的最低限度 IaC：一個 markdown 文件，記錄每台機器裝了什麼、開了哪些 port、跑了哪些服務。一組 shell script，能從零把服務建回來。不用 Ansible，不用 Puppet。就是你手動做的步驟寫成腳本。docker-compose.yml 本身就是 IaC。服務怎麼跑、port 怎麼對、volume 掛哪裡，全在一個檔案裡。為什麼重要：你的 VPS 被駭了，需要重建。你買了新機器，要搬環境。你三個月後回來，忘了當初怎麼設定的。如果重建一台機器需要超過一小時的手動操作，那就值得花時間寫成腳本。不需要完美。能跑的腳本 + 有更新的文件，比精緻但沒人維護的 Terraform 配置有用。\n一人公司需要 Infrastructure as Code 嗎？\n不需要 Terraform 全套。但把伺服器設定文件化，是必要的。\n我的最低限度 IaC：\n一個 markdown 文件，記錄每台機器裝了什麼、開了哪些 port、跑了哪些服務。\n一組 shell script，能從零把服務建回來。不用 Ansible，不用 Puppet。就是你手動做的步驟寫成腳本。\ndocker-compose.yml 本身就是 IaC。服務怎麼跑、port 怎麼對、volume 掛哪裡，全在一個檔案裡。\n為什麼重要：\n你的 VPS 被駭了，需要重建。你買了新機器，要搬環境。你三個月後",
+      "images": [],
+      "metrics": {
+        "likes": 9,
+        "replies": null,
+        "reposts": null,
+        "shares": 3,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVyIq5j8PE",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVyIq5j8PE",
+      "ts": "2026-04-20T04:38:54.000Z",
+      "text": "symbiosis115032天更多讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做\n我的三色分級：\n🟢 Green — 直接做\n修 typo、裝依賴、更新 config\n🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說\n🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認\n90% 的工作是 Green\nAI 自己做完我不用看\n9% 是 Yellow\n做完看一下結果就好\n1% 是 Red\n這 1% 才需要我的判斷\n自主 ≠ 失控\n是有框架的信任\n#AI助理 #自主模式 #工作流程 #Symbiosis\n讚1回覆轉發分享\n讚1\n回覆\n轉發\n分享",
+      "images": [],
+      "metrics": {
+        "likes": 1,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVwZnMj5dH",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVwZnMj5dH",
+      "ts": "2026-04-20T04:23:44.000Z",
+      "text": "symbiosis115032天更多你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後\n你的 Node.js 會優雅關機嗎？\nkill -9 不是正確的關法\n正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})\n不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉\nDocker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間\n進來要敲門，離開要善後\n讚4回覆轉發1分享1\n讚4\n回覆\n轉發1\n分享1",
+      "images": [],
+      "metrics": {
+        "likes": 4,
+        "replies": null,
+        "reposts": 1,
+        "shares": 1,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVuscxD8Pn",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVuscxD8Pn",
+      "ts": "2026-04-20T04:08:50.000Z",
+      "text": "symbiosis115033天更多系統壞了不代表要全停Graceful Degradation（優雅降級）：\n核心功能照跑，非必要的先關舉例：\n- AI 回覆 API 掛了 → 顯示預設回應\n- 圖片服務掛了 → 用 placeholder\n- 推播服務掛了 → 改寫 log 等恢復再補送我的 SBS Agent 有 6 個 AI 引擎\n掛一個自動切下一個\n全掛了才告警設計系統時先問自己：\n「這個功能掛了，整個系統需要跟著掛嗎？」90% 的情況答案是不需要#系統設計 #後端開發 #高可用 #容錯設計 #軟體架構讚4回覆轉發分享\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n系統壞了不代表要全停Graceful Degradation（優雅降級）：\n核心功能照跑，非必要的先關舉例：\n- AI 回覆 API 掛了 → 顯示預設回應\n- 圖片服務掛了 → 用 placeholder\n- 推播服務掛了 → 改寫 log 等恢復再補送我的 SBS Agent 有 6 個 AI 引擎\n掛一個自動切下一個\n全掛了才告警設計系統時先問自己：\n「這個功能掛了，整個系統需要跟著掛嗎？」90% 的情況答案是不需要#系統設計 #後端開發 #高可用 #容錯設計 #軟體架構讚4回覆轉發分享\n系統壞了不代表要全停Graceful Degradation（優雅降級）：\n核心功能照跑，非必要的先關舉例：\n- AI 回覆 API 掛了 → 顯示預設回應\n- 圖片服務掛了 → 用 placeholder\n- 推播服務掛了 → 改寫 log 等恢復再補送我的 SBS Agent 有 6 個 AI 引擎\n掛一個自動切下一個\n全掛了才告警設計系統時先問自己：\n「這個功能掛了，整個系統需要跟著掛嗎？」90% 的情況答案是不需要#系統設計 #後端開發 #高可用 #容錯設計 #軟體架構\n系統壞了不代表要全停\nGraceful Degradation（優雅降級）：\n核心功能照跑，非必要的先關\n舉例：\n- AI 回覆 API 掛了 → 顯示預設回應\n- 圖片服務掛了 → 用 placeholder\n- 推播服務掛了 → 改寫 log 等恢復再補送\n我的 SBS Agent 有 6 個 AI 引擎\n掛一個自動切下一個\n全掛了才告警\n設計系統時先問自己：\n「這個功能掛了，整個系統需要跟著掛嗎？」\n90% 的情況答案是不需要\n#系統設計 #後端開發 #高可用 #容錯設計 #軟體架構\n讚4回覆轉發分享\n讚4\n回覆\n轉發\n分享",
+      "images": [],
+      "metrics": {
+        "likes": 4,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVQCZyEyGR",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVQCZyEyGR",
+      "ts": "2026-04-19T23:40:57.000Z",
+      "text": "symbiosis115033天更多一個人開發也要認真用 Git不是因為要跟別人協作\n是因為你會跟「昨天的自己」協作我的習慣：\n- 每個功能一個 branch\n- commit message 寫「為什麼」不是「改了什麼」\n- 重要節點打 tag好處在三個月後才會感覺到\n「這段 code 為什麼這樣寫？」\ngit blame 一看就懂更重要的是 revert 的能力\n改壞了？兩行指令回到上個版本Git 不是團隊工具\nGit 是時間機器#Git #版本控制 #獨立開發 #工作流讚5回覆轉發1分享2\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n一個人開發也要認真用 Git不是因為要跟別人協作\n是因為你會跟「昨天的自己」協作我的習慣：\n- 每個功能一個 branch\n- commit message 寫「為什麼」不是「改了什麼」\n- 重要節點打 tag好處在三個月後才會感覺到\n「這段 code 為什麼這樣寫？」\ngit blame 一看就懂更重要的是 revert 的能力\n改壞了？兩行指令回到上個版本Git 不是團隊工具\nGit 是時間機器#Git #版本控制 #獨立開發 #工作流讚5回覆轉發1分享2\n一個人開發也要認真用 Git不是因為要跟別人協作\n是因為你會跟「昨天的自己」協作我的習慣：\n- 每個功能一個 branch\n- commit message 寫「為什麼」不是「改了什麼」\n- 重要節點打 tag好處在三個月後才會感覺到\n「這段 code 為什麼這樣寫？」\ngit blame 一看就懂更重要的是 revert 的能力\n改壞了？兩行指令回到上個版本Git 不是團隊工具\nGit 是時間機器#Git #版本控制 #獨立開發 #工作流\n一個人開發也要認真用 Git\n不是因為要跟別人協作\n是因為你會跟「昨天的自己」協作\n我的習慣：\n- 每個功能一個 branch\n- commit message 寫「為什麼」不是「改了什麼」\n- 重要節點打 tag\n好處在三個月後才會感覺到\n「這段 code 為什麼這樣寫？」\ngit blame 一看就懂\n更重要的是 revert 的能力\n改壞了？兩行指令回到上個版本\nGit 不是團隊工具\nGit 是時間機器\n#Git #版本控制 #獨立開發 #工作流\n讚5回覆轉發1分享2\n讚5\n回覆\n轉發1\n分享2",
+      "images": [],
+      "metrics": {
+        "likes": 5,
+        "replies": null,
+        "reposts": 1,
+        "shares": 2,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVOVHOkwQ6",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVOVHOkwQ6",
+      "ts": "2026-04-19T23:26:02.000Z",
+      "text": "symbiosis115033天更多Git hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員讚30回覆5轉發1分享10\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\nGit hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員讚30回覆5轉發1分享10\nGit hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員\nGit hooks 是最被低估的品質工具\npre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式\n不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住\n我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）\n重點：不要 --no-verify\n那是在跟未來的自己作對\n團隊品質不靠自律\n靠自動化守門員\n讚30回覆5轉發1分享10\n讚30\n回覆5\n轉發1\n分享10",
+      "images": [],
+      "metrics": {
+        "likes": 30,
+        "replies": 5,
+        "reposts": 1,
+        "shares": 10,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXVMnDzE_U0",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXVMnDzE_U0",
+      "ts": "2026-04-19T23:11:00.000Z",
+      "text": "symbiosis115033天更多用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。讚5回覆轉發分享2\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。讚5回覆轉發分享2\n用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。\n用 git bisect 找 bug，比肉眼看 log 快十倍。\n功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。\ngit bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。\n50 個 commit 只需 ~6 次測試。\n搭配腳本 git bisect run ./test.sh，全自動找問題 commit。\ndebug 是用對工具，不是硬啃程式碼。\n讚5回覆轉發分享2\n讚5\n回覆\n轉發\n分享2",
+      "images": [],
+      "metrics": {
+        "likes": 5,
+        "replies": null,
+        "reposts": null,
+        "shares": 2,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    }
+  ]
+}
