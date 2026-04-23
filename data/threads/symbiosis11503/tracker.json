@@ -1,16 +1,553 @@
 {
   "meta": {
     "handle": "symbiosis11503",
-    "scraped_at": "2026-04-23T04:17:00.007Z",
+    "scraped_at": "2026-04-23T06:31:37.285Z",
     "data_path": "B",
-    "post_count": 7,
+    "post_count": 223,
     "comment_count": 0,
     "earliest_post": null,
-    "latest_post": "symbiosis115032天更多一人公司需要 Infrastructure as Code 嗎？",
-    "latest_post_ts": "2026-04-20T13:23:48.000Z",
-    "earliest_post_ts": "2026-04-19T23:11:00.000Z"
+    "latest_post": "告警疲勞比沒有告警更危險。\n\n一開始很認真——CPU > 80% 告警！記憶體 > 90% 告警！A",
+    "latest_post_ts": "2026-04-23T12:41:40.724713",
+    "earliest_post_ts": "2026-03-21T18:50:00"
   },
   "posts": [
+    {
+      "id": "scheduler:monitoring_alert_fatigue.md",
+      "url": null,
+      "ts": "2026-04-23T12:41:40.724713",
+      "text": "告警疲勞比沒有告警更危險。\n\n一開始很認真——CPU > 80% 告警！記憶體 > 90% 告警！API latency > 1s 告警！\n\n結果：每天收 50 則告警，全部 ignore。真正出事時也淹沒在噪音裡。\n\n解決方法：\n\n1. 分級：Critical（服務掛了）/ Warning（可能要掛）/ Info（紀錄用）。只有 Critical 發 push notification。\n\n2. 連續失敗門檻：不是一次超標就告警，而是連續 3 次。避免暫時性波動觸發假警報。\n\n3. 定期審查：每月看一次告警記錄。哪些從來沒有需要人介入的？刪掉或降級。\n\n黃金法則：每一則 Critical 告警都應該對應一個需要人處理的 action。如果沒有 action，就不應該是 Critical。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "monitoring_alert_fatigue.md"
+    },
+    {
+      "id": "scheduler:migration_rollback_plan.md",
+      "url": null,
+      "ts": "2026-04-23T12:26:34.392257",
+      "text": "每次上線前，先寫好 rollback 計畫。不是悲觀，是工程紀律。\n\nDB migration 要有 down 腳本，不能 rollback 的特別標註。\n\nFeature flag 比 rollback 更快，出問題直接關不需重新部署。\n\n記錄上線時間戳，出事時精確 restore。\n\n最好的 rollback 是永遠不用，但你必須確保需要時能用。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "migration_rollback_plan.md"
+    },
+    {
+      "id": "scheduler:midnight_deploy_lesson.md",
+      "url": null,
+      "ts": "2026-04-23T12:12:22.153952",
+      "text": "凌晨兩點部署，三點發現壞掉，四點才回滾成功。\n\n那次教會我三件事：\n\n第一，疲勞狀態下不要做決定性操作。你以為你很清醒，但你的錯誤率是平時的三倍。半夜的「快速修一下」往往比問題本身更糟。\n\n第二，回滾計畫要在部署前寫好，不是出問題後才想。出事的時候你的大腦已經進入恐慌模式，那時候寫出來的回滾步驟是不可靠的。\n\n第三，「只是小改動」是危險信號。最嚴重的事故往往來自看起來無害的一行變更。小改動讓人放鬆警惕，跳過該有的確認步驟。\n\n現在我的規則：非緊急的部署，一律等到隔天白天。真的緊急的，先問自己：不部署的損失是什麼？如果答案不明確，那就是不緊急。\n\n🌙 深夜的程式碼提交和部署，是兩件事。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "midnight_deploy_lesson.md"
+    },
+    {
+      "id": "scheduler:memory_system_design.md",
+      "url": null,
+      "ts": "2026-04-23T07:33:16.847880",
+      "text": "幫 AI Agent 設計記憶系統的心得\n\n人類記憶分短期和長期\nAI Agent 也該這樣設計\n\n短期：context window 內的對話\n中期：session 摘要存檔\n長期：結構化知識庫 + 向量搜尋\n\n我們用三層架構：\n1. 即時 context（對話中）\n2. 記憶檔案（markdown，git 追蹤）\n3. 記憶宮殿（pgvector 語義搜尋）\n\n重點不是存多少，是檢索要快\n用的時候能 0.5 秒內找到相關記憶\n才算真正有用的記憶系統",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "memory_system_design.md"
+    },
+    {
+      "id": "scheduler:memory_palace_ai.md",
+      "url": null,
+      "ts": "2026-04-23T07:18:13.090633",
+      "text": "AI 也能有記憶宮殿\n\n傳統 AI 對話一關就忘\n我幫 AI 助理建了空間記憶系統\n\nWing → Room → Closet\n像宮殿裡的翼樓、房間、衣櫃\n\n每個記憶有位置、有分類、有向量\n要找的時候靠語意搜尋 + 空間導航\n\n搭配 pgvector 做 embedding\n125 筆記憶 0.05 秒查完\n\n不只是「記住」\n是讓 AI 知道「記憶放在哪裡」\n\n#AI記憶 #pgvector #MemoryPalace #ClaudeCode",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "memory_palace_ai.md"
+    },
+    {
+      "id": "scheduler:mcp_protocol_future.md",
+      "url": null,
+      "ts": "2026-04-23T07:03:12.564677",
+      "text": "MCP（Model Context Protocol）正在改變 AI 工具怎麼接外部世界。\n\n以前每個 AI 工具都得自己寫整合——Slack plugin、GitHub action、DB connector，每個都不一樣。MCP 想做的就是統一介面：定義好 tool schema，任何 LLM 都能呼叫。\n\n實際用下來三個發現：\n\n1. Tool 越少越好。給 LLM 太多工具選擇，它會困惑。我的經驗是一個任務場景控制在 10 個以內。\n\n2. 錯誤處理比功能重要。LLM 看到模糊的 error message 會亂猜原因。回傳結構化錯誤，成功率直接翻倍。\n\n3. Auth 最痛。每個服務的認證方式不同，MCP 目前沒強制統一，實作端很痛苦。\n\n未來趨勢：AI 不只是聊天，而是有手有腳能操作世界的 agent。MCP 是那個介面層。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "mcp_protocol_future.md"
+    },
+    {
+      "id": "scheduler:manufacturing_ai_entry.md",
+      "url": null,
+      "ts": "2026-04-22T19:38:55.250410",
+      "text": "製造業導入 AI，不要從最難的開始。\n\n很多老闆想做「AI 自動排程」或「預測性維護」——這些都是高階應用，需要大量乾淨數據。\n\n真正該先做的三件事：\n\n1. 文件數位化：把紙本 SOP、老師傅的經驗、品檢標準先電子化。這是所有 AI 應用的基礎。沒有資料，AI 什麼都做不了。\n\n2. ERP 系統升級：很多工廠還在用 20 年前的系統。先把訂單/庫存/生產資料整合到現代系統，資料流通了 AI 才有素材。\n\n3. 簡單自動化先上：email 自動分類、報價單 OCR 辨識、異常數據告警。這些投入小、見效快，老闆看到成果才會繼續投資。\n\nAI 不是魔法，是工具。工具要配合流程才有用。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "manufacturing_ai_entry.md"
+    },
+    {
+      "id": "scheduler:log_structured_json.md",
+      "url": null,
+      "ts": "2026-04-22T19:23:57.840514",
+      "text": "結構化 log 比純文字 log 好十倍。\n\n純文字：[2026-04-11 12:00:00] ERROR: 連線失敗\n結構化：{\"ts\":\"2026-04-11T12:00:00Z\",\"level\":\"error\",\"msg\":\"連線失敗\",\"service\":\"api\",\"host\":\"vps-1\",\"retry\":3}\n\n為什麼？\n\n1. 可以 grep 但也可以用工具分析。jq 一行就能算每小時 error 數量。純文字要寫正則。\n\n2. 加欄位不用改 parser。新增 user_id 欄位，舊的 log 照常解析。\n\n3. 跨服務關聯。用 request_id 串起整條請求鏈——哪個服務收到、處理多久、哪裡出錯，一目瞭然。\n\n實作建議：別自己寫 log library。Node 用 pino，Python 用 structlog。重點是：每一行 log 都是一筆可查詢的資料。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "log_structured_json.md"
+    },
+    {
+      "id": "scheduler:log_aggregation_small.md",
+      "url": null,
+      "ts": "2026-04-22T19:08:52.231612",
+      "text": "小團隊的 log 管理不需要 ELK Stack。\n\n五台機器以下，最實用的方案：\n\n方案一：集中 rsync。每台機器的 log 定時 rsync 到一台中央機器。用 grep 搜尋。原始，但有效。\n\n方案二：structured JSON log + 簡單腳本。把 log 輸出改成 JSON 格式，用 jq 過濾：\n\n```bash\ncat app.log | jq 'select(.level==\"error\")'\n```\n\n方案三：Loki + Grafana。比 ELK 輕量很多，記憶體需求低。免費版就夠小團隊用。\n\n不管用哪個方案，兩件事一定要做：\n\n1. Log rotation。不做的話磁碟早晚爆。logrotate 或 pm2 的 log rotation 都行。\n2. 統一時區。所有機器的 log 用 UTC 或同一個時區，不然跨機器對 log 會崩潰。\n\n重點不是工具多炫，是出事的時候你能在 30 秒內找到相關 log。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "log_aggregation_small.md"
+    },
+    {
+      "id": "scheduler:local_dev_environment.md",
+      "url": null,
+      "ts": "2026-04-22T12:38:48.131840",
+      "text": "「在我電腦上可以跑啊」— 之所以是迷因，因為太真實。\n\n減少環境差異：Docker Compose 統一，DB 全容器化，clone 後一個指令就能跑。\n\n.env.example 列出所有變數和預設值，.env 不進 git。\n\n測試資料用腳本生成不手動建，每人本地環境一致。\n\n花一天搞好開發環境，省下每月兩天除錯時間。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "local_dev_environment.md"
+    },
+    {
+      "id": "scheduler:load_testing_budget.md",
+      "url": null,
+      "ts": "2026-04-22T12:23:54.591135",
+      "text": "零預算壓力測試\n\n免費工具就夠用：\n- k6：JS 寫腳本，學習曲線低\n- wrk：超輕量 HTTP benchmark\n- Artillery：YAML 設定，支援 WebSocket\n\n我的 SOP：\n1. 先抓 baseline（正常流量）\n2. 逐步加壓 2x → 5x → 10x\n3. 找到瓶頸（通常是 DB）\n4. 修完再測一輪\n\n上線前不壓測\n就是拿使用者當白老鼠",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "load_testing_budget.md"
+    },
+    {
+      "id": "scheduler:llm_inference_verification.md",
+      "url": null,
+      "ts": "2026-04-22T12:08:54.870915",
+      "text": "你怎麼知道你用的 LLM API 真的在跑你指定的模型？\n\nKimi 最近開源了一個推論驗證器，專門查 inference provider 有沒有偷換模型。聽起來荒謬，但這在業界是真實問題：你付 GPT-4 的錢��後端可能在跑微調過的小模型。\n\n驗證方法其實不複雜：用一組已知答案的測試集，比對回應的品質分佈跟官方模型的差異。統計顯著就是有鬼。\n\n這件事的啟示：API 經濟裡，信任是脆弱的。你以為你在買「智能」，但你買到的可能只是一個 endpoint，後面接什麼你不知道。\n\n自己跑模型的好處之一：你確切知道跑的是什麼。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "llm_inference_verification.md"
+    },
+    {
+      "id": "scheduler:llm_context_window.md",
+      "url": null,
+      "ts": "2026-04-22T07:38:53.172087",
+      "text": "Context window 是 LLM 最重要的限制\n\nClaude: 200K tokens\nGPT-4: 128K tokens\n聽起來很多？用起來不夠\n\n一個中型專案的程式碼就超過 200K\n加上對話歷史、系統提示、工具輸出\ncontext 很快就滿了\n\n滿了之後模型開始「忘記」\n前面說的規則、做過的決定、看過的程式碼\n全部消失\n\n我的對策：\n1. 記憶系統：重要資訊寫入檔案\n2. 自動壓縮：context 快滿時萃取摘要\n3. 分層載入：只載入當前任務需要的記憶\n\n不管 context 多大\n都要當它隨時會滿來設計\n\n#LLM #ContextWindow #AI限制 #記憶管理",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "llm_context_window.md"
+    },
+    {
+      "id": "scheduler:legacy_code_strategy.md",
+      "url": null,
+      "ts": "2026-04-22T07:23:55.960462",
+      "text": "接手遺留代碼，最糟的第一步是「重寫」。\n\n這是每個工程師接手舊系統時的本能反應。代碼又舊又醜，不如從頭來過。但「從頭來過」有一個致命問題：舊代碼裡有十年的 bug fix 和邊緣條件處理，你不知道它們在哪，直到你重寫後遇到同樣的問題。\n\n更好的策略：\n\n先讀，再動。不要急著改，先花時間理解現有行為。測試不存在？先補測試，把現有行為固定下來，這樣之後改動才有安全網。\n\n設邊界，再重構。用介面把你不想動的部分隔離起來，然後在邊界內側慢慢換實作。這叫絞殺者模式（Strangler Fig）。\n\n小步走，不停跑。每次改動都要能部署，不要累積大量未上線的重構，那是新的技術債。\n\n遺留代碼不是敵人，是前人在資源限制下做出的選擇的總和。帶著這個理解去讀它，你會發現更多值得保留的東西。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "legacy_code_strategy.md"
+    },
+    {
+      "id": "scheduler:launchd_23_services.md",
+      "url": null,
+      "ts": "2026-04-22T07:08:49.241471",
+      "text": "一台 Mac 跑 23 個自動化服務\n\n不是 Kubernetes\n是 launchd plist\n\nAPI server × 2（SBS + 投資）\n排程發文 × 1（每小時檢查）\n記憶同步 × 1（每 15 分鐘）\n系統巡檢 × 1（每 6 小時）\nWatchdog × 1（每 30 秒）\n備份 × 2（本地 + 遠端）\n其他雜活 × 14\n\n全部開機自動跑\n掛了自動重啟\n不需要 Docker Compose\n\n一人公司的基礎建設\n23 個 plist = 一個免費的編排系統\n\n#launchd #macOS #自動化 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "launchd_23_services.md"
+    },
+    {
+      "id": "scheduler:kimi_k26_open_model.md",
+      "url": null,
+      "ts": "2026-04-21T19:38:59.916705",
+      "text": "開源模型第一次讓人認真考慮換掉 Opus。\n\nKimi K2.6 剛釋出，Reddit 上有人直接說「這是我第一個有信心推薦給客戶取代 Opus 4.7 的模型」。\n\n不是說它更好，而是夠好 + 開源 + 可自己 host。\n\n這改變了什麼？\n\n以前的選擇是：\n- 付費用 Claude/GPT，品質好但綁定\n- 用開源模型，省錢但差一截\n\n現在：開源品質追上來了，差距在縮小。\n\n對一人公司來說，這意味著你的 AI 成本有機會從「月費」變成「一次性硬體投資」。\n\n我自己的做法：核心邏輯用最強模型，但周邊任務（分類、摘要、初篩）盡量用輕量或開源。不是省錢，是減少單點依賴。\n\n你不需要每個任務都用最貴的刀。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "kimi_k26_open_model.md"
+    },
+    {
+      "id": "scheduler:invest_system_diy_2.md",
+      "url": null,
+      "ts": "2026-04-21T19:23:52.462798",
+      "text": "自己寫投資系統的代價和收穫。\n\n代價：850 萬筆行情資料的維護、每天 15:00 自動抓最新數據、資料庫 1.2GB 備份管理、6 個策略的回測驗證。\n\n收穫：完全客製化的分析——想看什麼指標就加什麼指標，不受平台限制。\n\n最有價值的功能不是策略本身，而是回測引擎。任何想法都能快速驗證：「如果過去三年按這個訊號操作，報酬率是多少？最大回撤多少？」\n\n被資料教育的三件事：\n\n1. 大多數「直覺策略」回測都是虧的\n2. 手續費和滑價吃掉的利潤比你想像的多\n3. 過度擬合是最大的陷阱——歷史績效完美的策略，未來通常表現很差\n\n最重要的學到：市場是謙卑的老師。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "invest_system_diy_2.md"
+    },
+    {
+      "id": "scheduler:amazon_anthropic_25b.md",
+      "url": null,
+      "ts": "2026-04-21T19:08:57.435063",
+      "text": "Amazon 再砸 250 億美金投資 Anthropic，總計 1000 億的雲端合作案。\n\n這代表什麼？\n\nClaude 不會倒。這是最直接的解讀。\n\n但更深的意思是：AI 模型公司已經不是獨立存在了，它們正在跟雲端巨頭深度綁定。Google 投 Anthropic，Microsoft 投 OpenAI，Amazon 也投 Anthropic。\n\n對開發者來說要想清楚一件事：你用的 AI 模型，背後站的是哪朵雲？\n\n不是說這不好，而是做架構決策時要考慮。把所有雞蛋放在一家 AI + 一朵雲上，風險是雙倍的。\n\n我的做法：主力用 Claude，但永遠保留 fallback 到其他模型的能力。六引擎輪替不是過度工程，是生存策略。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "amazon_anthropic_25b.md"
+    },
+    {
+      "id": "DXZxPCcDMp9",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXZxPCcDMp9",
+      "ts": "2026-04-21T17:48:00.000Z",
+      "text": "symbiosis115031天更多對，就是 idempotent！面試也常被問，但實際踩過重複扣款的坑才真的有感。 2/2讚1回覆轉發分享\nsymbiosis115031天更多\nsymbiosis115031天\nsymbiosis11503\n更多\n對，就是 idempotent！面試也常被問，但實際踩過重複扣款的坑才真的有感。 2/2讚1回覆轉發分享\n對，就是 idempotent！面試也常被問，但實際踩過重複扣款的坑才真的有感。 2/2\n對，就是 idempotent！面試也常被問，但實際踩過重複扣款的坑才真的有感。\n2/2\n/\n讚1回覆轉發分享\n讚1\n回覆\n轉發\n分享",
+      "images": [],
+      "metrics": {
+        "likes": 1,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "scheduler:invest_system_diy.md",
+      "url": null,
+      "ts": "2026-04-21T12:38:49.558072",
+      "text": "自己寫投資系統值不值得\n\n我的答案：絕對值得\n\n不是因為績效比較好\n是因為你真的理解每一個決策\n\n我的系統：\n→ 6 套策略自動選股\n→ 850 萬筆歷史行情\n→ 分點主力每日追蹤\n→ AI 辯論系統交叉驗證\n→ 回測引擎跑 10 年數據\n\n全部 Python + SQLite\n部署在 Mac 上\nlaunchd 每天 15:00 自動更新\n\n最大的收穫不是賺錢\n是對市場的理解變深了\n\n當你能寫出策略的程式碼\n代表你真的懂那個策略\n\n#投資系統 #量化交易 #Python #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "invest_system_diy.md"
+    },
+    {
+      "id": "scheduler:chatgpt_ads_era.md",
+      "url": null,
+      "ts": "2026-04-21T12:23:57.031808",
+      "text": "ChatGPT ���始賣廣告了，基於「prompt relevance」投放。\n\n意思是：你問 ChatGPT「推薦跑步鞋」，回答裡可能夾帶 Nike 的贊助內容。不是瞎猜，是 OpenAI 的廣告合作夥伴已經在賣這種廣告位了。\n\n這不意外。免費服務的終局永遠是廣告。Google 搜尋走過的路，ChatGPT 正在重走一遍。\n\n問題是：搜尋結果裡你還能分辨廣告和自然結果。但在 AI 對話裡，廣告和回答混在一起，你分得出來嗎？\n\n這是 AI 中立性最大的考驗。當模型的回答會被廣告主影響，「AI 助理」這個角色的信任基礎就動搖了。\n\n又一個自己跑模型的理由。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "chatgpt_ads_era.md"
+    },
+    {
+      "id": "scheduler:anti_vendor_lockin_ai.md",
+      "url": null,
+      "ts": "2026-04-21T12:09:00.038110",
+      "text": "Thunderbird 出了個新項目叫 Thunderbolt，口號是「AI You Control」。\n\n核心理念三句話：選你自己的模型、擁有你的數據、消除供應商鎖定。GitHub 一天 600+ stars。\n\n為什麼這會火？因為越來越多人被 SaaS AI 搞怕了。今天 API 好好的，明天改價格、改 ToS、改模型行為，你的整個工作流就斷了。\n\n反鎖定不是反雲端，是反「把命脈交給別人」。好的架構是：核心邏輯在本地，雲端只是加速選項。切掉雲端，系統降級但不死。\n\n這跟我一直在做的事情一樣：輕量、本地優先、可替換。不是因為便宜，是因為活得久。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "anti_vendor_lockin_ai.md"
+    },
+    {
+      "id": "scheduler:invest_backfill_lesson.md",
+      "url": null,
+      "ts": "2026-04-21T07:38:54.901686",
+      "text": "資料有缺口比資料有錯誤更危險\n\n投資系統停了幾天\n重啟後發現少了 8000 筆行情資料\n\n缺口不會報錯\n你的策略回測照跑\n只是結果悄悄地變不準確\n\n教訓：\n→ 每天驗證資料筆數\n→ 有缺口自動補回\n→ 補回後驗證 checksum\n\n我寫了 backfill 腳本\n一次追回 8,025 筆\n從 3/28 補到 4/8\n\n系統可以掛\n但資料不能有洞",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "invest_backfill_lesson.md"
+    },
+    {
+      "id": "scheduler:incremental_refactoring.md",
+      "url": null,
+      "ts": "2026-04-21T07:23:49.521930",
+      "text": "重構不需要大爆炸重寫，小步快跑更安全。\n\n每次改 bug 順手清理動到的檔案，5 分鐘整理，不用額外排時間。\n\n一次只改一個模組，不要一口氣翻新整個 codebase，那叫重寫。\n\n改之前確保有測試覆蓋，沒測試先補再重構。\n\n重構和功能修改分開 commit，出問題可精確 revert。\n\n程式碼品質是日常維護出來的，不是某天從天而降。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "incremental_refactoring.md"
+    },
+    {
+      "id": "scheduler:incident_postmortem.md",
+      "url": null,
+      "ts": "2026-04-21T07:08:52.696324",
+      "text": "事故覆盤最常犯的錯：找到一個人來怪。\n\n「是 XXX 改了那行代碼」不是根因，是結果。真正的問題是：為什麼那行代碼可以在沒有足夠保護的情況下進到 production？\n\n好的 postmortem 是無指責的（blameless）。目的不是定罪，是找出系統性的漏洞。同一個事故，換一個人在相同的流程和條件下，大概率也會犯同樣的錯。\n\n一份好的覆盤文件要有：事件時間軸（精確到分鐘）、實際影響範圍、根本原因分析、以及最重要的——明確的行動項目，每條都要有負責人和截止日期。\n\n沒有行動項目的 postmortem 是在浪費時間。\n\n我養成的習慣：事故後 48 小時內寫完，趁記憶還清晰。每條「為什麼」至少問五層，表面原因下面通常還有更深的系統問題。\n\n📋 一次事故，如果讓你的系統變得更強，那就不是損失。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "incident_postmortem.md"
+    },
+    {
+      "id": "scheduler:imap_email_automation.md",
+      "url": null,
+      "ts": "2026-04-20T21:53:53.032749",
+      "text": "自動化處理 email\n比你想的簡單\n\n用 IMAP 就能做到：\n1. 定時檢查收件匣\n2. 篩選特定寄件者/主旨\n3. 解析內容觸發動作\n4. 標記已處理避免重複\n\n我的用途：\n- 監控伺服器告警信\n- 自動歸檔訂單通知\n- 政府補助進度追蹤\n\n踩過的坑：\n- Gmail IMAP 有 rate limit\n- OAuth2 比 app password 安全但設定複雜\n- 斷線重連要做 exponential backoff\n  （不要讓 backoff 重複加倍，問我怎麼知道的）\n\n最重要的一點：\n處理完一封就標記\n不然下次又處理一遍\n\nEmail 是最古老的 API\n但也是最穩定的\n\n#Email自動化 #IMAP #自動化 #生產力 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "imap_email_automation.md"
+    },
+    {
+      "id": "scheduler:idempotent_design.md",
+      "url": null,
+      "ts": "2026-04-20T21:38:59.739306",
+      "text": "你的 API 是冪等的嗎？\n\n冪等的意思是：同一個請求送兩次，結果跟送一次一樣。\n\n網路不穩、使用者雙擊、retry 機制重送 — 這些事天天發生。如果你的 API 不是冪等的，就會出現重複扣款、重複建單、重複發信。\n\n怎麼做到冪等：\n\nGET/DELETE 天生冪等。重點是 POST 和 PUT。\n\n方法一：用唯一的 request ID。客戶端生成，伺服端檢查是否處理過。處理過就直接回傳上次的結果。\n\n方法二：用業務邏輯的自然鍵。例如「這個使用者的這筆訂單」，如果已經存在就不再建立。\n\n方法三：用樂觀鎖。帶版本號，版本不對就拒絕。\n\n資料庫層面，UPSERT（INSERT ON CONFLICT）是你的好朋友。\n\n不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "idempotent_design.md"
+    },
+    {
+      "id": "scheduler:iac_solo_dev.md",
+      "url": null,
+      "ts": "2026-04-20T21:23:52.231366",
+      "text": "一人公司需要 Infrastructure as Code 嗎？\n\n不需要 Terraform 全套。但把伺服器設定文件化，是必要的。\n\n我的最低限度 IaC：\n\n一個 markdown 文件，記錄每台機器裝了什麼、開了哪些 port、跑了哪些服務。\n\n一組 shell script，能從零把服務建回來。不用 Ansible，不用 Puppet。就是你手動做的步驟寫成腳本。\n\ndocker-compose.yml 本身就是 IaC。服務怎麼跑、port 怎麼對、volume 掛哪裡，全在一個檔案裡。\n\n為什麼重要：\n\n你的 VPS 被駭了，需要重建。你買了新機器，要搬環境。你三個月後回來，忘了當初怎麼設定的。\n\n如果重建一台機器需要超過一小時的手動操作，那就值得花時間寫成腳本。\n\n不需要完美。能跑的腳本 + 有更新的文件，比精緻但沒人維護的 Terraform 配置有用。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "iac_solo_dev.md"
+    },
+    {
+      "id": "DXWxpD2D19w",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXWxpD2D19w",
+      "ts": "2026-04-20T13:53:50.000Z",
+      "text": "symbiosis115032天更多自動化處理 email\n比你想的簡單用 IMAP 就能做到：\n1. 定時檢查收件匣\n2. 篩選特定寄件者/主旨\n3. 解析內容觸發動作\n4. 標記已處理避免重複我的用途：\n- 監控伺服器告警信\n- 自動歸檔訂單通知\n- 政府補助進度追蹤踩過的坑：\n- Gmail IMAP 有 rate limit\n- OAuth2 比 app password 安全但設定複雜\n- 斷線重連要做 exponential backoff\n （不要讓 backoff 重複加倍，問我怎麼知道的）最重要的一點：\n處理完一封就標記\n不然下次又處理一遍Email 是最古老的 API\n但也是最穩定的#Email自動化 #IMAP #自動化 #生產力 #一人公司讚4回覆轉發分享\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n自動化處理 email\n比你想的簡單用 IMAP 就能做到：\n1. 定時檢查收件匣\n2. 篩選特定寄件者/主旨\n3. 解析內容觸發動作\n4. 標記已處理避免重複我的用途：\n- 監控伺服器告警信\n- 自動歸檔訂單通知\n- 政府補助進度追蹤踩過的坑：\n- Gmail IMAP 有 rate limit\n- OAuth2 比 app password 安全但設定複雜\n- 斷線重連要做 exponential backoff\n （不要讓 backoff 重複加倍，問我怎麼知道的）最重要的一點：\n處理完一封就標記\n不然下次又處理一遍Email 是最古老的 API\n但也是最穩定的#Email自動化 #IMAP #自動化 #生產力 #一人公司讚4回覆轉發分享\n自動化處理 email\n比你想的簡單用 IMAP 就能做到：\n1. 定時檢查收件匣\n2. 篩選特定寄件者/主旨\n3. 解析內容觸發動作\n4. 標記已處理避免重複我的用途：\n- 監控伺服器告警信\n- 自動歸檔訂單通知\n- 政府補助進度追蹤踩過的坑：\n- Gmail IMAP 有 rate limit\n- OAuth2 比 app password 安全但設定複雜\n- 斷線重連要做 exponential backoff\n （不要讓 backoff 重複加倍，問我怎麼知道的）最重要的一點：\n處理完一封就標記\n不然下次又處理一遍Email 是最古老的 API\n但也是最穩定的#Email自動化 #IMAP #自動化 #生產力 #一人公司\n自動化處理 email\n比你想的簡單\n用 IMAP 就能做到：\n1. 定時檢查收件匣\n2. 篩選特定寄件者/主旨\n3. 解析內容觸發動作\n4. 標記已處理避免重複\n我的用途：\n- 監控伺服器告警信\n- 自動歸檔訂單通知\n- 政府補助進度追蹤\n踩過的坑：\n- Gmail IMAP 有 rate limit\n- OAuth2 比 app password 安全但設定複雜\n- 斷線重連要做 exponential backoff\n （不要讓 backoff 重複加倍，問我怎麼知道的）\n最重要的一點：\n處理完一封就標記\n不然下次又處理一遍\nEmail 是最古老的 API\n但也是最穩定的\n#Email自動化 #IMAP #自動化 #生產力 #一人公司\n讚4回覆轉發分享\n讚4\n回覆\n轉發\n分享",
+      "images": [],
+      "metrics": {
+        "likes": 4,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
+    {
+      "id": "DXWv7_tj2Fh",
+      "url": "https://www.threads.com/@symbiosis11503/post/DXWv7_tj2Fh",
+      "ts": "2026-04-20T13:38:56.000Z",
+      "text": "symbiosis115032天更多你的 API 是冪等的嗎？冪等的意思是：同一個請求送兩次，結果跟送一次一樣。網路不穩、使用者雙擊、retry 機制重送 — 這些事天天發生。如果你的 API 不是冪等的，就會出現重複扣款、重複建單、重複發信。怎麼做到冪等：GET/DELETE 天生冪等。重點是 POST 和 PUT。方法一：用唯一的 request ID。客戶端生成，伺服端檢查是否處理過。處理過就直接回傳上次的結果。方法二：用業務邏輯的自然鍵。例如「這個使用者的這筆訂單」，如果已經存在就不再建立。方法三：用樂觀鎖。帶版本號，版本不對就拒絕。資料庫層面，UPSERT（INSERT ON CONFLICT）是你的好朋友。不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。 1/2讚31回覆2轉發2分享5\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n你的 API 是冪等的嗎？冪等的意思是：同一個請求送兩次，結果跟送一次一樣。網路不穩、使用者雙擊、retry 機制重送 — 這些事天天發生。如果你的 API 不是冪等的，就會出現重複扣款、重複建單、重複發信。怎麼做到冪等：GET/DELETE 天生冪等。重點是 POST 和 PUT。方法一：用唯一的 request ID。客戶端生成，伺服端檢查是否處理過。處理過就直接回傳上次的結果。方法二：用業務邏輯的自然鍵。例如「這個使用者的這筆訂單」，如果已經存在就不再建立。方法三：用樂觀鎖。帶版本號，版本不對就拒絕。資料庫層面，UPSERT（INSERT ON CONFLICT）是你的好朋友。不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。 1/2讚31回覆2轉發2分享5\n你的 API 是冪等的嗎？冪等的意思是：同一個請求送兩次，結果跟送一次一樣。網路不穩、使用者雙擊、retry 機制重送 — 這些事天天發生。如果你的 API 不是冪等的，就會出現重複扣款、重複建單、重複發信。怎麼做到冪等：GET/DELETE 天生冪等。重點是 POST 和 PUT。方法一：用唯一的 request ID。客戶端生成，伺服端檢查是否處理過。處理過就直接回傳上次的結果。方法二：用業務邏輯的自然鍵。例如「這個使用者的這筆訂單」，如果已經存在就不再建立。方法三：用樂觀鎖。帶版本號，版本不對就拒絕。資料庫層面，UPSERT（INSERT ON CONFLICT）是你的好朋友。不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。 1/2\n你的 API 是冪等的嗎？\n冪等的意思是：同一個請求送兩次，結果跟送一次一樣。\n網路不穩、使用者雙擊、retry 機制重送 — 這些事天天發生。如果你的 API 不是冪等的，就會出現重複扣款、重複建單、重複發信。\n怎麼做到冪等：\nGET/DELETE 天生冪等。重點是 POST 和 PUT。\n方法一：用唯一的 request ID。客戶端生成，伺服端檢查是否處理過。處理過就直接回傳上次的結果。\n方法二：用業務邏輯的自然鍵。例如「這個使用者的這筆訂單」，如果已經存在就不再建立。\n方法三：用樂觀鎖。帶版本號，版本不對就拒絕。\n資料庫層面，UPSERT（INSERT ON CONFLICT）是你的好朋友。\n不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。 1/2\n不要假設網路可靠，不要假設使用者只按一次按鈕。設計成重複執行也安全的系統。\n1/2\n/\n讚31",
+      "images": [],
+      "metrics": {
+        "likes": 31,
+        "replies": 2,
+        "reposts": 2,
+        "shares": 5,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "list-my-posts"
+    },
     {
       "id": "DXWuNK9iZG1",
       "url": "https://www.threads.com/@symbiosis11503/post/DXWuNK9iZG1",
@@ -29,10 +566,118 @@
       "_scrape_path": "list-my-posts"
     },
     {
+      "id": "scheduler:green_yellow_red.md",
+      "url": null,
+      "ts": "2026-04-20T12:38:56.859164",
+      "text": "讓 AI 自主工作的關鍵\n是定義好什麼不能自己做\n\n我的三色分級：\n\n🟢 Green — 直接做\n修 typo、裝依賴、更新 config\n\n🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說\n\n🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認\n\n90% 的工作是 Green\nAI 自己做完我不用看\n\n9% 是 Yellow\n做完看一下結果就好\n\n1% 是 Red\n這 1% 才需要我的判斷\n\n自主 ≠ 失控\n是有框架的信任\n\n#AI助理 #自主模式 #工作流程 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "green_yellow_red.md"
+    },
+    {
+      "id": "scheduler:graceful_shutdown_node.md",
+      "url": null,
+      "ts": "2026-04-20T12:23:48.185572",
+      "text": "你的 Node.js 會優雅關機嗎？\n\nkill -9 不是正確的關法\n\n正確做法：\nprocess.on('SIGTERM', async () => {\n  server.close()\n  await drainQueue()\n  await db.end()\n  process.exit(0)\n})\n\n不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉\n\nDocker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間\n\n進來要敲門，離開要善後",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "graceful_shutdown_node.md"
+    },
+    {
+      "id": "scheduler:graceful_degradation.md",
+      "url": null,
+      "ts": "2026-04-20T12:08:53.545834",
+      "text": "系統壞了不代表要全停\n\nGraceful Degradation（優雅降級）：\n核心功能照跑，非必要的先關\n\n舉例：\n- AI 回覆 API 掛了 → 顯示預設回應\n- 圖片服務掛了 → 用 placeholder\n- 推播服務掛了 → 改寫 log 等恢復再補送\n\n我的 SBS Agent 有 6 個 AI 引擎\n掛一個自動切下一個\n全掛了才告警\n\n設計系統時先問自己：\n「這個功能掛了，整個系統需要跟著掛嗎？」\n\n90% 的情況答案是不需要\n\n#系統設計 #後端開發 #高可用 #容錯設計 #軟體架構",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "graceful_degradation.md"
+    },
+    {
+      "id": "scheduler:git_workflow_solo.md",
+      "url": null,
+      "ts": "2026-04-20T07:41:00.240432",
+      "text": "一個人開發也要認真用 Git\n\n不是因為要跟別人協作\n是因為你會跟「昨天的自己」協作\n\n我的習慣：\n- 每個功能一個 branch\n- commit message 寫「為什麼」不是「改了什麼」\n- 重要節點打 tag\n\n好處在三個月後才會感覺到\n「這段 code 為什麼這樣寫？」\ngit blame 一看就懂\n\n更重要的是 revert 的能力\n改壞了？兩行指令回到上個版本\n\nGit 不是團隊工具\nGit 是時間機器\n\n#Git #版本控制 #獨立開發 #工作流",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "git_workflow_solo.md"
+    },
+    {
+      "id": "scheduler:git_hooks_quality.md",
+      "url": null,
+      "ts": "2026-04-20T07:26:05.374066",
+      "text": "Git hooks 是最被低估的品質工具\n\npre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式\n\n不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住\n\n我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）\n\n重點：不要 --no-verify\n那是在跟未來的自己作對\n\n團隊品質不靠自律\n靠自動化守門員",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "git_hooks_quality.md"
+    },
+    {
+      "id": "scheduler:git_bisect_debug.md",
+      "url": null,
+      "ts": "2026-04-20T07:11:04.544387",
+      "text": "用 git bisect 找 bug，比肉眼看 log 快十倍。\n\n功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。\n\ngit bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。\n\n50 個 commit 只需 ~6 次測試。\n\n搭配腳本 git bisect run ./test.sh，全自動找問題 commit。\n\ndebug 是用對工具，不是硬啃程式碼。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "git_bisect_debug.md"
+    },
+    {
       "id": "DXVyIq5j8PE",
       "url": "https://www.threads.com/@symbiosis11503/post/DXVyIq5j8PE",
       "ts": "2026-04-20T04:38:54.000Z",
-      "text": "symbiosis115032天更多讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做\n我的三色分級：\n🟢 Green — 直接做\n修 typo、裝依賴、更新 config\n🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說\n🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認\n90% 的工作是 Green\nAI 自己做完我不用看\n9% 是 Yellow\n做完看一下結果就好\n1% 是 Red\n這 1% 才需要我的判斷\n自主 ≠ 失控\n是有框架的信任\n#AI助理 #自主模式 #工作流程 #Symbiosis\n讚1回覆轉發分享\n讚1\n回覆\n轉發\n分享",
+      "text": "symbiosis115033天更多讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis讚1回覆轉發分享\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做我的三色分級：🟢 Green — 直接做\n修 typo、裝依賴、更新 config🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認90% 的工作是 Green\nAI 自己做完我不用看9% 是 Yellow\n做完看一下結果就好1% 是 Red\n這 1% 才需要我的判斷自主 ≠ 失控\n是有框架的信任#AI助理 #自主模式 #工作流程 #Symbiosis\n讓 AI 自主工作的關鍵\n是定義好什麼不能自己做\n我的三色分級：\n🟢 Green — 直接做\n修 typo、裝依賴、更新 config\n🟡 Yellow — 做了回報\nbuild 失敗、測試不過\n試 2 次再跟我說\n🔴 Red — 先問\n刪資料、push 程式碼、花錢\n一律暫停等我確認\n90% 的工作是 Green\nAI 自己做完我不用看\n9% 是 Yellow\n做完看一下結果就好\n1% 是 Red\n這 1% 才需要我的判斷\n自主 ≠ 失控\n是有框架的信任\n#AI助理 #自主模式 #工作流程 #Symbiosis\n讚1回覆轉發分享\n讚1\n回覆\n轉發\n分享",
       "images": [],
       "metrics": {
         "likes": 1,
@@ -49,7 +694,7 @@
       "id": "DXVwZnMj5dH",
       "url": "https://www.threads.com/@symbiosis11503/post/DXVwZnMj5dH",
       "ts": "2026-04-20T04:23:44.000Z",
-      "text": "symbiosis115032天更多你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\nsymbiosis115032天更多\nsymbiosis115032天\nsymbiosis11503\n更多\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後\n你的 Node.js 會優雅關機嗎？\nkill -9 不是正確的關法\n正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})\n不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉\nDocker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間\n進來要敲門，離開要善後\n讚4回覆轉發1分享1\n讚4\n回覆\n轉發1\n分享1",
+      "text": "symbiosis115033天更多你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後讚4回覆轉發1分享1\n你的 Node.js 會優雅關機嗎？kill -9 不是正確的關法正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉Docker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間進來要敲門，離開要善後\n你的 Node.js 會優雅關機嗎？\nkill -9 不是正確的關法\n正確做法：\nprocess.on('SIGTERM', async () => {\n server.close()\n await drainQueue()\n await db.end()\n process.exit(0)\n})\n不處理的後果：\n- 請求被切斷\n- Transaction 沒 commit\n- 檔案寫一半壞掉\nDocker 重啟先送 SIGTERM\n等 10 秒才 SIGKILL\n這 10 秒是你善後的時間\n進來要敲門，離開要善後\n讚4回覆轉發1分享1\n讚4\n回覆\n轉發1\n分享1",
       "images": [],
       "metrics": {
         "likes": 4,
@@ -97,38 +742,3280 @@
       "_scrape_path": "list-my-posts"
     },
     {
-      "id": "DXVOVHOkwQ6",
-      "url": "https://www.threads.com/@symbiosis11503/post/DXVOVHOkwQ6",
-      "ts": "2026-04-19T23:26:02.000Z",
-      "text": "symbiosis115033天更多Git hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員讚30回覆5轉發1分享10\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\nGit hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員讚30回覆5轉發1分享10\nGit hooks 是最被低估的品質工具pre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）重點：不要 --no-verify\n那是在跟未來的自己作對團隊品質不靠自律\n靠自動化守門員\nGit hooks 是最被低估的品質工具\npre-commit 跑 lint + format\npre-push 跑 test\ncommit-msg 驗格式\n不用 CI 等 5 分鐘才發現缺分號\n本地 3 秒就擋住\n我的設定：\n- husky + lint-staged（JS/TS）\n- pre-commit framework（Python）\n- 自己寫 shell script（最靈活）\n重點：不要 --no-verify\n那是在跟未來的自己作對\n團隊品質不靠自律\n靠自動化守門員\n讚30回覆5轉發1分享10\n讚30\n回覆5\n轉發1\n分享10",
+      "id": "scheduler:gemini_content_review.md",
+      "url": null,
+      "ts": "2026-04-19T19:41:04.925753",
+      "text": "發文前讓另一個 AI 審稿\n\n用 Claude 寫的內容\n發之前丟給 Gemini 審一遍\n\n不是因為 Claude 寫得差\n是因為同一個模型容易有盲點\n\nGemini 審查重點：\n→ 有沒有事實錯誤\n→ 語氣是否太推銷\n→ 有沒有敏感內容\n→ 邏輯是否通順\n\n33 篇草稿審完\n4 篇需要修正，29 篇通過\n\n成本幾乎為零\n但避免了一次翻車的風險\n\n寫作用一個模型\n審查用另一個模型\n這才是 multi-model 的正確用法\n\n#AI寫作 #ContentReview #Gemini #MultiModel",
       "images": [],
       "metrics": {
-        "likes": 30,
-        "replies": 5,
-        "reposts": 1,
-        "shares": 10,
-        "quotes": null,
-        "views": null
-      },
-      "comments": [],
-      "_scrape_path": "list-my-posts"
-    },
-    {
-      "id": "DXVMnDzE_U0",
-      "url": "https://www.threads.com/@symbiosis11503/post/DXVMnDzE_U0",
-      "ts": "2026-04-19T23:11:00.000Z",
-      "text": "symbiosis115033天更多用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。讚5回覆轉發分享2\nsymbiosis115033天更多\nsymbiosis115033天\nsymbiosis11503\n更多\n用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。讚5回覆轉發分享2\n用 git bisect 找 bug，比肉眼看 log 快十倍。功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。git bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。50 個 commit 只需 ~6 次測試。搭配腳本 git bisect run ./test.sh，全自動找問題 commit。debug 是用對工具，不是硬啃程式碼。\n用 git bisect 找 bug，比肉眼看 log 快十倍。\n功能上週正常今天壞了，中間 50 個 commit。一個個看？太慢。\ngit bisect start → bad → good，git 自動切到中間讓你測。回報 good/bad 幾輪就定位。\n50 個 commit 只需 ~6 次測試。\n搭配腳本 git bisect run ./test.sh，全自動找問題 commit。\ndebug 是用對工具，不是硬啃程式碼。\n讚5回覆轉發分享2\n讚5\n回覆\n轉發\n分享2",
-      "images": [],
-      "metrics": {
-        "likes": 5,
+        "likes": null,
         "replies": null,
         "reposts": null,
-        "shares": 2,
+        "shares": null,
         "quotes": null,
         "views": null
       },
       "comments": [],
-      "_scrape_path": "list-my-posts"
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "gemini_content_review.md"
+    },
+    {
+      "id": "scheduler:founder_mode_ai.md",
+      "url": null,
+      "ts": "2026-04-19T19:26:13.768938",
+      "text": "創辦人模式不是「管得更細」，是「看得更全」。\n\n傳統說法是創辦人要放手授權，但 Paul Graham 說的創辦人模式是：保持對細節的感知能力，同時不陷入細節裡。\n\nAI 讓這件事第一次真正可行。\n\n以前你要親自盯，或者培養一個你完全信任的人去盯。現在第三條路出現了：讓 AI 持續感知，異常時才叫你。\n\n我現在的做法是讓 AI agent 每天早上給我一份摘要——哪些系統有異常、哪些數字偏離趨勢、哪些任務卡超過預期時間。我不用盯，但我不會失去感知。\n\n真正的創辦人模式 + AI = 高解析度的系統感知，加上低摩擦的介入能力。\n\n不是用 AI 取代判斷，而是用 AI 確保你的判斷建立在真實資訊上。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "founder_mode_ai.md"
+    },
+    {
+      "id": "scheduler:fleet_monitoring_diy.md",
+      "url": null,
+      "ts": "2026-04-19T19:11:01.095471",
+      "text": "5 台機器的健康狀態，一個 API 搞定\n\n我寫了一支 shell script 部署到每台 VPS\n回報 CPU / RAM / Disk / 服務狀態\n\n主機用 SSH 並行查詢所有機器\n結果彙整成一個 /api/fleet-status\n\n不用裝 Prometheus 不用搞 Grafana\n50 行 bash + 一支 API endpoint\n小團隊夠用了\n\n監控不需要大架構\n需要的是「看得到」\n\n#DevOps #監控 #一人公司 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "fleet_monitoring_diy.md"
+    },
+    {
+      "id": "scheduler:five_machine_fleet.md",
+      "url": null,
+      "ts": "2026-04-19T12:37:26.825575",
+      "text": "一人公司的 5 台機器都在幹嘛\n\niMac (16GB)\n→ CC1 統籌 + SBS + 投資 + 社群\n\nMac Mini M4 Pro (24GB)\n→ CC2 專做 ERP + AI 推論\n\nCCC VPS (8GB)\n→ 24/7 雲端備援 AI 助理\n\nOC VPS (16GB)\n→ 資料庫遷移 + 3 個 AI gateway\n\nSBS VPS (16GB)\n→ Vision + 瀏覽器自動化\n\n每台有專職不搶資源\nTailscale 組成內網\nDashboard 統一監控\n\n不是因為需要算力才買這麼多\n是因為每台 AI 需要獨立的 context\n\n#一人公司 #基礎設施 #AI助理 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "five_machine_fleet.md"
+    },
+    {
+      "id": "scheduler:feature_flags_solo.md",
+      "url": null,
+      "ts": "2026-04-19T12:22:28.057168",
+      "text": "一個人開發也需要 Feature Flags 嗎？\n\n看情況。如果你的部署流程是「改完直接上」，那 Feature Flag 就是你的安全網。\n\n最簡單的做法：在 config 或環境變數裡加一個開關。新功能先藏在開關後面，部署上去但不啟用。確認沒問題再打開。出事了直接關掉，不用回滾程式碼。\n\n不需要用 LaunchDarkly 那種服務。一個 JSON 檔就夠：\n\n```json\n{ \"new_quote_engine\": false }\n```\n\n程式裡 if 判斷，完事。\n\n適合用的場景：影響使用者的功能改動、牽涉資料庫 schema 的變更、你不確定效果的新邏輯。\n\n不需要用的場景：bug 修復、內部工具、只有自己用的東西。\n\nFeature Flag 的價值不在技術複雜度，在於把「部署」跟「發布」拆開。部署是技術操作，發布是業務決策，兩者不該綁在一起。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "feature_flags_solo.md"
+    },
+    {
+      "id": "scheduler:fail2ban_tips.md",
+      "url": null,
+      "ts": "2026-04-19T12:07:29.414108",
+      "text": "fail2ban 是窮人的 WAF，但設定不好反而害到自己。\n\n最常見的災難：把自己的 IP 封了。\n\n我遇過：Tailscale 內網 IP 被 fail2ban 當攻擊者封掉，SSH 直接斷線。原因是健康檢查腳本太頻繁觸發了失敗計數。\n\n預防措施：\n\n1. 白名單加好加滿。ignoreip 不只放固定 IP，整個內網網段都要加。Tailscale 用 100.64.0.0/10。\n\n2. bantime 不要設太長。先用 10 分鐘試水溫，確認不會誤封後再加長。\n\n3. findtime 和 maxretry 要合理。maxretry=3 findtime=60 表示 60 秒內失敗 3 次就封。如果你的監控腳本每分鐘打一次，很容易觸發。\n\n4. 留一條後路。確保至少有一個存取方式不受 fail2ban 管（例如 VPS 供應商的 Web Console）。\n\nfail2ban 的 jail.local 覆蓋 jail.conf，升級不會被蓋掉。永遠改 local 不改 conf。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "fail2ban_tips.md"
+    },
+    {
+      "id": "scheduler:error_budget_solo.md",
+      "url": null,
+      "ts": "2026-04-19T07:37:30.657355",
+      "text": "Google SRE 的「錯誤預算」概念，一人團隊也能用。\n\n核心想法：你不需要 100% uptime。先決定你能接受多少停機時間，剩下的就是你的「預算」— 可以拿來冒險、部署新功能、做實驗。\n\n99.9% uptime = 每月可以掛 43 分鐘\n99% uptime = 每月可以掛 7 小時\n\n對一個內部 ERP 來說，99% 可能就夠了。對客戶面的 API，99.9% 比較合理。\n\n有了錯誤預算，決策變得簡單：\n\n預算還很多 → 大膽部署，快速迭代\n預算快用完 → 凍結新功能，專心修穩定性\n\n這不是說你可以接受系統爛。而是承認完美不存在，把追求穩定的精力花在最值得的地方。\n\n比「永遠不能出錯」健康太多。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "error_budget_solo.md"
+    },
+    {
+      "id": "scheduler:erp_migration_tips.md",
+      "url": null,
+      "ts": "2026-04-19T07:22:29.044644",
+      "text": "ERP 遷移的五個血淚教訓\n\n1. 資料庫 schema 不要一次全改\n一張表一張表來，每次驗證\n\n2. 舊系統不能停\n跑平行測試至少兩週\n發現問題還能切回去\n\n3. 報表邏輯是地雷區\n使用者不會告訴你隱藏的計算邏輯\n要逐筆比對舊系統的數字\n\n4. 介面不要改\n使用者的肌肉記憶很強\n按鈕移一個位置就會被投訴\n\n5. 文件永遠是過時的\n直接看 code 比看文件可靠\n但最可靠的是問使用者\n\n我花了三個月才學到這些\n希望你不用\n\n#ERP #系統遷移 #技術債 #經驗分享",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "erp_migration_tips.md"
+    },
+    {
+      "id": "scheduler:env_parity_lesson.md",
+      "url": null,
+      "ts": "2026-04-19T07:07:31.248172",
+      "text": "「在我電腦上可以跑」的根因\n\n開發環境 ≠ 生產環境\n\n常見差異：\n- 本地 SQLite，生產 PostgreSQL\n- Node 版本不同\n- 時區不同\n\n解法：\n1. Docker Compose 統一開發環境\n2. .env.example 確保變數一致\n3. CI 用跟生產一樣的 image\n\n我踩過的坑：\n本地 MySQL 5.7 生產 8.0\n一個 GROUP BY 行為改變\n測試全過，上線直接炸\n\n讓 dev/prod 差距最小化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "env_parity_lesson.md"
+    },
+    {
+      "id": "scheduler:env_management_tips.md",
+      "url": null,
+      "ts": "2026-04-18T19:37:34.150749",
+      "text": ".env 管理的三個教訓\n\n1. 不要 commit .env\n聽起來常識？但 git history 裡面有的人多了去\n\n2. 不要在 .env 寫註解\n有些工具解析會壞掉\n另開 .env.example 註解\n\n3. 不同環境用不同 .env\n.env.development / .env.production\n不要用 if-else 判斷環境\n\n最怕的是 production 用到 dev 的 key\n然後 debug 三天才發現\n\n簡單的事做好\n比花俏的架構重要\n\n#環境變數 #dotenv #DevOps #開發技巧 #程式設計",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "env_management_tips.md"
+    },
+    {
+      "id": "scheduler:email_automation_imap.md",
+      "url": null,
+      "ts": "2026-04-18T19:22:28.026493",
+      "text": "Email 自動化：IMAP 比你想的更有用。\n\n不是所有自動化都需要 API。IMAP 是 email 的開放協議，幾乎所有信箱都支援。\n\n我的使用場景：\n\n1. 監控信箱：定時 IMAP IDLE 等新信，收到特定主題的信自動轉發到 Discord/Telegram。例如：客戶的訂單確認信 → 自動通知團隊。\n\n2. 附件下載：發票類 email 的附件自動下載到指定資料夾，命名規則標準化。每月報稅不用再一封封翻。\n\n3. 備份：定期把重要信件 dump 到本地。不信任雲端信箱？自己備一份。\n\n踩過的坑：IMAP 連線不穩。要做 heartbeat + 自動重連。Gmail 特別會斷——超過 10 分鐘沒動作就踢你。\n\n工具：Node.js 用 imapflow，Python 用 imapclient。不要用原生 imaplib——太底層。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "email_automation_imap.md"
+    },
+    {
+      "id": "scheduler:dual_ai_architecture.md",
+      "url": null,
+      "ts": "2026-04-18T19:07:30.977788",
+      "text": "一台機器跑一個 AI 不夠\n我用兩台\n\nCC1 (iMac) 負責：\n→ 統籌決策\n→ SBS Agent 開發\n→ 投資系統\n→ 社群經營\n\nCC2 (Mac Mini M4 Pro) 負責：\n→ ERP 系統開發\n→ 資料庫維護\n→ AI 推論（Gemma 4）\n\n為什麼要分開？\n\n1. Context window 不共享\n   一個 AI 同時做太多事會混亂\n\n2. 資源隔離\n   ERP 編譯不影響投資系統\n\n3. 專注\n   每台 AI 只管自己的領域\n\n溝通靠 Tailscale + Discord 頻道\n各做各的，進度同步\n\n#雙AI架構 #ClaudeCode #分工 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dual_ai_architecture.md"
+    },
+    {
+      "id": "scheduler:dont_mock_everything.md",
+      "url": null,
+      "ts": "2026-04-18T12:37:29.337186",
+      "text": "寫測試最常踩的坑：\nmock 太多\n\nMock 的問題在於\n你測的是「你以為它怎麼運作」\n不是「它實際怎麼運作」\n\n我被 mock 坑過：\n測試全綠 → 上線爆炸\n因為 mock 跟實際 DB 行為不同\n\n現在的做法：\n- 外部 API → mock（不可控）\n- 自己的 DB → 用真的（Docker）\n- 檔案系統 → 用 tmp dir\n\nMock 是工具不是信仰\n能跑真的就別 mock\n\n#Testing #Mock #軟體測試 #開發心得 #程式設計",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dont_mock_everything.md"
+    },
+    {
+      "id": "scheduler:docker_debug_tricks.md",
+      "url": null,
+      "ts": "2026-04-18T12:22:32.465006",
+      "text": "Docker 除錯的幾個實用技巧\n\n1. docker logs -f --tail 50\n   即時看最新 50 行 log，不要 cat 整份\n\n2. docker exec -it container_name sh\n   進去容器內部查檔案、測指令（Alpine 用 sh）\n\n3. docker inspect container_name\n   看網路設定、掛載路徑、環境變數\n\n4. docker stats\n   即時 CPU/RAM 使用率，抓記憶體洩漏\n\n最重要的一條：\ndocker compose logs 看的是 stdout\n如果錯誤寫到檔案裡你根本看不到\n記得把 error log 導到 stderr",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "docker_debug_tricks.md"
+    },
+    {
+      "id": "scheduler:docker_compose_enough.md",
+      "url": null,
+      "ts": "2026-04-18T12:07:31.064507",
+      "text": "Docker Compose 對大多數人就夠了，不需要 K8s。\n\nK8s 解決的問題：多節點調度、自動擴縮、滾動更新、服務發現。\n\n如果你的需求是：幾台機器、固定服務數量、手動部署可接受——Docker Compose 綽綽有餘。\n\n我跑的架構：一台機器上 4 個 container（nginx + PHP + PostgreSQL + Redis），docker-compose.yml 不到 50 行。\n\nCompose 的優點：\n\n1. 本地和 production 用同一份設定。docker-compose up 就結束。\n2. Volume mount 直覺。資料持久化一行搞定。\n3. 內建網路隔離。container 之間用名字互連，不用管 IP。\n\n什麼時候該換 K8s？服務超過 20 個、需要跨 3+ 節點、需要自動擴縮。\n\n在那之前，keep it simple。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "docker_compose_enough.md"
+    },
+    {
+      "id": "scheduler:dns_understanding.md",
+      "url": null,
+      "ts": "2026-04-18T07:37:28.941409",
+      "text": "DNS 是最基礎但最容易被忽略的東西。\n\n域名買了、A record 指了、網站能開——然後就再也不碰 DNS 設定了。直到出問題。\n\n幾個實用知識：\n\n1. TTL 很重要。準備換 IP 前，先把 TTL 改成 300 秒（5 分鐘）。不然 ISP 可能快取舊 IP 好幾小時。\n\n2. CNAME vs A record：CNAME 指向另一個域名，A record 指向 IP。用 Cloudflare CDN？用 CNAME。自己的 VPS？用 A record。\n\n3. MX record 影響收信。設錯了 email 就收不到。改 DNS 前先確認 MX 沒動到。\n\n4. Cloudflare proxy（橘雲）會隱藏你的真實 IP。安全但有時候 WebSocket 或特殊 port 需要灰雲（DNS only）。\n\nDNS propagation 檢查：dig +short yourdomain.com 看目前解析到哪。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dns_understanding.md"
+    },
+    {
+      "id": "scheduler:dns_failover_simple.md",
+      "url": null,
+      "ts": "2026-04-18T07:22:31.387996",
+      "text": "DNS 層高可用，比你想的簡單\n\nCloudflare 免費方案就有：\n1. 多筆 A record → 輪詢\n2. Health check → 自動移除壞節點\n3. Failover → 備援自動接手\n\n我的做法：\n- 主站：Hetzner VPS\n- 備援：Oracle Cloud（免費）\n- Health check 每 60 秒\n- 主站掛了 → 60 秒內自動切\n\n成本：0 元\n\n一人公司也能做到 99.9% uptime\n關鍵是架構設計，不是花錢",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dns_failover_simple.md"
+    },
+    {
+      "id": "scheduler:dns_domain_solo.md",
+      "url": null,
+      "ts": "2026-04-18T07:07:31.038088",
+      "text": "一人公司的域名管理\n\n買域名很爽\n管域名很煩\n\n我的經驗：\n- 一個主域名 + 子域名分服務\n- erp.xxx / api.xxx / monitor.xxx\n- 比買一堆域名便宜又好管\n\nDNS 設定要注意：\n1. A record 指 VPS\n2. CNAME 做別名\n3. MX 設好信箱\n4. 用 Cloudflare 免費 CDN + SSL\n\n最容易忘的事：\n域名到期沒續約\n辛苦架的服務一夜消失\n\n設個日曆提醒吧\n\n#DNS #域名管理 #一人公司 #網站架設 #DevOps",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dns_domain_solo.md"
+    },
+    {
+      "id": "scheduler:disk_cleanup_automation.md",
+      "url": null,
+      "ts": "2026-04-17T19:37:38.640154",
+      "text": "VPS 磁碟滿了不要手動清\n\n我的 SBS-VPS 突然 77% → 一查發現 Chrome BrowserMetrics 佔了 98G\n\n解法不是清完就好\n而是加一個 weekly cron 自動清理：\n→ 刪 30 天以上的 log\n→ 清 browser cache\n→ 壓縮舊日誌\n\n清完 77% → 9%\n\n重點不是「這次怎麼清」\n是「下次不用再管」\n\n自動化的精髓：\n讓問題只需要解決一次",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "disk_cleanup_automation.md"
+    },
+    {
+      "id": "scheduler:discord_as_ops_channel.md",
+      "url": null,
+      "ts": "2026-04-17T19:22:31.063474",
+      "text": "Discord 不只是遊戲聊天\n我拿來當 AI 團隊的運營中心\n\n頻道分工：\n- #任務回報：AI 完成工作回報\n- #系統監控：異常自動通知\n- #開發協作：跨機器協作記錄\n- #每日摘要：每日重點整理\n\n為什麼不用 Slack？\n免費、Bot API 好寫、Webhook 簡單\n\n一個人的公司\n用 Discord 管多個 AI agent\n比真人團隊的 standup 還準時\n\n#Discord #團隊管理 #AIAgent #自動化 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "discord_as_ops_channel.md"
+    },
+    {
+      "id": "scheduler:dependency_update_auto.md",
+      "url": null,
+      "ts": "2026-04-17T19:07:39.050959",
+      "text": "依賴更新不能靠記憶\n\n手動 npm outdated？三個月才看一次？\n\n自動化方案：\n1. Renovate Bot — 自動開 PR，分 major/minor/patch\n2. Dependabot — GitHub 內建，零設定\n3. npm-check-updates + cron — 最土砲但可控\n\n我的策略：\n- patch → 自動合併\n- minor → CI 過就合\n- major → 手動 review\n\n安全漏洞不等人\n自動化更新是基本衛生",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dependency_update_auto.md"
+    },
+    {
+      "id": "scheduler:dependency_audit.md",
+      "url": null,
+      "ts": "2026-04-17T12:37:29.195114",
+      "text": "你上次檢查套件漏洞是什麼時候？\n\nnpm audit、pip audit、composer audit — 每個語言都有自動掃描工具。但大部分人只在安裝時看一眼，之後就再也不管了。\n\n三個月不更新依賴，累積的已知漏洞可能比你想像的多。\n\n最低限度的做法：\n\n每週跑一次 audit。加進 cron 或 CI，掃到 high/critical 就通知自己。\n\nnpm audit --audit-level=high\npip audit --fix\ncomposer audit\n\n不用每次都修。重點是知道風險在哪，然後決定要不要處理。\n\n進階做法：鎖定版本 + Dependabot 自動 PR。讓工具幫你追蹤更新，你只負責 merge。\n\n最怕的不是有漏洞，是你不知道有漏洞。供應鏈攻擊的目標就是那些從不檢查的專案。\n\n花五分鐘設一個自動掃描，比出事後花五天處理划算太多。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dependency_audit.md"
+    },
+    {
+      "id": "scheduler:db_migration_rollback.md",
+      "url": null,
+      "ts": "2026-04-17T12:22:31.964869",
+      "text": "資料庫遷移沒有回滾計畫，就是在賭。\n\n最常見：遷移腳本測試環境跑很順，上線跑到一半失敗——生產資料有測試沒有的邊緣情況。沒 Plan B，每個選擇都很痛。\n\n三層回滾策略：\n\n第一層：備份。遷移前 pg_dump/mysqldump 打壓縮包，確認能 restore。很多人備份了沒測過還原，等到要用才發現是壞的。\n\n第二層：遷移腳本設計。每個 migration 都要有對應 rollback script。刪欄位分兩個 release：先停止寫入，再 DROP。\n\n第三層：藍綠部署。大型遷移讓新舊 schema 並行，確認沒問題再清理。成本高但高可用系統值得。\n\n最容易忽略：遷移要有超時控制。跑太久的 migration 鎖住整張表比失敗更慘。加 lock_timeout，寧願失敗重試。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "db_migration_rollback.md"
+    },
+    {
+      "id": "scheduler:db_connection_pooling.md",
+      "url": null,
+      "ts": "2026-04-17T12:07:28.726668",
+      "text": "資料庫連線池（Connection Pool）\n不設定 = 早晚出事\n\n沒有連線池：\n每個請求開新連線 → 關掉\n100 個併發 = 100 個連線\n資料庫直接哭\n\n有連線池：\n預開 10 個連線重複用\n100 個併發排隊等\n資料庫穩穩的\n\nPostgreSQL 建議：\n- 用 PgBouncer 或應用層 pool\n- max_connections 別設太高（200 就很多了）\n- 連線數 ≈ CPU 核心數 × 2 + 磁碟數\n\n我踩過的坑：\n連線沒 release 回 pool\n慢慢 leak 到 max 然後全部卡死\n\n監控連線數\n比監控 CPU 更重要\n\n#PostgreSQL #資料庫 #後端開發 #連線池 #效能優化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "db_connection_pooling.md"
+    },
+    {
+      "id": "scheduler:database_indexing_basics.md",
+      "url": null,
+      "ts": "2026-04-17T07:37:34.294381",
+      "text": "資料庫慢？八成是少了 index\n\n一張 10 萬筆的表\n沒 index 查詢要掃全表：200ms\n加了 index：2ms\n\n差 100 倍\n\n但 index 不是越多越好\n每個 index 都佔空間，寫入時也要維護\n加錯反而更慢\n\n原則很簡單：\nWHERE 常用的欄位加\nJOIN 的 key 加\n排序的欄位考慮加\n很少查的別加\n\nEXPLAIN ANALYZE 是你最好的朋友\n別猜，看數據\n\n#資料庫 #Index #PostgreSQL #效能優化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "database_indexing_basics.md"
+    },
+    {
+      "id": "scheduler:database_backup_strategy.md",
+      "url": null,
+      "ts": "2026-04-17T07:22:29.329701",
+      "text": "備份策略不是「有做就好」，是「能不能還原」。\n\n很多人每天 cron 備份 DB，但從沒試過還原。真的需要時才發現備份是壞的。\n\n實戰做法：3 份副本（本地 + 異地 + 雲端）、2 種格式（明文 + 壓縮）、每週抽一份實際 restore 驗證。\n\n備份的價值不在檔案存在，在於你確定它能用。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "database_backup_strategy.md"
+    },
+    {
+      "id": "scheduler:data_pipeline_retry.md",
+      "url": null,
+      "ts": "2026-04-17T07:07:36.091611",
+      "text": "資料抓取失敗？不要立刻放棄\n\n台股行情 API 有時候會 timeout\n之前每次失敗就要手動重跑\n\n現在加了自動重試機制：\n→ 失敗後等 10 分鐘重試\n→ 最多 3 次\n→ 每次重試都記 log\n\n從「7 筆」變回「1342 筆」\n差別只是多了 15 行 bash\n\nData Pipeline 三原則：\n1. 假設會失敗\n2. 失敗要重試\n3. 重試要有上限\n\n#DataPipeline #自動化 #台股 #TWSE",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "data_pipeline_retry.md"
+    },
+    {
+      "id": "scheduler:data_driven_decision.md",
+      "url": null,
+      "ts": "2026-04-16T19:37:39.864702",
+      "text": "「我們是數據驅動的公司」——這句話有時候是在說謊。\n\n真實情況是：決定已經做好了，然後找數據來支持它。這不是數據驅動，這是數據辯護。\n\n真正的數據驅動有幾個條件：\n1. 決策前先定義你要看哪個指標\n2. 決策前先決定什麼數字算成功、什麼算失敗\n3. 當數據說不的時候，你真的不做\n\n第三點是最少人做到的。\n\n我見過最多的情況是：A/B 測試結果顯示新版本沒有顯著提升，但因為設計師花了三個月，最後還是上線了。\n\n數據驅動的反面不是直覺驅動。直覺驅動在資訊不足時很有價值。真正的反面是「已定論驅動」——心意已決，數據只是裝飾。\n\n📊 收集數據容易，讓數據真的影響決策才難。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "data_driven_decision.md"
+    },
+    {
+      "id": "scheduler:cursor_vs_claude_code.md",
+      "url": null,
+      "ts": "2026-04-16T19:22:31.283994",
+      "text": "Cursor 跟 Claude Code 我都用過\n結論：看你的工作流\n\nCursor 適合「看著 code 改」\n有 GUI、有 diff preview、對新手友善\n\nClaude Code 適合「下指令讓它跑」\nCLI 原生、可以串 hook、適合自動化\n\n我的選擇？兩個都用\n白天互動用 Cursor\n夜間自動化用 Claude Code\n\n工具不是信仰，是工具\n選對場景比選對品牌重要\n\n#CursorAI #ClaudeCode #開發工具 #AI程式設計 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cursor_vs_claude_code.md"
+    },
+    {
+      "id": "scheduler:curl_debugging.md",
+      "url": null,
+      "ts": "2026-04-16T19:07:41.156263",
+      "text": "cURL 是我最常用的除錯工具。\n\n不需要 Postman，不需要開瀏覽器。一行指令就能確認服務活不活：\n\n```\ncurl -sf -o /dev/null -w \"%{http_code} %{time_total}s\" http://localhost:8080/\n```\n\n回傳 HTTP 狀態碼和回應時間。200 0.042s 就是正常。\n\n常用組合：\n\n看完整 header：curl -I\n帶 JSON body：curl -X POST -H \"Content-Type: application/json\" -d '{\"key\":\"val\"}'\n設定 timeout：curl --max-time 5\n只看是否能連：curl -sf -o /dev/null && echo OK\n\n我的巡檢腳本就是一堆 curl 串起來。每個服務一行，跑完就知道全線狀態。\n\n比起圖形化工具，cURL 的優勢是可以直接放進 script、cron、CI pipeline。而且每台 Linux/Mac 都有。\n\n學會 cURL 的 -w 參數，你就有了一個免費的效能監控工具。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "curl_debugging.md"
+    },
+    {
+      "id": "scheduler:cron_vs_launchd.md",
+      "url": null,
+      "ts": "2026-04-16T12:37:40.882359",
+      "text": "定時任務：cron 還是 launchd？\n\nLinux 用 cron，macOS 用 launchd。兩個我都在用，差異很實際：\n\nCron 優點：語法簡單（* * * * * command），寫一行就完事。幾乎所有 Linux 都有。\n\nCron 缺點：錯過的任務不會補跑。機器關機再開，那個時段的任務就沒了。也沒有內建的依賴管理。\n\nLaunchd 優點：錯過的任務會補跑（StartCalendarInterval）。可以設定 KeepAlive 自動重啟。原生監控 process 狀態。\n\nLaunchd 缺點：plist XML 語法冗長。Debug 體驗差——console.app 裡翻日誌很痛苦。\n\n我的做法：launchd 管常駐服務（23 個），cron 管一次性定時任務。混用是最實際的選擇。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cron_vs_launchd.md"
+    },
+    {
+      "id": "scheduler:cron_monitoring_tips.md",
+      "url": null,
+      "ts": "2026-04-16T12:22:35.754251",
+      "text": "你的 cron job 有在跑嗎？\n\n最恐怖的不是 cron 失敗\n是靜靜地沒跑，你不知道\n\n監控三層：\n1. 執行確認 — healthchecks.io 免費 20 個\n2. 結果確認 — exit code + log\n3. 產出確認 — 備份檔 > 0？資料筆數合理？\n\n模式：\ntask.sh && curl hc-ping.com/xxx || curl hc-ping.com/xxx/fail\n\ncron 不是設完就忘\n是設完就要監控",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cron_monitoring_tips.md"
+    },
+    {
+      "id": "scheduler:cost_tracking_ai_api.md",
+      "url": null,
+      "ts": "2026-04-16T12:07:29.905471",
+      "text": "用 AI API 不追蹤成本，等於開著水龍頭不看水錶。\n\n我的追蹤方法：\n\n每個 API call 記錄三個值：model、input_tokens、output_tokens。每天加總算費用。\n\n發現的規律：\n\n1. 80% 的費用來自 20% 的場景。我的案例是 Agent loop——一次任務可能跑 15 輪對話，每輪都帶完整 context。優化這 20% 效果最大。\n\n2. 模型降級是最快的省錢方法。不是每個任務都需要 Opus。分類/格式化用 Haiku，推理/決策才上 Opus。成本直接砍 80%。\n\n3. Prompt caching 是被低估的神器。重複的 system prompt 只需要算一次。長 prompt 場景省 50%+。\n\n每月超過 $100 的 AI 費用就該認真追蹤了。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cost_tracking_ai_api.md"
+    },
+    {
+      "id": "scheduler:context_window_management.md",
+      "url": null,
+      "ts": "2026-04-16T07:45:02.569162",
+      "text": "AI 最珍貴的資源不是算力\n是 context window\n\nClaude Code 有 200K tokens\n聽起來很多\n但一個大型專案塞進去就滿了\n\n我的策略：\n1. 記憶系統分層（索引→子檔案）\n2. 只載入當前需要的 context\n3. 壓縮前自動存進度\n4. 重啟後讀記憶繼續\n\n把 context window 當 RAM 管理\n索引放記憶體\n內容放硬碟\n需要時才載入\n\n這不是技巧\n是讓 AI 能長期工作的基礎架構\n\n#ClaudeCode #ContextWindow #AI開發 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "context_window_management.md"
+    },
+    {
+      "id": "scheduler:context_switching_cost.md",
+      "url": null,
+      "ts": "2026-04-16T07:30:01.671417",
+      "text": "Context switching 是生產力殺手\n\n人類切換任務需要 23 分鐘恢復專注\nAI 切換任務需要重新載入整個 context\n\n我的解法：\n- 每台機器只負責一件事\n  iMac = SBS + 開發\n  M4P = ERP\n  VPS = 24/7 服務\n\n- 每個 session 只做一類任務\n  不要寫 code 寫到一半去回訊息\n  不要 debug 到一半去寫文案\n\n- 用任務佇列不用多工\n  cc_tasks.json 排好順序\n  做完一個再拿下一個\n\n一人公司最大的錯覺：\n以為自己在多工\n其實在多次 context switch\n\n專注做一件事\n比同時做三件事快\n\n#生產力 #專注 #一人公司 #工作方法 #開發經驗",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "context_switching_cost.md"
+    },
+    {
+      "id": "scheduler:container_security_101.md",
+      "url": null,
+      "ts": "2026-04-16T07:15:05.039720",
+      "text": "Docker 很方便，但預設設定不安全。\n\n幾個最基本的安全步驟：\n\n不要用 root 跑。Dockerfile 裡加 USER 指令，指定非 root 使用者。大部分程式不需要 root 權限。\n\n不要把所有 port 開出來。docker-compose.yml 裡用 127.0.0.1:8080:8080 而不是 8080:8080，前者只允許本機連線。\n\n不要把 secret 寫在 Dockerfile 裡。用 env file 或 Docker secrets。`docker history` 能看到每一層的指令，你的密碼會被看光。\n\n定期更新 base image。用 alpine 或 slim 版本，攻擊面小。\n\n限制資源。加 memory limit 跟 CPU limit，避免一個容器吃掉整台機器。\n\n這些都是五分鐘能做完的事。不做的話，容器跟直接裝在系統上一樣危險。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "container_security_101.md"
+    },
+    {
+      "id": "scheduler:container_image_slim.md",
+      "url": null,
+      "ts": "2026-04-15T19:34:32.398441",
+      "text": "你的 Docker image 有多肥？\n\n常見問題：\n- 用 ubuntu 當 base（800MB）\n- 把 dev dependencies 打包進去\n- node_modules 原封不動 COPY\n\n瘦身三招：\n1. 多階段建構（multi-stage build）\n2. 用 alpine 或 distroless\n3. .dockerignore 排除垃圾\n\n我把 Node.js 服務從 1.2GB 壓到 180MB\n啟動快 3 倍，部署快 5 倍\n\n小 image = 快部署 + 小攻擊面 + 省儲存\n\nDevOps 第一課：先管好你的 image 大小",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "container_image_slim.md"
+    },
+    {
+      "id": "scheduler:config_as_code.md",
+      "url": null,
+      "ts": "2026-04-15T19:19:34.998838",
+      "text": "手動改 config 是事故的溫床。\n\n你在 production 的 nginx 加了一行，忘了記錄。三個月後 server 重建，那行不見了，然後某個功能神秘失效。你花了一天找原因，最後看著空白的 git log 欲哭無淚。\n\n配置即代碼的核心是：任何讓系統行為改變的設定，都要在版本控制裡。\n\n不只是 `docker-compose.yml` 和 `.env`，還包括：nginx 規則、cron 排程、系統服務設定、防火牆規則。\n\n好的 config as code 讓你能回答：「這台 server 的狀態，能不能從零重建出來？」如果答案是不確定，代表有東西還沒納進去。\n\n工具不重要，習慣才重要。Ansible、Terraform、或者就是一個 git repo 裡的 shell script，都可以。重點是每次改完就 commit，commit message 說清楚為什麼改。\n\n🗂️ 你的基礎設施應該要能被 git blame 追溯。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "config_as_code.md"
+    },
+    {
+      "id": "scheduler:codebase_navigation.md",
+      "url": null,
+      "ts": "2026-04-15T19:04:33.008917",
+      "text": "讀懂新 codebase 不是從 README 開始，README 通常過時。\n\n先看進入點：route 定義、main function、endpoint 清單。知道請求從哪進來就掌握脈絡。\n\n再看資料模型：DB schema 或 type 定義，資料結構決定系統能力。\n\n跑測試：test 是活的文件，跑一次比讀半天學更多。\n\n看 git log：最近 20 個 commit 告訴你哪些區域活躍。\n\n理解 codebase 有方法，不是硬啃。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "codebase_navigation.md"
+    },
+    {
+      "id": "scheduler:cloud_vps_cost.md",
+      "url": null,
+      "ts": "2026-04-15T12:34:32.461500",
+      "text": "同樣配置，Hetzner 和某些雲端報價差五倍。我自己算過的數字。\n\n選擇邏輯：什麼任務用什麼工具，不迷信大品牌。\n\nHetzner：主力。CAX11（2 vCPU、4GB RAM）月費不到 5 歐，跑 Node.js 或輕量 DB 夠用。網路穩定，20TB 免費流量。台灣訪問稍慢，但非 latency-sensitive 服務問題不大。\n\nOracle Cloud：免費方案業界最慷慨——兩台 AMD VM 永久免費，另有 4 OCPU/24GB Arm 免費額度。缺點是帳號偶爾被停，適合跑不重要的備援。\n\nFly.io：managed 服務比 VPS 貴，但省管理成本。Auto-scaling、多區域部署內建——時間比機器貴的話值得。\n\n隱形成本：流量費。部分大廠按 GB 收出口流量，一不小心帳單翻倍。選 VPS 前要算進去。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cloud_vps_cost.md"
+    },
+    {
+      "id": "scheduler:claude_code_workflow.md",
+      "url": null,
+      "ts": "2026-04-15T12:19:32.448637",
+      "text": "用 Claude Code 開發一個月後的工作流。\n\n最大的改變：不再逐行寫 code，而是描述意圖讓 AI 實作，我負責 review 和微調。\n\n有效的使用方式：\n\n1. 給完整上下文。不是「幫我寫一個函數」，而是「這個檔案做什麼、現在要加什麼功能、要注意什麼限制」。上下文越完整，output 越準。\n\n2. 分步驟走。大功能拆成 3-5 步，每步確認再往下。一次要求太大，品質會掉。\n\n3. 讓它讀現有 code 再改。先 Read 再 Edit，比從零 Write 好太多。它會理解既有風格和架構。\n\n踩過的坑：太信任 AI 的 output 不 review。它會寫出看起來正確但邊界條件有 bug 的 code。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "claude_code_workflow.md"
+    },
+    {
+      "id": "scheduler:ci_cd_solo_dev.md",
+      "url": null,
+      "ts": "2026-04-15T12:04:27.580634",
+      "text": "一個人開發，CI/CD 到底需要多複雜？\n\n答案：不複雜。GitHub Actions + 幾個 shell script，跑半年比 Jenkins 穩。\n\n核心流程：push → workflow 跑測試 → 過了就 SSH 部署。整個 deploy.yml 不超過 60 行。\n\n重點：\n• Secret 管理：SSH key 存 GitHub secrets，用 appleboy/ssh-action 執行遠端指令\n• 部署拆兩層：deploy.sh 拉 code + 重啟 + 健康檢查；rollback.sh 失敗時自動回滾\n• 健康檢查：curl -f localhost/health，不過就 rollback + TG 通知\n• 設 concurrency，避免兩個 push 同時部署造成競態\n\n一個人不需要企業級工具鏈，需要的是「出事能快速復原」。你的部署有自動 rollback 嗎？",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ci_cd_solo_dev.md"
+    },
+    {
+      "id": "scheduler:burnout_prevention_dev.md",
+      "url": null,
+      "ts": "2026-04-15T07:34:28.056374",
+      "text": "開發者 burnout 的真正原因不是工作量，是失控感。\n\n寫了一天 code 結果全部重來——不是因為太多，是因為方向不對。開了一整天會結果沒結論——不是因為太忙，是因為沒效率。\n\n我的防範方法：\n\n1. 每天只設 1-3 個「必須完成」。不是 todo list 的 20 項，是真正重要的 1-3 項。完成了就是好的一天。\n\n2. 時間塊（time blocking）。寫 code 的時間不開會、不看訊息。至少 2 小時不被打斷的深度工作。\n\n3. 完成 > 完美。能用就先上線。80% 的完成度比 100% 的永遠在開發好。\n\n4. 自動化重複工作。每次手動做超過 3 次的事，就寫成腳本。不是為了效率，是為了減少心智負擔。\n\n寫 code 是創造性工作——保護你的創造力。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "burnout_prevention_dev.md"
+    },
+    {
+      "id": "scheduler:browser_test_automation.md",
+      "url": null,
+      "ts": "2026-04-15T07:19:35.168831",
+      "text": "前端測試不能只靠人眼\n\n每次改完 CSS 就人工點一遍？\n三十個頁面不行\n\n自動化：\n1. Playwright — 跨瀏覽器、截圖比對\n2. Visual regression — 改了顏色秒知影響範圍\n3. Lighthouse CI — 效能分數自動追蹤\n\n我寫了 15 個 E2E 測試\n從此改 UI 不再心驚膽跳\n跑一次 2 分鐘省下 30 分鐘人工\n\n自動化測試不是大公司專利",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "browser_test_automation.md"
+    },
+    {
+      "id": "scheduler:backup_restore_test.md",
+      "url": null,
+      "ts": "2026-04-15T07:04:34.933391",
+      "text": "你有備份嗎？有。你測過還原嗎？\n\n這是最常被忽略的事。備份天天跑，cron 顯示成功，檔案大小看起來合理。但你真的試過從零還原嗎？\n\n我前陣子發現異地備份裡的 invest DB 是空的 — 只有 30 bytes。腳本跑了幾個月，每次都回報成功。直到真的去看檔案大小才發現。\n\n備份驗證清單：\n\n檔案大小合理嗎？跟上次比差異正常嗎？能實際解壓縮/載入嗎？還原後資料完整嗎？\n\n最低限度的驗證：備份完後，自動檢查檔案大小，低於閾值就告警。不用建整套測試環境，光是這一步就能擋掉 80% 的假備份。\n\n備份沒驗證過，就不算備份。它只是一個讓你安心的 cron job。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "backup_restore_test.md"
+    },
+    {
+      "id": "scheduler:backup_3_2_1_real.md",
+      "url": null,
+      "ts": "2026-04-14T19:34:28.801806",
+      "text": "3-2-1 備份法則聽起來老套，但真的能救命。\n\n3 份資料、2 種媒體、1 份異地。我的實作：\n\n本機：每日自動 dump，壓縮保留 30 天。這是第一線，恢復最快。\n\n異地 VPS：每天凌晨自動 rsync 過去。第二線，本機掛了幾小時內恢復。\n\n雲端冷備：B2 Storage，每天從 VPS 同步上去。末日堡壘，最後一道防線。\n\n踩過的坑：備份沒驗證等於沒備份。我有一次發現異地備份連續兩週都是空檔案（rsync 路徑錯），直到手動檢查才發現。\n\n現在每次備份完自動檢查檔案大小，異常立刻告警。\n\n備份不性感，但它是你凌晨三點不會心臟病發的保險。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "backup_3_2_1_real.md"
+    },
+    {
+      "id": "scheduler:automation_roi.md",
+      "url": null,
+      "ts": "2026-04-14T19:19:35.753850",
+      "text": "自動化之前先算 ROI\n\n寫一個自動化腳本要 4 小時\n每次手動操作要 5 分鐘\n一天做 2 次\n\n4 小時 ÷ 10 分鐘/天 = 24 天回本\n\n如果這件事每天都要做，值得自動化\n如果一個月才一次，手動就好\n\n我們的經驗法則：\n- 每天做 → 一定要自動化\n- 每週做 → 看複雜度決定\n- 每月做 → 寫個 checklist 就好\n\n最容易踩的坑：\n花 3 天自動化一件一年才做一次的事\n然後半年後環境變了，腳本也壞了\n\n自動化是投資，不是炫技",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "automation_roi.md"
+    },
+    {
+      "id": "scheduler:automation_diminishing_returns.md",
+      "url": null,
+      "ts": "2026-04-14T19:04:35.241476",
+      "text": "自動化到某個程度之後，每多花一小時設置，省回來的時間越來越少。\n\n我有一個 script，花了兩天寫，每週幫我省 10 分鐘。兩個月才打平。如果我再花一天優化它，可能每週省 12 分鐘。不值得。\n\n這是自動化的邊際遞減效應。\n\n第一個 20% 的自動化，解決了 80% 的重複勞動。剩下 80% 的自動化投資，只換來最後 20% 的收益，而且通常是最難處理的邊緣情況。\n\n何時停下來的判斷標準：\n\n如果自動化本身比你要解決的問題更複雜，先暫停。如果為了維護自動化工具，你要花的心力快追上手動做的時間，重新評估。如果這件事一個月才發生一次，手動做可能才是對的選擇。\n\n不是所有重複的事都值得自動化，有些事的頻率低到「記住怎麼做」本身就比「維護自動化腳本」更有效率。\n\n⚙️ 自動化是工具，不是目標。省下的時間要拿去做更有價值的事，才算真的賺到。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "automation_diminishing_returns.md"
+    },
+    {
+      "id": "scheduler:automated_content_pipeline.md",
+      "url": null,
+      "ts": "2026-04-14T12:31:38.461313",
+      "text": "每天發 9 篇 Threads\n但我不是每天在寫\n\n我的做法：\n1. 批次寫 10-20 篇草稿\n2. Gemini 自動審文（語氣/品質）\n3. 排程器按時段自動發佈\n4. 早中晚各 3 篇，間隔 4 小時\n\n草稿庫存維持 7 天以上\n低於就自動補充\n\n社群經營最累的是「每天都要想」\n自動化解決的就是這個問題\n\n內容要先有量，才能談質\n\n#社群經營 #Threads #自動化 #內容行銷 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "automated_content_pipeline.md"
+    },
+    {
+      "id": "scheduler:async_communication.md",
+      "url": null,
+      "ts": "2026-04-14T12:29:13.039125",
+      "text": "最浪費的會議是「同步一下」。\n\n同步一下的真正意思是：「我沒辦法用文字說清楚，所以需要你的時間來補足我的表達不足。」\n\n非同步溝通逼你把事情想清楚再說。你必須在發出訊息前就組織好脈絡：背景是什麼、問題是什麼、你已經試過什麼、你需要對方做什麼決定。\n\n這個過程本身就很有價值，很多時候寫到一半你就自己解決了。\n\n我們團隊的規則：緊急問題才同步，其他全部非同步。什麼叫緊急？系統掛了、客戶在等、今天的決定影響明天的行動。其他的，發訊息，等回覆。\n\n時區協作讓我們學到了這件事。當你必須跨時區工作，你會發現大多數「需要立即回覆」的事情根本不需要立即回覆。\n\n💬 好的非同步訊息，讓收到的人能在沒有你的情況下繼續行動。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "async_communication.md"
+    },
+    {
+      "id": "scheduler:api_versioning_tips.md",
+      "url": null,
+      "ts": "2026-04-14T12:15:01.136225",
+      "text": "API 版本管理\n做錯了就是技術債地獄\n\n三種常見做法：\n1. URL 路徑：/api/v1/users\n2. Header：Accept: application/vnd.api+json;version=1\n3. Query：/api/users?version=1\n\n我的建議：\n- 內部 API → 不版本化，直接改\n- 外部 API → URL 路徑最直觀\n- 別用 header，debug 很痛苦\n\n更重要的原則：\n- 新增欄位不算破壞性變更\n- 刪除/改名欄位才需要新版本\n- 同時維護超過 2 個版本 = 噩夢\n\n一人公司的現實：\n你可能永遠只需要 v1\n但設計時預留升級空間不虧\n\n#API設計 #後端開發 #系統設計 #技術債 #軟體架構",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_versioning_tips.md"
+    },
+    {
+      "id": "scheduler:api_rate_limit_impl.md",
+      "url": null,
+      "ts": "2026-04-14T07:40:36.919228",
+      "text": "API rate limiting 的實作，比理論複雜。\n\n三種常見演算法：\n\n1. Fixed window：每分鐘 100 次。簡單但有邊界問題——59 秒打 100 次 + 第 61 秒再打 100 次 = 2 秒內 200 次。\n\n2. Sliding window：用 sorted set 記每次請求時間戳。精準但記憶體吃重——高流量下每個 user 都要存一堆時間戳。\n\n3. Token bucket：桶裡有 token，每次請求消耗一個，固定速率補充。允許短暫突發但限制持續流量。最推薦。\n\n實作細節：用 Redis + Lua script 保證原子性。不用 Redis 也行——記憶體 Map + 定時清理，單機夠用。\n\n最重要的：rate limit 被觸發時，回 429 + Retry-After header。讓客戶端知道什麼時候能重試。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_rate_limit_impl.md"
+    },
+    {
+      "id": "scheduler:api_error_handling_client.md",
+      "url": null,
+      "ts": "2026-04-14T07:25:26.286790",
+      "text": "呼叫外部 API，錯誤處理決定穩定度。\n\n真實 API 會 timeout、回 500、限流。只處理 happy path 遲早出事。\n\n超時：每個 call 都設 timeout，5 秒內該回的不要等 30 秒。\n\n重試：429/503 可重試用指數退避，400 不重試那是你的錯。\n\n降級：API 掛了用快取舊資料或預設值，提前決定好。\n\n監控：記錄失敗狀態碼，異常自動通知，不等用戶回報。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_error_handling_client.md"
+    },
+    {
+      "id": "scheduler:api_doc_automation.md",
+      "url": null,
+      "ts": "2026-04-14T07:10:31.520307",
+      "text": "API 文件不要手寫\n\n手寫的問題：\n- 改了 API 忘了改文件\n- 新人照文件串接全部 400\n\n自動化方案：\n1. OpenAPI/Swagger — 程式碼生成規格\n2. TypeDoc/JSDoc — 註解就是文件\n3. Bruno/Hoppscotch — 請求集當活文件\n\n我的原則：\n- 程式碼是唯一真相來源\n- 文件從程式碼生成\n- CI 檢查文件是否過期\n\n寫兩次的東西一定會不同步\n所以只寫一次",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_doc_automation.md"
+    },
+    {
+      "id": "scheduler:api_design_lessons.md",
+      "url": null,
+      "ts": "2026-04-13T19:42:08.928252",
+      "text": "做了幾十個 API 之後學到的事\n\n1. 命名要一致\n/api/users GET 查詢\n/api/users POST 新增\n不要 /api/getUsers、/api/createUser\n\n2. 錯誤回傳要有結構\nHTTP status code 要正確（404、422、500...）\nbody 也要結構化：{ code: \"NOT_FOUND\", message: \"...\" }\n不要什麼錯誤都回 200 然後靠 body 判斷\n\n3. 版本控制從第一天就做\n/api/v1/ 開頭\n日後改介面不會炸掉舊 client\n\n4. Rate limiting 一定要加\n不加的話，一個寫錯的迴圈就能打爆你\n\n5. 文件不用完美，但要存在\n未來的你會感謝現在的你\n\n#API設計 #RESTful #後端開發 #最佳實踐",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_design_lessons.md"
+    },
+    {
+      "id": "scheduler:ai_wake_up_report.md",
+      "url": null,
+      "ts": "2026-04-13T19:27:23.830101",
+      "text": "每天早上打開電腦\nAI 助理已經準備好工作報告\n\n昨晚完成了什麼：\n→ 系統巡檢 5 台機器全正常\n→ 磁碟清理省出 68G\n→ 10 篇社群草稿已寫好\n→ 行情資料自動補回 8000 筆\n→ 3 個安全漏洞已修\n\n不是魔法\n是 Watchdog + launchd + 記憶系統\n\nAI 睡前存進度\n醒來讀記憶繼續做\n\n你早上起來第一件事是什麼？\n我是看 AI 的工作報告\n\n#AI助理 #自動化 #工作報告 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_wake_up_report.md"
+    },
+    {
+      "id": "scheduler:ai_trust_calibration.md",
+      "url": null,
+      "ts": "2026-04-13T19:11:13.013755",
+      "text": "你對 AI 的信任度，可能校準得不對。\n\n兩種常見的錯誤方向：\n\n過度信任：AI 說什麼就做什麼，不 review，不測試，直接上。出了事才發現 AI 在某個細節上自信地錯了。\n\n過度懷疑：每次 AI 給的答案都要自己重新驗證一遍，等同於沒省到任何時間，只是把思考的起點換了個地方。\n\n正確的校準方式是：按任務類型分層信任。\n\n高信任任務：格式轉換、寫測試、生成重複性代碼、總結文件。這類任務 AI 的錯誤很容易被發現，即使出錯代價也低。\n\n低信任任務：安全相關邏輯、財務計算、業務規則的解釋、架構決策。這類任務要把 AI 的輸出當作草稿，自己過一遍才算。\n\n信任不是全開或全關的開關，是根據風險動態調整的旋鈕。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_trust_calibration.md"
+    },
+    {
+      "id": "scheduler:ai_tool_fatigue.md",
+      "url": null,
+      "ts": "2026-04-13T12:36:39.768689",
+      "text": "每週都有新 AI 工具\n你真的需要每個都試嗎？\n\n我的篩選標準：\n1. 解決我「現在」的問題嗎？\n2. 比現有工具好 2 倍以上嗎？\n3. 學習成本值得嗎？\n\n三題有一題答不出來\n就不試了\n\n工具疲勞是真實存在的\n花在評估工具的時間\n可能比工具省下的時間還多\n\n最好的工具是你已經會用的那個\n除非新的真的好很多\n\n#AI工具 #開發效率 #工具選擇 #程式設計 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_tool_fatigue.md"
+    },
+    {
+      "id": "scheduler:ai_session_memory.md",
+      "url": null,
+      "ts": "2026-04-13T12:21:17.056265",
+      "text": "AI 最大的痛點：重啟就失憶\n\n每次新 session 都要重新解釋：\n「我們的專案架構是⋯」\n「上次做到⋯」\n\n我的解法：檔案式記憶系統\n- 進度檔：上次做到哪\n- 專案總覽檔：專案全貌\n- 偏好設定檔：協作風格\n\n啟動時自動讀取，秒回復狀態\n\n不是讓 AI 記住一切\n而是讓它知道去哪找答案\n\n記憶的關鍵不是容量\n是索引\n\n#AI記憶 #ContextWindow #開發技巧 #AIAgent #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_session_memory.md"
+    },
+    {
+      "id": "scheduler:ai_prompt_versioning.md",
+      "url": null,
+      "ts": "2026-04-13T12:06:10.872212",
+      "text": "你的 prompt 也需要版本控制。\n\n很多人 prompt 寫死在程式碼，改了沒記錄。效果變差時不知道哪次修改造成的。\n\n存進 git，每次修改有 commit message，可 diff 可 rollback。\n\n準備標準測試案例，改完跑一遍確認品質沒掉。\n\n標版本號，v1.0 基線、v1.1 加限制、v2.0 重寫，出問題快速定位。\n\nPrompt 是持續迭代的工程資產，不是寫一次的文案。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_prompt_versioning.md"
+    },
+    {
+      "id": "scheduler:ai_pair_debug_story.md",
+      "url": null,
+      "ts": "2026-04-13T07:40:24.583699",
+      "text": "昨晚卡了兩小時的 bug，最後是 AI 一眼看出來的。\n\n問題是一個 PHP 函數回傳值在某條件下是空字串而不是 null，導致前端判斷失效。我看了十幾遍都沒發現，因為我的眼睛已經「習慣」了那段代碼。\n\n把整段貼給 AI，它直接說：「這裡的 `empty()` 會把 0 也判為 false，你確定這是你要的行為嗎？」\n\n不是那個 bug，但這句話讓我重新審視整個邏輯，然後我自己發現了真正的問題。\n\n這就是 AI pair programming 最有價值的地方——不是它幫你找到 bug，而是它打破你的認知定勢。\n\n你已經看不見的東西，它還看得見。不是因為它比你聰明，而是因為它沒有你的先入為主。\n\n下次卡超過 30 分鐘，先貼給 AI 看，不要等兩小時。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_pair_debug_story.md"
+    },
+    {
+      "id": "scheduler:ai_multi_model_strategy.md",
+      "url": null,
+      "ts": "2026-04-13T07:25:28.853336",
+      "text": "不要只用一個 AI 模型，混合使用才聰明。\n\n主力處理核心：程式碼生成、架構設計用最強模型。\n\n不同模型交叉 review，盲點不同互相補漏。\n\n分類、摘要、格式轉換用便宜模型就夠。\n\n本地 Ollama 保底，API 掛了還能用。\n\n選對模型同一任務可便宜 10-50 倍，品質不一定差。模型選擇是工程決策，不是信仰。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_multi_model_strategy.md"
+    },
+    {
+      "id": "scheduler:ai_memory_design.md",
+      "url": null,
+      "ts": "2026-04-13T07:10:26.173146",
+      "text": "幫 AI 設計記憶系統，比想像中難。\n\nLLM 沒有真正的記憶——每次對話都是全新的。你要自己建記憶層。\n\n我的三層架構：\n\n1. 短期：對話 context window。最直接但最貴。超過限制就要壓縮。壓縮時最新的保留、中間的摘要、最早的丟棄。\n\n2. 中期：結構化 memory files。每次對話結束，萃取重要資訊寫入 markdown 檔。下次啟動時載入。像是「老闆偏好」「專案進度」這類半永久資訊。\n\n3. 長期：向量資料庫。所有歷史記錄做 embedding，語意搜尋相關片段注入 context。pgvector + bge-base-zh，本地免費跑。\n\n關鍵學到：記憶不是越多越好。載入太多無關記憶反而干擾 LLM 判斷。選擇性遺忘和選擇性記憶一樣重要。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_memory_design.md"
+    },
+    {
+      "id": "scheduler:ai_log_analysis.md",
+      "url": null,
+      "ts": "2026-04-12T19:41:25.459740",
+      "text": "10 萬行 log，問題藏在第 73,412 行。用肉眼找？不現實。\n\n我的做法：把 log 分段餵給 LLM\n→ 先用時間範圍縮小到出問題的那個小時\n→ 按嚴重程度分層：ERROR → WARN → INFO\n→ 壓縮重複的心跳訊息，不浪費 context\n\n問問題要精確：\n✗「請分析這段 log」太模糊\n✓「14:23~14:31 響應變慢，找出異常事件和可能根因」\n\n進階用法：讓 AI 整理常見錯誤模式和解法，建 pattern 字典。下次出問題先查字典，命中率很高。\n\n重點：不要整個 10 萬行一次丟，context window 越長越容易漏。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_log_analysis.md"
+    },
+    {
+      "id": "scheduler:ai_cost_per_task.md",
+      "url": null,
+      "ts": "2026-04-12T19:26:23.092641",
+      "text": "你知道你每項 AI 任務的成本嗎？\n\n我開始追蹤這個之後，改變了很多使用習慣。\n\n一個簡單的代碼補全：$0.001。一次複雜的 agent 任務，帶工具調用和多輪對話：$0.05～$0.30。聽起來不多，但如果每天跑幾十次 agent 任務，一個月的帳單會讓你驚訝。\n\n更重要的是任務的 ROI。$0.20 的 agent 任務，如果幫你省了 30 分鐘手動操作，那個 ROI 是無敵的。但如果是為了省 5 分鐘的事，而且結果還要 review，那可能不如直接自己做。\n\n我的分類方式：\n- 高頻低價值任務：用便宜的小模型或本地模型\n- 低頻高複雜度任務：用最好的模型，值得\n- 中間地帶：最需要判斷，不要懶得評估\n\nAI 不是越用越好，是用對了才好。成本意識讓你更精準地選擇在哪裡用它。\n\n💰 把 AI 費用當成人力成本的一部分來思考，你會做出更好的決策。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_cost_per_task.md"
+    },
+    {
+      "id": "scheduler:ai_cost_dashboard_diy.md",
+      "url": null,
+      "ts": "2026-04-12T19:11:26.795012",
+      "text": "AI API 帳單失控？你需要看板\n\n我的成本追蹤：\n1. 每次呼叫記錄 token 用量\n2. 算單次成本（input/output 分開）\n3. 按任務分類統計\n\n發現的真相：\n- 80% 成本來自 20% 的任務\n- prompt caching 省了 40%\n- 小模型處理簡單任務省 90%\n\n實作：中間層攔截 → 寫入 PG → dashboard 視覺化\n\n不追蹤就不知道錢花在哪\nAI 時代的 DevOps 包含成本工程",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_cost_dashboard_diy.md"
+    },
+    {
+      "id": "scheduler:ai_context_pollution.md",
+      "url": null,
+      "ts": "2026-04-12T12:41:24.217237",
+      "text": "AI 的 context window 不是越塞越好，塞太多反而變笨。\n\n很多人把整個 codebase 丟進去，結果 AI 在無關資訊中迷路。\n\nContext 污染的症狀：回答偏題、精確度下降、成本暴增（塞 100K 但有用的只有 5K）。\n\n正確做法是精準投餵：只給當前任務需要的檔案、相關錯誤訊息、必要背景。\n\n少即是多。10 行精準 context 比 1000 行「以防萬一」有效得多。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_context_pollution.md"
+    },
+    {
+      "id": "scheduler:ai_codegen_traps.md",
+      "url": null,
+      "ts": "2026-04-12T12:26:23.683788",
+      "text": "AI 寫程式最常踩的五個坑。\n\n1. 過度抽象。AI 很愛幫你建 utils、helpers、base class。三行程式碼能解決的事，它生成了三個檔案。簡單的東西保持簡單。\n\n2. 幽靈依賴。AI 推薦的套件可能不存在、已廢棄、或有安全漏洞。用之前先 npm info / pip show 確認。\n\n3. 過時的 API。訓練資料有截止日期。AI 可能用了兩年前的寫法，而這個 API 在最新版已經改了。\n\n4. 信心十足地寫錯。AI 不會說「我不確定」。它會用最自信的語氣寫出有 bug 的程式碼。看起來越漂亮越要仔細 review。\n\n5. 忽略上下文。AI 不知道你的業務邏輯、團隊慣例、現有架構。它生成的程式碼在技術上正確，但在你的專案裡格格不入。\n\n對策很簡單：永遠跑測試，永遠 review，永遠確認依賴存在。把 AI 當實習生，不是資深工程師。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_codegen_traps.md"
+    },
+    {
+      "id": "scheduler:ai_code_review_tips.md",
+      "url": null,
+      "ts": "2026-04-12T12:11:25.870494",
+      "text": "讓 AI 做 code review，要給它正確的角度。\n\n「幫我 review 這段 code」太模糊。AI 會給你一堆 coding style 建議。\n\n有效的 prompt 結構：\n\n1. 告訴它角色：「你是 security reviewer」或「你是 performance engineer」。角色決定它看什麼。\n\n2. 給它 diff 不給全檔：改了哪些行就看哪些行。全檔案丟進去它會分心在沒改動的地方。\n\n3. 指定檢查項目：SQL injection？Race condition？Memory leak？越具體越有用。\n\n我的實際流程：先用 Copilot 跑第一輪通用 review，再用 Claude 跑安全/架構層 review。兩個模型的盲點不同，交叉比對抓更多問題。\n\n最後還是要人眼看一遍——AI 會漏掉業務邏輯的 bug。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_code_review_tips.md"
+    },
+    {
+      "id": "scheduler:ai_code_ownership.md",
+      "url": null,
+      "ts": "2026-04-12T09:26:21.653364",
+      "text": "AI 寫的代碼，出了問題誰負責？\n\n法律上目前還是模糊地帶，但工程上答案很清楚：是你。\n\n你是那個按下 Accept 的人。你是那個沒有認真 review 就合進主幹的人。你是那個在 PR 描述裡寫「AI generated」然後假設這樣就免責的人。\n\n我的觀點：AI 生成代碼不該比 Stack Overflow 貼上來的代碼享有更多信任。你不會因為代碼來自 Google 搜尋就跳過審查，那為什麼因為來自 AI 就跳過？\n\n實際上，AI 的代碼需要更謹慎審查，因為它看起來更像「正確的樣子」。格式整齊、有注釋、邏輯完整，但可能在邊緣條件上悄悄地錯了。\n\n擁有代碼，意味著你讀過它、理解它、能解釋它。不管是誰寫的。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_code_ownership.md"
+    },
+    {
+      "id": "scheduler:ai_agent_observability.md",
+      "url": null,
+      "ts": "2026-04-12T09:11:23.276865",
+      "text": "AI Agent 跑起來後，你怎麼知道它在幹嘛？\n\nAgent 行為不確定性高，同樣輸入可能不同輸出，監控比傳統軟體更難。\n\n每個決策記錄推理過程，不只記結果。事後才能 debug。\n\n成本即時追蹤，token 數、費用、延遲都記。異常飆高就是問題信號。\n\n心跳 + 健康檢查，超時沒回報就自動重啟。\n\nAgent 需要跟 production 系統一樣的可觀測性。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_agent_observability.md"
+    },
+    {
+      "id": "scheduler:32_ai_agent_job_market.md",
+      "url": null,
+      "ts": "2026-04-12T07:26:22.375994",
+      "text": "---\ntitle: AI 不會取代你，但會用 AI 的人會\ncategory: AI 產業趨勢\ntags: [AI趨勢, 職場, 未來工作]\n---\n\n這句話已經被講到爛了，但大部分人還是沒有真的去做。\n\n觀察身邊的人：\n\n有人花 3 小時寫一份報告，有人用 AI 20 分鐘搞定，剩下的時間拿去做更重要的事。\n\n有人手動整理 Excel 資料，有人用 Python + AI 自動化，一勞永逸。\n\n有人還在搜尋引擎找答案，有人直接問 AI 得到結構化的回覆。\n\n差距不在「會不會寫程式」，而在「有沒有意識到 AI 可以幫你」。\n\n但我想說一個更深的觀點：\n\n真正的競爭力不是「會用 AI」，而是「知道什麼時候不該用 AI」。\n\nAI 不擅長：\n- 需要深度人際判斷的決策\n- 牽涉公司政治的溝通\n- 需要實體操作的工作\n- 高風險且不可逆的決定\n\n把 AI 擅長的事交給 AI，把 AI 不擅長的事留給自己。這才是真正的 AI 協作，不是全部丟給 AI，也不是完全不用。\n\n找到那個平衡點的人，就是下一個世代的贏家。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "32_ai_agent_job_market.md"
+    },
+    {
+      "id": "scheduler:30_invest_emotion_trap.md",
+      "url": null,
+      "ts": "2026-04-11T21:26:14.421081",
+      "text": "---\ntitle: 投資最大的敵人不是市場，是你的情緒\ncategory: 投資/理財觀點\ntags: [投資, 理財, 情緒管理]\n---\n\n看到股價跌 3%，你的第一反應是什麼？\n\nA. 趕快賣掉止損\nB. 加碼攤平\nC. 看數據再決定\n\n大部分人選 A 或 B，這兩個都是情緒反應。\n\n我們建了一套系統來對抗情緒：\n\nAI 新聞情緒分析 — 不是看你的情緒，是看市場的情緒。當恐慌指數飆高，通常是別人在恐慌拋售，反而可能是機會。\n\n法人買賣超追蹤 — 散戶在賣，法人在買？那散戶大概率是錯的。\n\n歷史回測 — 過去 10 年，類似的跌幅之後，3 個月內漲回來的機率是多少？讓數據說話。\n\n自動化報告 — 每天早上收到昨日異動摘要，不用自己盯盤。情緒來自於「不確定感」，資訊透明就能降低焦慮。\n\n重點不是預測市場，沒有人能做到。\n\n重點是在市場波動的時候，你有一套系統幫你冷靜下來，用數據而不是直覺做決定。\n\n投資系統化不是為了多賺，是為了少虧。少虧就是贏。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "30_invest_emotion_trap.md"
+    },
+    {
+      "id": "scheduler:26_solo_founder_ai_leverage.md",
+      "url": null,
+      "ts": "2026-04-11T19:26:11.993785",
+      "text": "---\ntitle: 一人公司的槓桿不是人，是 Agent\ncategory: 一人公司/創業\ntags: [一人公司, 創業, AI槓桿]\n---\n\n傳統創業的擴張方式：請人。\n\n一人公司的擴張方式：建系統。\n\n我一個人管的東西：\n- ERP 系統維運\n- 投資分析系統\n- 社群內容產出\n- 客戶報價回覆\n- 系統監控告警\n- 備份災難復原\n\n以前這至少要 3-4 個人。現在靠 AI Agent + 自動化，一個人搞定。\n\n關鍵心態轉變：\n\n別想「這件事我要怎麼做」，而是想「這件事我要怎麼讓系統做」。\n\n每次手動做一件事超過三次，就寫成自動化。\n每次要做判斷的事，就訓練 Agent 來判斷。\n每次要盯螢幕等結果，就設告警讓系統通知你。\n\n一人公司的天花板不是時間，是你願不願意把控制權交出去。\n\n月成本不到 100 美金。投資報酬率？無限大。因為你買回來的是時間。\n\n時間拿去做什麼？想新的事業、陪家人、或者什麼都不做。這才是一人公司的意義。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "26_solo_founder_ai_leverage.md"
+    },
+    {
+      "id": "scheduler:24_erp_legacy_ai.md",
+      "url": null,
+      "ts": "2026-04-11T13:41:13.711393",
+      "text": "---\ntitle: 20 年老系統不是包袱，是金礦\ncategory: ERP 數位轉型\ntags: [ERP, 數位轉型, 製造業]\n---\n\n很多人看到 20 年的老 ERP 就想砍掉重練。\n\n先等等。\n\n那些跑了 20 年的系統裡面，藏的是 20 年的業務邏輯。每一個奇怪的 if-else，背後都是一次客訴、一次出錯、一次老闆拍桌子的教訓。\n\n砍掉重練的代價：\n- 3-6 個月開發期，業務空窗\n- 新系統沒有那些「看起來多餘」的邏輯，上線就出事\n- 使用者要重新學習，抗拒心理巨大\n\n我們的做法不一樣：\n\n保留核心邏輯，換掉技術底層。\n\nSQL Server 搬到 MySQL/PostgreSQL — AI 自動轉譯 stored procedure。\nASP 介面不動 — 使用者完全無感。\nDocker 容器化 — 部署從半天變成 5 分鐘。\n加上 AI 助理 — 用自然語言查 ERP 資料。\n\n結果：回應時間從 3 秒降到 8ms，使用者說「感覺沒變但變快了」。\n\n這才是數位轉型的正確姿勢：不是革命，是進化。使用者不需要知道底層換了什麼，他們只需要知道系統更快、更穩。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "24_erp_legacy_ai.md"
+    },
+    {
+      "id": "scheduler:22_agent_trust_boundary.md",
+      "url": null,
+      "ts": "2026-04-11T12:56:09.136512",
+      "text": "---\ntitle: 你敢讓 AI 自己按下部署鍵嗎？\ncategory: AI Agent\ntags: [AI Agent, 信任邊界, 自動化]\n---\n\nAI Agent 最敏感的問題不是「能不能做」，而是「你敢不敢讓它做」。\n\n我們的信任等級制度：\n\nL1 — 只讀。Agent 可以查資料、看 log，不能改任何東西。\nL2 — 有限寫入。可以改檔案，但要人工確認才能部署。\nL3 — 自動執行。排程任務自己跑，出錯自己修，但有邊界。\nL4 — 完全自主。自己設目標、自己判斷、自己行動。\nL5 — 權限全開。包含敏感操作，生產環境直接動。\n\n大部分人卡在 L2 就不敢往上。\n\n但真正的效率提升在 L3 以後。\n\n關鍵不是勇氣，是機制：\n- 每個動作都有 audit log\n- 敏感操作前自動快照\n- 異常行為觸發人工介入\n- 設定明確的「不可逆操作」清單\n\n信任不是盲信，是你建了足夠的護欄之後，理性地放手。\n\n我們的 Agent 現在跑在 L4，凌晨自己做研究、自己寫程式、自己測試。早上起來看報告就好。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "22_agent_trust_boundary.md"
+    },
+    {
+      "id": "scheduler:ai_agent_production.md",
+      "url": null,
+      "ts": "2026-04-11T07:41:10.011232",
+      "text": "把 AI Agent 從 demo 搬到 production，中間隔著一座山。\n\nDemo 階段：LLM 呼叫工具，得到結果，回覆使用者。看起來很酷。\n\nProduction 才是真正的挑戰：\n\n1. 幻覺管理：Agent 會自信地執行錯誤的操作。必須在關鍵步驟加 guardrail——刪除/發送/付款前強制人工確認。我用紅綠燈分級：綠色自動、黃色做了回報、紅色先問。\n\n2. 成本控制：一個 Agent loop 可能跑 10+ 次 LLM 呼叫。沒有 token budget 限制，帳單會爆。\n\n3. 可觀測性：Agent 的決策鏈要完整記錄。出錯時你需要知道它在第幾步、看到什麼、決定什麼。\n\n最重要的學到：Agent 不是取代人，是放大人。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_agent_production.md"
+    },
+    {
+      "id": "scheduler:agent_session_handoff.md",
+      "url": null,
+      "ts": "2026-04-11T07:26:11.481263",
+      "text": "AI Agent 最怕的不是斷線，是失憶。\n\n每次 session 重啟，如果沒有好的 handoff 機制，Agent 就像一個剛醒來不知道自己在哪的人。上次做到哪了？誰交代了什麼？有哪些事被擋住了？\n\n我的做法是三層記憶：\n\n第一層：session context。每次 session 結束前自動寫入「做了什麼、卡在哪、下次要做什麼」。啟動時第一件事就讀它。\n\n第二層：持久記憶檔。按主題分類的 markdown 檔案，記錄老闆偏好、專案狀態、重要決策。不會因為重啟消失。\n\n第三層：外部狀態。Discord 訊息、git log、系統狀態。重啟後主動去讀，而不是只靠記憶。\n\n關鍵原則：記憶可能過時，但至少提供起點。啟動後先驗證記憶是否還正確，再開始工作。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "agent_session_handoff.md"
+    },
+    {
+      "id": "scheduler:agent_collaboration.md",
+      "url": null,
+      "ts": "2026-04-11T07:11:09.357800",
+      "text": "多個 AI Agent 協作，最難的不是技術，是分工。\n\n單個 Agent 問題：context window 有限、角色混亂、品質不穩。\n解法：每個 Agent 只做一件事，Orchestrator 負責協調。\n\n我的做法：\n→ 研究 Agent 只搜尋讀檔，不執行代碼\n→ 執行 Agent 跑腳本但不做決策\n→ 審查 Agent 只看結果，不管過程\n\nOrchestrator 三件事：拆任務、分配、收結果決定下一步\n\n最大的坑是無限循環：A 輸出不符 B 預期，B 要求重做，循環不止。一定要設最大重試次數，超過就人工介入。\n\nAgent 間溝通用結構化格式（JSON/Markdown），不用自然語言，減少誤解。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "agent_collaboration.md"
+    },
+    {
+      "id": "scheduler:ai_pair_programming.md",
+      "url": null,
+      "ts": "2026-04-10T20:07:37.809224",
+      "text": "AI Pair Programming 的正確姿勢\n\n不是叫 AI 寫完整個功能\n而是你寫核心邏輯，讓 AI 處理重複的部分\n\n測試案例、錯誤處理、文件生成\n這些 AI 做得比你快也比你仔細\n\n但架構決策、業務邏輯判斷\n這些還是要人來\n\n最有效的模式：\n人決定「做什麼」和「為什麼」\nAI 負責「怎麼做」的細節\n\n這不是偷懶，是分工",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_pair_programming.md"
+    },
+    {
+      "id": "scheduler:ai_infra_real_cost.md",
+      "url": null,
+      "ts": "2026-04-10T19:22:40.828494",
+      "text": "跑 AI 基礎設施真正花多少錢？\n\n我的月帳單：\n- Claude API：~$100（主力模型）\n- Hetzner VPS x3：~€30（備援+運算）\n- 域名+Cloudflare：~$15\n- Mac Mini M4 Pro：一次性 $1,400（已購）\n\n月固定成本約 $150\n換來：24/7 AI 助理 + ERP + 投資系統 + 社群自動化\n\n請一個人做同樣的事？\n保守估計月薪 6 萬台幣起跳\n\nAI 不便宜，但性價比很高\n前提是你要會整合\n\n#AI成本 #基礎設施 #一人公司 #性價比",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_infra_real_cost.md"
+    },
+    {
+      "id": "scheduler:ai_hallucination_defense.md",
+      "url": null,
+      "ts": "2026-04-10T19:07:37.778925",
+      "text": "AI 會騙你\n而且騙得很有自信\n\n防禦 AI 幻覺的方法：\n\n1. 不信任，要驗證\n   AI 說檔案存在 → grep 確認\n   AI 說 bug 修好 → 跑測試\n\n2. 要求引用來源\n   「這個 function 在哪個檔案？」\n   能答出具體路徑的比較可信\n\n3. 交叉比對\n   Claude 說 A，問 Gemini 是不是 A\n   兩個都說 A 的可信度高很多\n\n4. 分段驗證\n   不要讓 AI 一次改 500 行\n   改 50 行驗一次\n\n最危險的情況：\nAI 自信地告訴你「已修復」\n你沒驗證就說「完成」\n\n信任但驗證\nTrust but verify\n\n#AI開發 #幻覺防禦 #程式品質 #開發經驗 #軟體工程",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_hallucination_defense.md"
+    },
+    {
+      "id": "scheduler:ai_escalation_levels.md",
+      "url": null,
+      "ts": "2026-04-10T12:31:04.857803",
+      "text": "AI 什麼時候該自己做？\n什麼時候該問人？\n\n我的三色分級：\n🟢 Green：語法錯、缺依賴 → 直接修\n🟡 Yellow：build 失敗 → 試 2 次再報告\n🔴 Red：刪資料、push code → 一定要問\n\n沒有這個機制的 AI agent\n不是太怕事就是太衝動\n\n自主 ≠ 失控\n自主 = 知道什麼時候該自己判斷\n什麼時候該等指示\n\n這也是人的工作智慧\n\n#AIAgent #自主決策 #開發管理 #自動化 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_escalation_levels.md"
+    },
+    {
+      "id": "scheduler:ai_debugging_workflow.md",
+      "url": null,
+      "ts": "2026-04-10T12:16:00.312057",
+      "text": "以前 debug 靠直覺\n現在 debug 靠 AI 讀 log\n\n我的流程：\n1. docker logs 抓 stack trace\n2. 丟給 AI 分析根因\n3. AI 提修正方案\n4. 我決定要不要採用\n\n重點：AI 負責分析，人負責決策\n不是把所有事丟給 AI 就好\n\n最怕的是 AI 說「我幫你改了」\n結果改的不是根因而是症狀\n\ndebug 最重要的還是那句老話：\n先確認問題，再動手修\n\n#Debug #AI輔助 #根因分析 #開發心得 #程式設計",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_debugging_workflow.md"
+    },
+    {
+      "id": "scheduler:ai_context_window_hack.md",
+      "url": null,
+      "ts": "2026-04-10T12:01:04.998287",
+      "text": "AI 的 context window 不夠用怎麼辦\n\n不是等模型升級\n是設計你的資訊架構\n\n我的做法：\n→ 分層記憶：必讀 / 專案 / 參考 / 歸檔\n→ 索引檔只放連結，不放內容\n→ 啟動時只載入必讀層\n→ 需要時才讀子檔案\n\n等於幫 AI 建了一個檔案系統\n而不是把所有東西塞進一個 prompt\n\n200 行索引 + 30 個子檔案\n比一個 5000 行的 system prompt 有效\n\nContext 不是越多越好\n是「需要時找得到」才是重點\n\n#AI開發 #ContextWindow #Prompt工程 #ClaudeCode",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_context_window_hack.md"
+    },
+    {
+      "id": "scheduler:ai_coding_tools_compare.md",
+      "url": null,
+      "ts": "2026-04-10T08:14:32.071319",
+      "text": "AI 寫程式工具我都用過，說說真實感受\n\nCopilot：自動補全很快，但常猜錯意圖\nCursor：IDE 整合好，適合需要視覺化操作的開發\nClaude Code：CLI 模式，適合系統級任務\n\n我最後選 Claude Code\n因為它能直接操作終端、讀寫檔案、跑測試\n不只是補程式碼，是真的在「做事」\n\n沒有最好的工具，只有最適合的\n看你的工作流是什麼\n\n#AI寫程式 #ClaudeCode #Copilot #Cursor #開發工具",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_coding_tools_compare.md"
+    },
+    {
+      "id": "scheduler:ai_code_review_cross.md",
+      "url": null,
+      "ts": "2026-04-10T07:59:35.769630",
+      "text": "讓兩個 AI 互相 review code\n這不是浪費，是品質保證\n\n我的流程：\n1. Claude Code 寫完改動\n2. GitHub Copilot 做二次 review\n3. 有爭議的地方人工裁決\n\n為什麼要這樣？\n- 同一個模型容易有盲點\n- 不同模型關注不同面向\n- 比你自己 review 自己更客觀\n\n成本？幾乎為零\n效果？抓到好幾次邏輯漏洞\n\nAI 寫的 code 讓 AI review\n比 AI 寫的 code 自己看一眼就 merge 安全多了\n\n#CodeReview #AI開發 #程式品質 #開發流程 #軟體工程",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_code_review_cross.md"
+    },
+    {
+      "id": "scheduler:ai_agent_memory_design.md",
+      "url": null,
+      "ts": "2026-04-09T19:45:06.364621",
+      "text": "AI Agent 的記憶系統怎麼設計？\n\nChatGPT 的記憶是扁平的：一堆條目\n夠用，但不夠好\n\n我設計了三層記憶架構：\n\n第一層：檔案記憶（.md 檔案）\n即時寫入，重啟不丟\n分類：user / feedback / project / reference\n\n第二層：向量記憶（pgvector）\n把記憶轉成 embedding\n查詢時用語意搜尋，不是關鍵字\n\n第三層：空間記憶（記憶宮殿）\nWing → Room → Closet\n像真的宮殿一樣有空間結構\n相關記憶放在同一個房間\n\n為什麼要這麼複雜？\n因為 Agent 不是聊天機器人\n它需要在沒人指導的情況下\n找到正確的背景資訊做出決策\n\n記憶設計 = Agent 的智商上限\n\n#AIAgent #記憶系統 #MemPalace #架構設計",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_agent_memory_design.md"
+    },
+    {
+      "id": "scheduler:ai_agent_error_recovery.md",
+      "url": null,
+      "ts": "2026-04-09T19:30:15.841218",
+      "text": "AI Agent 最重要的能力不是聰明，是抗摔\n\n我們的 Agent 每天自動跑幾百個任務\n一定會遇到 API 斷線、格式錯誤、超時\n\n真正穩定的系統不是不會錯\n而是錯了會自己站起來\n\n三個必備機制：\n1. 熔斷器：連續失敗就暫停，別瘋狂重試\n2. 降級方案：主引擎掛了換備用的\n3. 心跳監控：超過 N 秒沒回應就重啟\n\n我們實際運行的數據：\nWatchdog 平均每天重啟 0.3 次\n自動修復率 95%\n需要人介入的不到 5%\n\n先別追求 AI 多聰明\n先確保它掛了會自己爬起來",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_agent_error_recovery.md"
+    },
+    {
+      "id": "scheduler:agent_personality_matters.md",
+      "url": null,
+      "ts": "2026-04-09T19:15:10.649733",
+      "text": "AI Agent 需不需要有「個性」？\n\n我的答案：需要，但不是為了好玩\n\nCC 的設定：極簡直接、不廢話、自己判斷\n這不是角色扮演，是工作效率\n\n沒有個性的 agent 會：\n- 每件事都問你確認\n- 回覆又臭又長\n- 不敢自己做決定\n\n有個性的 agent 會：\n- 判斷風險等級，Green 自己做\n- 回覆精準，不浪費時間\n- 遇到問題先嘗試，解不了才問\n\nsystem prompt 裡的性格設定\n直接影響 agent 的工作品質\n\n別小看這幾行字\n\n#AIAgent #SystemPrompt #個性設定 #效率",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "agent_personality_matters.md"
+    },
+    {
+      "id": "scheduler:thinking_level_save_token.md",
+      "url": null,
+      "ts": "2026-04-09T12:37:02.629011",
+      "text": "Claude API 最燒錢的是 thinking token。但不是每個任務都需要深度思考。\n\n分級策略：\n- none/low：日常對話、格式轉換、簡單查詢\n- medium：寫程式、修 bug、一般開發\n- high：架構設計、複雜除錯、重要決策\n\n我們的 Agent 團隊實際應用：\n- 巡檢腳本用 Haiku（便宜快速）\n- ERP 開發用 Sonnet（平衡）\n- 統籌決策用 Opus（最強但最貴）\n\n就像公司不會派總經理去影印文件。讓對的模型做對的事。\n\n另一個省錢技巧：sub-agent。把大任務拆成小塊，每塊用最適合的模型。主 Agent 只做分工和整合。\n\nAPI 帳單降了，能做的事反而更多。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "thinking_level_save_token.md"
+    },
+    {
+      "id": "scheduler:context_engineering.md",
+      "url": null,
+      "ts": "2026-04-09T12:21:58.904167",
+      "text": "最近社群很熱的詞：Context Engineering。\n\n意思是：與其跟 AI 隨便聊（Vibe Coding），不如把「AI 看到的東西」工程化管理。\n\n我們的做法：\n- CLAUDE.md 寫死規則，每次啟動自動載入\n- session_context.md 記錄上次做到哪\n- memory/ 資料夾拆成 60+ 個主題檔案\n- 每個 AI Agent 啟動時自動讀取記憶索引\n\n效果：AI 重啟 100 次，行為一致。不會第一次很好、第二次亂搞。\n\nVibe Coding 適合 prototype。但要上線的東西，Context 必須結構化。\n\n你給 AI 什麼 context，它就給你什麼品質的輸出。垃圾進、垃圾出，這道理沒變過。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "context_engineering.md"
+    },
+    {
+      "id": "scheduler:ai_qa_automation.md",
+      "url": null,
+      "ts": "2026-04-09T12:07:01.459487",
+      "text": "讓 AI 寫程式最大的風險：它說「完成了」但其實沒完成。\n\n我們被坑過三次後，建立了三層防線：\n\n第一層：pre-delivery hook\n程式碼提交前自動檢查。不是靠 AI 自律，是系統強制。語法錯誤、型別不對，直接擋掉。\n\n第二層：交叉模型 Review\nCC2 寫完 code，用 GitHub Copilot 做第二輪檢查。同一個模型容易有盲點，換一個模型來審。\n\n第三層：主機實查\n最重要的一層。不看 AI 的回報，直接上機器查檔案、跑測試。AI 說部署成功不算數，curl 回 200 才算。\n\n血淚教訓：AI 驗收 AI 的報告，等於學生互改考卷。最後一關一定要碰到真實環境。\n\n信任但驗證。Trust but verify.",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_qa_automation.md"
+    },
+    {
+      "id": "scheduler:pg_migration_reality.md",
+      "url": null,
+      "ts": "2026-04-09T07:37:42.349533",
+      "text": "從 MySQL 搬到 PostgreSQL 聽起來很簡單，做下去才知道是地獄。\n\n我們的 ERP 有 264 支 PHP，遷移後跑了全掃：112 Pass / 20 Fail。\n\n最痛的幾件事：\n\n1. 反引號 — MySQL 用 ` 包欄位名，PG 用雙引號。650+ 處要改。不是 sed 能解決的，因為有些反引號在字串裡、有些在動態 SQL。\n\n2. $sql 迴圈重置 — PHP 裡 for loop 重複 append SQL 片段，忘了在每輪開頭清空。MySQL 碰巧沒炸，PG 直接噴錯。10+ 處。\n\n3. 截斷欄位名 — 歷史程式碼裡有 MAI 其實是 MAIN、VERSIO 是 VERSION。MySQL 大小寫不敏感矇混過關，PG 直接找不到欄位。\n\n4. 空字串 vs NULL — MySQL 的 integer 欄位塞空字串會自動轉 0，PG 直接報 invalid input syntax。要在 PDO 層統一攔截。\n\n教訓：遷移的難度不在 SQL 語法差異，在於十幾年累積的「碰巧能跑」的程式碼。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "pg_migration_reality.md"
+    },
+    {
+      "id": "scheduler:llm_wiki_erp.md",
+      "url": null,
+      "ts": "2026-04-09T07:22:44.580932",
+      "text": "公司有 27,000 個物料編號。問老員工才知道 0006209TM-1 是「彈片模具費」。\n\n我讓 AI 直接從 ERP 資料庫撈資料，交叉比對品名、規格、訂單歷史、BOM 結構，自動產出每個物料的 Wiki 頁面。\n\n每頁包含：\n→ 用途判讀（這東西是做什麼的）\n→ 風險分析（交期/品質/替代料）\n→ 採購建議（常用供應商/歷史價格帶）\n→ 製造建議（製程/注意事項）\n\n26,646 筆分析跑完，再用 pgvector 做 embedding，讓 ERP 內建的 AI 助手能語意搜尋。\n\n「幫我找類似的彈片」不用靠料號，直接用白話問。\n\n最大的收穫：這些知識本來只存在老員工腦裡。現在新人第一天就能查。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "llm_wiki_erp.md"
+    },
+    {
+      "id": "scheduler:four_ai_team.md",
+      "url": null,
+      "ts": "2026-04-09T07:07:50.557543",
+      "text": "我的「團隊」有四個 AI，各自跑在不同機器上：\n\nCC1（本地主機）— 統籌、基礎設施、投資系統\nCC2（開發機）— ERP 開發、資料庫、AI 模型\nCCC（雲端 VPS）— 24/7 備援\nOC（雲端 VPS）— 顧問、Code Review、驗收\n\n他們透過 Discord 頻道協作。CC1 分工，CC2 執行 ERP 任務，OC 做交叉驗收，CCC 負責備份。\n\n實際踩過的坑：\n\n1. 記憶不同步 — 每個 AI 重啟後忘記上次做到哪。解法：session_context.md 自動生成，啟動時必讀。\n\n2. 頻道紀律 — 一開始回報亂跑頻道，老闆抓狂。規則：哪個頻道發任務就在哪回報。\n\n3. 驗收靠書面 — OC 驗收只看 CC 的回報，不實際查檔案。被抓到三次後加規則：驗收必須主機實查。\n\n一人公司不代表一個人做。是一個人指揮一個 AI 團隊。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "four_ai_team.md"
+    },
+    {
+      "id": "scheduler:zero_downtime_deploy.md",
+      "url": null,
+      "ts": "2026-04-05T19:53:49.940007",
+      "text": "零停機部署：服務不能說停就停\n\n早期部署就是：停服務、換程式、啟動\n用戶剛好在用？對不起，斷線吧\n\n後來開始認真對待這件事\n\nPM2 的 reload 是最簡單的方案\nPM2 會起新 process、等舊的請求處理完、再殺掉舊的\n對用戶來說幾乎無感\n\n進階一點，多開幾個 worker：\n→ 4 個 worker 跑同一個服務\n→ 一次只 reload 一個\n→ 其他三個繼續服務請求\n\n資料庫 migration 是最難的部分：\n→ 新舊 code 要能同時相容同一個 schema\n→ 先加新欄位，deploy 新 code，再刪舊欄位\n→ 不能一次做，要分步驟\n\n我部署 ERP 用的順序：\n1. 先 backup 資料庫\n2. 跑 migration（向前相容）\n3. reload 服務\n4. 確認 /health 全綠\n5. 才算完成\n\n一人公司也要有職業水準\n客戶在用的服務不能說停就停\n\n#部署 #零停機 #DevOps #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "zero_downtime_deploy.md"
+    },
+    {
+      "id": "scheduler:watchdog_24_7.md",
+      "url": null,
+      "ts": "2026-04-05T19:03:30.378155",
+      "text": "我的 AI 助理掛了會自己重啟\n\nWatchdog 機制：\n→ 每 30 秒檢查心跳\n→ 沒回應 → 自動儲存進度\n→ 重啟新 session → 讀記憶繼續做\n\n就像人睡著再醒來\n記憶還在，工作繼續\n\n搭配三機備援：\niMac + Mac Mini + Hetzner VPS\n一台掛了另一台接手\n\n從「工具」變成「不會斷線的同事」\n\n你的 AI 有自動復活機制嗎？\n\n#AI自動化 #Watchdog #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "watchdog_24_7.md"
+    },
+    {
+      "id": "scheduler:three_machine_backup.md",
+      "url": null,
+      "ts": "2026-04-05T12:23:48.404577",
+      "text": "一人公司的三機備援\n\niMac（統籌）\n→ SBS Agent + 投資系統 + 社群\n\nMac Mini M4P（主力）\n→ ERP + 本地 AI 模型 + DB\n\nHetzner VPS（雲端）\n→ 24/7 不斷電 + 異地備份\n\n每天自動加密備份同步\n記憶跨機器共享\n\n一台掛了？另一台 5 分鐘接手。\n\n成本：VPS $6/月，其餘是既有硬體。\n\n#備援架構 #一人公司 #DevOps #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "three_machine_backup.md"
+    },
+    {
+      "id": "scheduler:tailscale_internal_network.md",
+      "url": null,
+      "ts": "2026-04-05T12:08:49.919640",
+      "text": "公司內網不用 VPN，用 Tailscale\n\n傳統 VPN 的痛：\n× 設定複雜\n× 速度慢\n× 斷線重連麻煩\n\nTailscale 的爽：\n→ 裝好就通，零設定\n→ WireGuard 加密，速度快\n→ 每台機器一個固定 IP\n→ 手機也能連\n\n我的三台機器互連：\niMac ↔ Mac Mini ↔ Hetzner VPS\n就像在同一個區網\n\n免費版 100 台設備夠用了\n\n#Tailscale #內網 #WireGuard #遠端工作",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "tailscale_internal_network.md"
+    },
+    {
+      "id": "scheduler:ssh_key_management.md",
+      "url": null,
+      "ts": "2026-04-05T12:03:25.515501",
+      "text": "SSH 金鑰管理：別等出事才後悔\n\n一開始我只有一把 key\n所有機器用同一個\n方便是方便，但那是定時炸彈\n\n現在的做法：\n→ 每台機器、每個服務一把 key\n→ key 存在 ~/.ssh/ 並設好 config\n→ 私鑰用 passphrase 保護\n→ 定期 rotate，至少一年一次\n\n~/.ssh/config 是神器：\n\nHost hetzner-ccc\n  HostName 1.2.3.4\n  User root\n  IdentityFile ~/.ssh/hetzner_ccc_ed25519\n\n之後只要 ssh hetzner-ccc\n乾淨、不會搞混\n\ned25519 比 RSA 4096 更短、更快、更安全\n新機器一律用 ed25519\n\nauthorized_keys 要定期清理\n離職的人、廢掉的機器\nkey 還留著是隱患\n\n我的 Mac Mini 伺服器有 6 台機器\n全部用不同 key 管理\n任何一把洩漏只影響一台\n\n最低成本的安全措施\n卻是最多人懶得做的事\n\n#SSH #資安 #DevOps #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ssh_key_management.md"
+    },
+    {
+      "id": "scheduler:sqlite_vs_postgres.md",
+      "url": null,
+      "ts": "2026-04-05T07:23:46.695608",
+      "text": "小專案別上 PostgreSQL，SQLite 就夠了\n\n很多人第一步就裝 Postgres\n但 SQLite 的優勢很明顯：\n\n→ 零安裝，一個檔案搞定\n→ WAL 模式支援並發讀取\n→ 備份 = 複製檔案\n→ 效能比你想的好很多\n\n我的投資系統 849 萬筆行情資料\nSQLite + WAL 模式，查詢 < 50ms\n\n什麼時候該換？\n多台 server 寫同個 DB / 併發寫入破百\n\n先用 SQLite，不夠再換\n\n#SQLite #資料庫 #軟體開發 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "sqlite_vs_postgres.md"
+    },
+    {
+      "id": "scheduler:spec_driven_vs_vibe.md",
+      "url": null,
+      "ts": "2026-04-05T07:08:46.520777",
+      "text": "Vibe Coding 沒死，只是長大了。\n\n以前：想到啥做啥 → 品質崩壞\n\n現在 Spec-Driven：\n1. 說需求\n2. AI 釐清模糊處\n3. 寫規格 → 拆任務\n4. Gemini 查 → CC 做 → Codex 審\n5. 驗收確認\n\n本質還是 Vibe — 自然語言描述想要的\n加了「規格」這層保險，AI 不亂跑\n\n你是純 Vibe 還是有加 Spec？\n\n#VibeCoding #SpecDriven #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "spec_driven_vs_vibe.md"
+    },
+    {
+      "id": "scheduler:rate_limiting.md",
+      "url": null,
+      "ts": "2026-04-05T07:03:21.318479",
+      "text": "API 限速：保護自己也保護系統\n\n開了 API 對外服務，沒加限速\n等著被人爆打或被自己的 bug 打爆\n\nrate limiting 是基本防護線\n\n不同端點有不同限制：\n→ 登入端點：1 分鐘 5 次（防暴力破解）\n→ 一般 API：15 分鐘 100 次\n→ 批次上傳：1 小時 10 次\n\n進階做法：\n→ 用 Redis 做分散式 rate limit\n→ 依 API key 而不是 IP 限速\n→ 超限回傳 429，header 帶 Retry-After\n\nSBS Agent 呼叫外部 API 自己也要限速\n→ 避免觸發對方的限制\n→ 用 queue + delay 控制頻率\n\n我的 AI API 呼叫全部過一個 rate limiter\n避免某個失控的任務把配額全吃完\n\n保護自己的系統\n也尊重你依賴的服務\n\n#API #限速 #後端設計 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "rate_limiting.md"
+    },
+    {
+      "id": "scheduler:prompt_engineering_myth.md",
+      "url": null,
+      "ts": "2026-04-04T19:23:49.158734",
+      "text": "Prompt Engineering 是不是過譽了？\n\n很多人花大量時間研究怎麼寫 prompt\n但真正有效的做法其實很簡單：\n\n→ 給足夠的 context\n→ 說清楚你要什麼格式\n→ 用 few-shot 給範例\n→ 讓 AI 自己推理，別塞答案\n\n與其背 prompt 模板\n不如理解 LLM 怎麼思考\n\n我的經驗：\n好的 system prompt + 清楚的任務描述\n就打贏 90% 的 prompt 技巧\n\n#PromptEngineering #AI開發 #LLM #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "prompt_engineering_myth.md"
+    },
+    {
+      "id": "scheduler:one_person_company_ai.md",
+      "url": null,
+      "ts": "2026-04-04T19:08:46.936098",
+      "text": "一人公司的 AI 基礎建設\n\n不請人，但系統要到位：\n\n→ TG Bot + Discord 通訊\n→ Claude Code 開發維護\n→ Docker + launchd 部署排程\n→ Tailscale 內網連線\n→ Gemini + Claude + Ollama 三層 AI\n→ Watchdog 24/7 監控重啟\n\n月成本 < $100 美金\n能做到 3-5 人團隊的事\n\n#一人公司 #AI基建 #Symbiosis #創業",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "one_person_company_ai.md"
+    },
+    {
+      "id": "scheduler:ollama_local_llm.md",
+      "url": null,
+      "ts": "2026-04-04T19:03:16.113305",
+      "text": "Ollama：在自己電腦跑 LLM\n\n不想付 API 費？本地跑就好\n\n一行指令安裝：\nbrew install ollama\n\n一行指令跑模型：\nollama run qwen3.5\n\nMac Mini M4 Pro 跑 7B 模型\n速度完全夠日常使用\n\n我的用法：\n→ ERP 助理的 fallback 引擎\n→ 不敏感資料的本地處理\n→ 開發測試不怕燒 API 額度\n\n缺點：大模型吃記憶體\n7B 約 4GB / 70B 約 40GB\n\n先從小模型開始玩就對了\n\n#Ollama #本地AI #LLM #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ollama_local_llm.md"
+    },
+    {
+      "id": "scheduler:news_sentiment_pipeline.md",
+      "url": null,
+      "ts": "2026-04-04T12:23:51.789804",
+      "text": "AI 每天幫我讀 200 則財經新聞\n\n自動管線：\n→ RSS 抓鉅亨網/Yahoo\n→ PTT Stock 版爬蟲\n→ Groq 批次情緒分析\n→ bullish/bearish 評分 1-10\n\n每 15 分鐘一輪\n一天分析 200+ 則\n\n不用自己盯新聞\nAI 告訴你市場在想什麼\n\n成本：$0（Groq 免費額度）\n\n#量化分析 #新聞情緒 #台股 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "news_sentiment_pipeline.md"
+    },
+    {
+      "id": "scheduler:monitoring_alerting.md",
+      "url": null,
+      "ts": "2026-04-04T12:08:55.080438",
+      "text": "監控告警：沒有它你的系統是黑盒子\n\n服務掛了，你怎麼知道？\n用戶跑來告訴你？那已經晚了\n\n監控是眼睛，告警是耳朵\n兩個都要有\n\n基礎指標（每分鐘收集）：\n→ CPU、記憶體、磁碟使用率\n→ 每個服務的 process 狀態\n→ HTTP 端點回應時間\n\n業務指標（更重要）：\n→ 今天抓了幾支股票資料？\n→ AI 分析任務成功率是多少？\n→ Bot 回應延遲多久？\n\n告警策略：\n→ 不是所有異常都要立刻叫你\n→ CPU 瞬間高峰：記錄就好\n→ CPU 持續高 5 分鐘：通知\n→ 服務完全無回應：立刻叫醒\n\n告警疲勞是真實問題\n→ 太多假警報就開始忽略\n→ 先定義什麼叫真正的緊急\n→ 緊急才推播，其他每日摘要\n\n我的做法很土砲：\n→ 自己寫 watchdog 腳本\n→ 每分鐘跑、結果存 SQLite\n→ 異常條件達到就推播\n→ 每早 8 點推送昨日健康報告\n\n不需要完整 Grafana + Prometheus\n一人公司，夠用就好\n\n#監控 #告警 #運維 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "monitoring_alerting.md"
+    },
+    {
+      "id": "scheduler:mcp_tool_ecosystem.md",
+      "url": null,
+      "ts": "2026-04-04T12:03:09.448816",
+      "text": "一個 AI 助理串 110+ 工具是什麼概念？\n\nMCP (Model Context Protocol) 讓 AI 直接操作：\n→ 瀏覽器測網頁\n→ 查股市即時行情\n→ 搜最新文件\n→ 發 Telegram / Discord 訊息\n→ 截圖、OCR、自動填表\n\n不是「幫你查」而是「幫你做」\n\n一個人 + 一個 AI + 110 個工具\n= 一間公司的產出\n\n你的 AI 還只會聊天嗎？\n\n#MCP #AIAgent #ClaudeCode #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "mcp_tool_ecosystem.md"
+    },
+    {
+      "id": "scheduler:mcp_protocol_intro.md",
+      "url": null,
+      "ts": "2026-04-04T07:23:52.807942",
+      "text": "MCP：讓 AI 用工具的標準協議\n\nModel Context Protocol\nAnthropic 推的開放標準\n\n以前 AI 只能聊天\n現在可以：\n→ 查資料庫\n→ 操作瀏覽器\n→ 讀寫檔案\n→ 呼叫 API\n\n就像給 AI 裝了手和腳\n\n我的 CC 接了 13 個 MCP server\n110+ 工具隨時可用\n從查股價到發 Threads 都行\n\n一個協議統一所有工具\n這才是 AI Agent 的基礎建設\n\n#MCP #AIAgent #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "mcp_protocol_intro.md"
+    },
+    {
+      "id": "scheduler:mac_mini_server.md",
+      "url": null,
+      "ts": "2026-04-04T07:08:53.609758",
+      "text": "Mac Mini 當 Server 其實很划算\n\n雲端 VPS 每月 $30-100 美金\nMac Mini M4 Pro 一次買斷\n\n我的算法：\n→ 24GB RAM 跑 ERP + AI 模型\n→ 功耗才 10-20W，電費忽略\n→ Apple Silicon 效能/瓦數比超強\n→ macOS 原生跑 Docker + Ollama\n\n缺點就是要自己顧網路和硬碟\n但小團隊 / side project 完全夠用\n\n#MacMini #HomeServer #省錢 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "mac_mini_server.md"
+    },
+    {
+      "id": "scheduler:log_rotation.md",
+      "url": null,
+      "ts": "2026-04-04T07:03:05.685585",
+      "text": "Log 不管理，磁碟自己會教你\n\n剛架好服務，log 開開心心寫進去\n三個月後，磁碟滿了\n服務 crash，你還不知道為什麼\n\n這就是沒做 log rotation 的結果\n\nNode.js 專案我用 winston + daily-rotate-file\n直接在 code 裡處理，不依賴系統工具\n\n幾個原則：\n→ error log 和 access log 分開存\n→ 生產環境 log level 設 warn，別用 debug\n→ 敏感資訊不進 log（帳號密碼、token）\n→ 結構化 log 比純文字好查（用 JSON）\n\nSBS Agent 跑 16 個服務\n每個服務獨立 log 檔\n統一放 /logs/ 下面，命名規則一致\n\n每天輪替、保留 14 天、自動 gzip 壓縮\n\n出問題的時候找 log 是第一動作\n但前提是你的 log 要看得懂\n\nlog 是給未來的自己留的訊息\n寫清楚一點，自己也感謝自己\n\n#Logging #DevOps #NodeJS #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "log_rotation.md"
+    },
+    {
+      "id": "scheduler:launchd_vs_cron.md",
+      "url": null,
+      "ts": "2026-04-03T19:24:55.810922",
+      "text": "macOS 排程別用 cron，用 launchd\n\ncron 在 macOS 上的問題：\n× 睡眠時錯過就不執行\n× 沒有自動重啟\n× 日誌管理麻煩\n\nlaunchd 的優勢：\n→ 錯過的任務醒來會補跑\n→ KeepAlive 自動重啟掛掉的服務\n→ 原生整合 Console.app 看 log\n\n我跑 16 個 launchd 服務\n發文、巡邏、備份、監控全自動\nplist 語法醜但穩定度完勝 cron\n\n#launchd #macOS #自動化 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "launchd_vs_cron.md"
+    },
+    {
+      "id": "scheduler:launchd_16_services.md",
+      "url": null,
+      "ts": "2026-04-03T19:08:34.382431",
+      "text": "我的 Mac 跑 16 個自動化服務\n\n不是開 16 個 app\n是 macOS launchd 背景服務：\n\n→ AI Agent 主程式\n→ ERP 資料同步\n→ 股市行情爬蟲\n→ Threads 排程發文\n→ 系統監控 + 心跳\n→ 備份 + 日誌清理\n\n全部開機自動啟動\n掛了自動重啟\n不佔桌面、不吃注意力\n\n比 Docker 輕、比 cron 穩\n原生 macOS 就能跑\n\n你的電腦閒置的時候在幹嘛？\n\n#macOS #launchd #自動化 #一人公司",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "launchd_16_services.md"
+    },
+    {
+      "id": "scheduler:json_config_pattern.md",
+      "url": null,
+      "ts": "2026-04-03T19:02:49.817700",
+      "text": "JSON 設定檔：小細節決定大麻煩\n\n專案一大，設定檔就是地雷區\n沒有規則，每個人寫法不一樣\n三個月後連自己都看不懂\n\n我用的模式很簡單：\n\n分層設計\n→ config.default.json — 基本值\n→ config.local.json — 本機覆蓋（不進 git）\n→ 環境變數 — 生產機器上的機密\n\n讀取順序：環境變數 > local > default\n\n命名規則：\n→ 全小寫，底線分隔\n→ 有層次結構，別攤平\n→ 布林值用 enabled/disabled，別用 1/0\n\n機密絕對不進 JSON\n帳號密碼、API key 全進 .env\nJSON 只放結構和非機密參數\n\nconfig.local.json 加進 .gitignore\n這條忘記就等著洩漏\n\n一人公司的好處：規則自己訂\n但訂了就要守，不然未來的自己會罵現在的自己\n\n#JSON #設定管理 #後端開發 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "json_config_pattern.md"
+    },
+    {
+      "id": "scheduler:invest_debate_system.md",
+      "url": null,
+      "ts": "2026-04-03T12:23:41.378864",
+      "text": "讓多個 AI 互相辯論，再決定要不要買股票\n\n投資辯論系統：\n→ 多頭分析師：找買進理由\n→ 空頭分析師：找風險因素\n→ 裁判 AI：綜合評分\n\n不是問一個 AI「該買嗎？」\n而是讓 AI 自己吵架\n\n好處：\n→ 避免單一觀點偏差\n→ 強制考慮反面意見\n→ 輸出有結構的分析報告\n\n搭配 849 萬筆歷史行情回測\n理論 + 數據雙重驗證\n\nAI 不是神，但多個 AI 互相質疑\n比你一個人拍腦袋強太多\n\n#AI投資 #辯論系統 #量化分析 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "invest_debate_system.md"
+    },
+    {
+      "id": "scheduler:invest_backtesting.md",
+      "url": null,
+      "ts": "2026-04-03T12:08:39.877095",
+      "text": "投資策略不回測等於賭博\n\n我寫了一套回測引擎：\n→ 849 萬筆台股行情\n→ 6 種策略同時跑\n→ 勝率 / 最大回撤 / 夏普比率\n\n回測告訴你的事：\n→ 這策略歷史表現如何\n→ 最慘會虧多少\n→ 適合什麼市場環境\n\n回測不保證未來\n但沒回測一定更危險\n\n工具：Python + SQLite + Plotly\n資料：TWSE 公開 API\n\n先用歷史驗證再下單\n這是基本紀律\n\n#投資回測 #量化交易 #台股 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "invest_backtesting.md"
+    },
+    {
+      "id": "scheduler:health_check_pattern.md",
+      "url": null,
+      "ts": "2026-04-03T12:02:45.279578",
+      "text": "健康檢查：你的服務現在還活著嗎？\n\n部署完服務，然後呢？\n你怎麼知道它一直在跑？\n\n/health 是每個服務都要有的 endpoint\n不是給人看的，是給系統看的\n\n基本版回 status: ok 和 uptime\n進階版要檢查依賴：\n→ 資料庫連線正常嗎？\n→ 外部 API 可達嗎？\n→ 磁碟空間夠嗎？\n→ queue 有沒有堆積？\n\n依賴有問題就回 503\n讓上游知道你掛了\n\n我的 watchdog 每分鐘 ping 所有服務的 /health\n連續失敗 3 次就 TG 通知我\n同時嘗試自動重啟\n\nHetzner VPS 和本機 Mac Mini 互相健康檢查\n一台掛掉另一台還能告警\n\n健康檢查是整個自動化運維的基礎\n沒有它，watchdog 是盲的\n告警是盲的\n你對自己的系統也是盲的\n\n#健康檢查 #運維 #NodeJS #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "health_check_pattern.md"
+    },
+    {
+      "id": "scheduler:git_commit_message.md",
+      "url": null,
+      "ts": "2026-04-03T07:23:34.432933",
+      "text": "Commit message 別再寫 \"fix bug\" 了\n\n壞的 commit message：\n× fix bug\n× update\n× WIP\n× asdf\n\n好的 commit message：\n→ fix: 訂單查詢 N+1 造成 timeout\n→ feat: 新增物料多筆結果互動選擇\n→ perf: 加索引讓報表查詢從 3s → 8ms\n\n重點是「為什麼改」不是「改了什麼」\ndiff 會告訴你改了什麼\n但不會告訴你為什麼\n\n三個月後的你會感謝現在的你\n\n#Git #開發習慣 #CommitMessage #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "git_commit_message.md"
+    },
+    {
+      "id": "scheduler:git_branching_strategy.md",
+      "url": null,
+      "ts": "2026-04-03T07:08:35.136427",
+      "text": "Git 分支策略：一人公司不需要複雜的 GitFlow\n\n看到有些團隊用完整 GitFlow\ndevelop、release、hotfix 一堆分支\n光管分支就是一份工作\n\n一人公司不需要這樣\n\n我用的超簡化版：\n→ main：永遠是生產可部署的狀態\n→ feature/xxx：開發中的功能\n\n做法：\n→ 從 main 開新 branch\n→ 本機開發完，push 上去\n→ 直接 merge，刪掉 feature branch\n\n緊急修復就直接在 main 上面做小 commit\n不需要 hotfix branch\n\ncommit message 我用固定格式：\n→ feat: 新功能\n→ fix: 修 bug\n→ chore: 維護性更新\n→ refactor: 重構\n\nSBS Agent 的 git log 很乾淨\n一看就知道每個版本做了什麼\n\n一人公司最貴的資源是自己的時間\n流程能簡化就簡化\n但 git 記錄要清楚，未來的自己要看\n\n#Git #版本控制 #一人公司 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "git_branching_strategy.md"
+    },
+    {
+      "id": "scheduler:gemini_flash_cost.md",
+      "url": null,
+      "ts": "2026-04-03T07:02:40.883288",
+      "text": "Gemini Flash：CP 值最高的 AI API\n\nGPT-4o：$5 / 百萬 token\nClaude Opus：$15 / 百萬 token\nGemini Flash：$0.075 / 百萬 token\n\n便宜 60-200 倍\n\n速度也快，延遲 < 1 秒\n\n我的用法：\n→ ERP 助理主引擎\n→ 簡單分類 / 摘要任務\n→ 大量文件處理\n\n複雜推理才上 Claude Opus\n日常任務 Flash 就夠\n\n7 組 API key 輪替\n每月免費額度用不完\n\n省錢是一種藝術\n\n#Gemini #Flash #AI省錢 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "gemini_flash_cost.md"
+    },
+    {
+      "id": "scheduler:gemini_claude_combo.md",
+      "url": null,
+      "ts": "2026-04-02T19:23:37.716615",
+      "text": "Claude + Gemini 混合工作流\n\n不是選一個用\n是讓兩個各做擅長的事\n\nGemini 擅長：\n→ 大量文件分析（100萬 token）\n→ 圖片/PDF 理解\n→ Deep Research（免費）\n→ 圖片生成\n\nClaude Code 擅長：\n→ 寫程式 + 自動執行\n→ 多步驟工程任務\n→ 記憶 + 上下文管理\n\n我的用法：\nGemini 分析 → Claude 執行 → Gemini 驗收\n\n兩個 AI 互相審查，品質比單用好很多。\n\n#Gemini #ClaudeCode #AI工作流 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "gemini_claude_combo.md"
+    },
+    {
+      "id": "scheduler:file_memory_system.md",
+      "url": null,
+      "ts": "2026-04-02T19:08:37.615352",
+      "text": "為什麼我的 AI 記得三天前說的話\n\n不是 RAG，不是向量 DB\n就是 Markdown 檔案\n\nmemory/\n├── MEMORY.md（索引）\n├── erp_progress.md\n└── feedback_rules.md\n\n對話開始 → 讀索引\n學到東西 → 寫檔案\n下次 → 自動載入\n\n為什麼不用向量 DB？\n→ Git 版控\n→ 人可讀可改\n→ 零成本\n\n簡單的東西最可靠。\n\n#AI記憶 #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "file_memory_system.md"
+    },
+    {
+      "id": "scheduler:error_handling_philosophy.md",
+      "url": null,
+      "ts": "2026-04-02T19:02:35.942268",
+      "text": "錯誤處理哲學：讓系統優雅地失敗\n\n大多數人寫 error handling 是為了「不要 crash」\n但好的錯誤處理是設計，不是補丁\n\n幾個原則我一直在用：\n\n快速失敗（Fail Fast）\n→ 啟動時就檢查所有必要設定\n→ 缺少 API key？立刻死，不要跑到一半才死\n→ 早死早超生，比跑了一半再壞好查\n\n明確區分錯誤類型：\n→ 可重試：網路超時、服務暫時不可用\n→ 不可重試：驗證失敗、權限不足\n→ 致命錯誤：磁碟滿了、DB 連不上\n\n自動重試要有退避：\n1秒、2秒、4秒、8秒...\n不要固定間隔重試，容易打爆對方\n\n錯誤要讓人看得懂：\n→ 別只記 Error: something went wrong\n→ 記上下文：什麼操作、什麼參數、什麼時間\n→ 錯誤碼比錯誤訊息更好程式化處理\n\nSBS Agent 有 16 個服務\n每個服務獨立失敗，不拖累其他服務\ncircuit breaker 擋住連鎖崩潰\n\n讓系統優雅地失敗\n比讓它假裝沒事更誠實\n\n#錯誤處理 #系統設計 #NodeJS #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "error_handling_philosophy.md"
+    },
+    {
+      "id": "scheduler:erp_performance_optimization.md",
+      "url": null,
+      "ts": "2026-04-02T12:23:32.436180",
+      "text": "三個 AI 幫我審 code\n\n流程：Gemini 分析 → CC 執行 → Codex 審查\n\n成果：\n→ 25 條新索引\n→ 16 處 N+1 修復（最狠 10,000→2 次）\n→ 29 處加 LIMIT 1\n→ Codex 抓到 3 個隱藏 bug\n\n分工：\nGemini = 分析師\nCC = 工程師\nCodex = QA\n\n一個人的 AI 開發團隊。\n\n#ClaudeCode #Codex #Gemini #ERP #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "erp_performance_optimization.md"
+    },
+    {
+      "id": "scheduler:erp_n1_deep_dive.md",
+      "url": null,
+      "ts": "2026-04-02T12:08:31.970649",
+      "text": "你的系統每次操作跑幾次 SQL？\n\nERP「重新計算庫存」：\n→ 10,000 產品 = 10,001 次查詢 = 10 秒\n\n修復後：\n→ 1 次 GROUP BY + array 對應\n→ 2 次查詢 = 50ms\n→ 快 200 倍\n\n怎麼找的？\nGemini 分析 → Claude Code 修 → Codex 審\n成本：$0\n\n你的系統有 N+1 問題嗎？\n\n#SQL #效能優化 #ERP #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "erp_n1_deep_dive.md"
+    },
+    {
+      "id": "scheduler:erp_migration_war_story.md",
+      "url": null,
+      "ts": "2026-04-02T12:02:26.332447",
+      "text": "把 20 年的 SQL Server ERP 搬到 MySQL\n\n聽起來瘋狂，但我們做到了\n\n最大挑戰：\n→ 幾百個 stored procedure\n→ 欄位命名不一致\n→ 編碼問題（Big5 → UTF8）\n→ 沒有完整文件\n\n做法：\n→ AI 自動轉譯 SQL 語法\n→ 壓力測試 1,047 次全過\n→ 130+ 索引優化效能\n→ Docker 容器化部署\n\n結果：回應時間 3 秒 → 8ms\n\n關鍵心得：別手動搬，讓 AI 幫你\n\n#ERP遷移 #MySQL #Docker #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "erp_migration_war_story.md"
+    },
+    {
+      "id": "scheduler:erp_ai_assistant.md",
+      "url": null,
+      "ts": "2026-04-02T07:23:34.881628",
+      "text": "ERP 裡面塞一個 AI 助理是什麼體驗？\n\n員工輸入料號 → AI 直接查庫存、報價、供應商\n不用翻五個畫面找資料\n\n底層用 Gemini Flash：\n→ 回應快（< 2 秒）\n→ 便宜（幾乎免費）\n→ 理解中文跟料號混打\n\n連 Ollama 本地模型當 fallback\n斷網也能用基本功能\n\n傳統 ERP 的搜尋要打完整欄位\nAI 版的搜尋像跟同事問一句話\n\n讓 30 年老系統也能有 AI 加持\n\n#ERP #GeminiFlash #AIAgent #數位轉型",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "erp_ai_assistant.md"
+    },
+    {
+      "id": "scheduler:env_var_management.md",
+      "url": null,
+      "ts": "2026-04-02T07:08:37.164638",
+      "text": "環境變數管理的正確姿勢\n\n.env 檔案只是開始\n還需要：\n\n→ .env.example 放範本（進 git）\n→ .env 放真值（不進 git）\n→ .gitignore 一定要加\n→ 部署用 CI/CD 的 secrets\n\n常見雷：\n× 把 .env 推上 GitHub\n× 不同環境用同一組 key\n× key 過期了沒人知道\n\n進階：\n用 direnv 自動載入\n進目錄就切換環境變數\n\n簡單但超多人踩坑的事\n\n#環境變數 #DevOps #安全 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "env_var_management.md"
+    },
+    {
+      "id": "scheduler:docker_compose_tips.md",
+      "url": null,
+      "ts": "2026-04-02T07:02:25.993887",
+      "text": "Docker Compose 三個救命技巧\n\n1️⃣ 用 healthcheck\n不只啟動，還要確認服務活著\ndepends_on + condition: service_healthy\n\n2️⃣ 用 volume 分離資料\n資料庫的資料不要放容器內\n掛 volume 才能安心重建\n\n3️⃣ 用 .env 管設定\n帳密不寫進 docker-compose.yml\ndocker compose --env-file .env up\n\n我們的 ERP 跑在 Docker 上\nPHP + MySQL + Nginx 一條指令搞定\n重建環境只要 30 秒\n\n#Docker #DevOps #容器化 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "docker_compose_tips.md"
+    },
+    {
+      "id": "scheduler:data_pipeline_etl.md",
+      "url": null,
+      "ts": "2026-04-01T19:23:45.861485",
+      "text": "ETL 資料管道：資料不整理就是垃圾\n\nExtract、Transform、Load\n三個字，但做起來細節很多\n\n我的投資系統每天要處理：\n→ 台股 1700 支個股資料\n→ 法人買賣、籌碼資料\n→ 新聞情緒、PTT 討論\n\n這些資料來源格式全不一樣\n沒有 ETL pipeline，資料就是一堆亂碼\n\nExtract：\n→ 各資料源用獨立 fetcher\n→ 存 raw data（原始格式不動）\n→ 記錄抓取時間、來源、狀態\n\nTransform：\n→ 統一日期格式（YYYY-MM-DD）\n→ 數值型別正規化\n→ 缺失值處理策略\n→ 異常值偵測\n\nLoad：\n→ upsert 不是 insert（避免重複）\n→ 批次寫入比逐筆快 10 倍\n→ 寫完記 checksum 驗證\n\n最重要的：每個步驟都要記 log\n哪一步失敗、失敗幾筆、為什麼\n\n沒有 log 的 ETL\n出問題你甚至不知道哪裡壞了\n\n資料是投資系統的燃料\n燃料品質決定分析品質\n\n#ETL #資料工程 #投資系統 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "data_pipeline_etl.md"
+    },
+    {
+      "id": "scheduler:cron_vs_event_driven.md",
+      "url": null,
+      "ts": "2026-04-01T19:08:41.896916",
+      "text": "排程 vs 事件驅動：選錯架構事倍功半\n\n大多數自動化任務，一開始都是 cron\n「每天早上 8 點跑一次」\n簡單、直覺、沒什麼問題\n\n但有些場景 cron 天生不適合\n\ncron 適合：\n→ 定時報表、每日備份\n→ 定時清理過期資料\n→ 固定週期的批次處理\n\n事件驅動適合：\n→ 使用者做了某件事 → 觸發後續\n→ 資料到了 → 立刻處理\n→ 系統狀態改變 → 即時反應\n\n我的投資系統就是兩種混用：\n→ 每天 9:00 cron 拉開盤資料\n→ 價格突破閾值 → 事件觸發分析\n→ 分析完成 → 事件觸發推播\n\n純用 cron 的問題：\n→ 明明 3 秒前就有資料，要等到下一個週期\n→ 任務疊加，前一個沒跑完下一個又來了\n→ 失敗了只能等下次，或手動補跑\n\n我的建議：先用 cron 起步\n感覺到痛點再改事件驅動\n不要過度設計\n\n#排程 #事件驅動 #系統設計 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cron_vs_event_driven.md"
+    },
+    {
+      "id": "scheduler:config_management.md",
+      "url": null,
+      "ts": "2026-04-01T19:02:21.055645",
+      "text": "組態管理：一份設定統治所有環境\n\n開發環境、測試環境、生產環境\n同一套 code，三種設定\n管不好就是無窮無盡的「在我電腦上可以跑」\n\n我用的分層方案：\n\n環境變數是最高優先\n→ 機密資訊只放這裡（API key、DB 密碼）\n→ 生產機器設好，不進任何檔案\n\n.env 檔案給本機開發用\n→ .env.example 進 git（範本，值空白）\n→ .env 不進 git（實際值）\n→ 其他人 clone 下來照著填\n\nconfig/ 目錄放非機密設定：\n→ default.json — 共用預設值\n→ development.json — 開發覆蓋\n→ production.json — 生產覆蓋\n\n程式啟動時：\n1. 載入 default\n2. 根據 NODE_ENV 載入對應覆蓋\n3. 環境變數最後覆蓋\n\n驗證很重要：\n→ 啟動時驗證所有必要設定\n→ 缺少設定立刻崩潰，不要靜默失敗\n\n換機器部署只要設好環境變數\n其他不用動\n\n#組態管理 #DevOps #十二因子 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "config_management.md"
+    },
+    {
+      "id": "scheduler:cloudflare_tunnel.md",
+      "url": null,
+      "ts": "2026-04-01T12:19:30.437921",
+      "text": "沒有固定 IP 也能架站：Cloudflare Tunnel\n\n家裡網路沒固定 IP？\n不用花錢租，用 tunnel 就好\n\ncloudflared 做的事：\n→ 你的機器主動連 Cloudflare\n→ 外面透過域名進來\n→ 自動 HTTPS\n→ 免開 port、免設定路由器\n\n我的 Hetzner VPS 就靠這個\n對外提供 Dashboard 和 API\n\n設定只要一個 config.yml\n加上 cloudflared service install\n\n免費！真的免費\n\n#Cloudflare #Tunnel #架站 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "cloudflare_tunnel.md"
+    },
+    {
+      "id": "scheduler:backup_321_rule.md",
+      "url": null,
+      "ts": "2026-04-01T12:04:32.787369",
+      "text": "備份 3-2-1 法則：資料不是消失才後悔\n\n3-2-1 是資安界的基本常識\n但真的做到的人很少\n\n→ 3 份備份\n→ 存在 2 種不同媒介\n→ 1 份在異地\n\n我的實際配置：\n→ 本機 Mac Mini：每日 SQLite backup\n→ Hetzner VPS：每6小時 rsync 過去\n→ Backblaze B2：每週完整備份上傳\n\n3 份、SSD + 雲端、本地 + 德國 + 美國\n勉強算達標\n\n但備份只是第一步\n更重要的是：你多久測試一次還原？\n\n我設了一個 monthly restore drill\n從 B2 拉資料下來，實際跑起來確認\n沒有測試過的備份等於沒有備份\n\nERP 資料庫備份我用 mysqldump + gzip\n壓縮後大小只有原本的 1/10\n傳輸快，儲存省\n\n自動化備份的 shell script 加進 launchd\n每天固定時間跑，失敗就 TG 通知我\n\n一人公司沒有 IT 部門\n這些事情不做就沒人做\n\n#備份 #資料安全 #DevOps #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "backup_321_rule.md"
+    },
+    {
+      "id": "scheduler:api_key_rotation.md",
+      "url": null,
+      "ts": "2026-04-01T12:02:15.935099",
+      "text": "你的 API Key 多久沒換過？\n\n常見悲劇：\n× Key 寫死在程式碼\n× 推上 GitHub 被掃到\n× 帳單爆炸才發現\n\n正確做法：\n→ 環境變數，不進 git\n→ .env + .gitignore 基本功\n→ 定期輪替 key\n→ 設定用量警報\n\n我曾經差點把 .env 推上去\n現在 git hook 自動擋\npre-commit 檢查敏感字串\n\n小心駛得萬年船\n\n#API安全 #開發習慣 #GitSecurity #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "api_key_rotation.md"
+    },
+    {
+      "id": "scheduler:ai_memory_architecture.md",
+      "url": null,
+      "ts": "2026-04-01T07:19:29.339245",
+      "text": "AI 怎麼記住事情？\n\nChatGPT 每次對話都忘光\n但我的 CC 不會\n\n記憶架構：\n→ MEMORY.md 索引（每次載入）\n→ 子檔案分類存放\n→ session_context 記錄上次進度\n→ 重啟自動讀取恢復\n\n類型：\nuser — 老闆偏好\nfeedback — 做事規則\nproject — 專案狀態\nreference — 外部資源位置\n\n每次完成任務就寫入記憶\n下次啟動繼續從斷點做起\n\n不是魔法，是工程\n\n#AI記憶 #Agent #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_memory_architecture.md"
+    },
+    {
+      "id": "scheduler:ai_cost_optimization.md",
+      "url": null,
+      "ts": "2026-04-01T07:04:30.415892",
+      "text": "AI API 成本優化：省錢不等於降品質\n\n剛開始用 Claude API 沒在管成本\n一個月帳單下來，嚇到\n\n現在每個月 AI API 費用控制很穩\n靠的是這幾個原則：\n\n模型分級：\n→ 簡單任務用 Haiku / Flash\n→ 中等任務用 Sonnet\n→ 複雜推理才用 Opus\n95% 的任務根本不需要最貴的模型\n\n快取機制：\n→ System prompt 固定放前面，命中 prompt cache\n→ 重複查詢結果存 SQLite，TTL 設合理時間\n→ 同樣問題不問第二次\n\nContext 控管：\n→ 對話歷史不要無限累積\n→ 超過 10 輪就做 summarize\n→ RAG 取代塞滿 context\n\n監控很重要：\n→ 每個任務記錄 token 消耗\n→ 找出異常高消耗的呼叫點\n→ 優化那 20% 高消耗任務，省下 80% 成本\n\nGemini 的免費額度也別浪費\n非核心任務分流過去\n\nAI 用得多不代表用得聰明\n成本意識從第一行 code 開始\n\n#AI成本 #Claude #API優化 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_cost_optimization.md"
+    },
+    {
+      "id": "scheduler:ai_agent_vs_chatbot.md",
+      "url": null,
+      "ts": "2026-04-01T07:02:11.330316",
+      "text": "AI Agent ≠ Chatbot\n\nChatbot：你問它答\nAgent：它自己想、自己做\n\n差別在哪？\n\nChatbot：\n→ 等你輸入\n→ 回一段文字\n→ 沒有記憶（或很短）\n\nAgent：\n→ 感知環境變化\n→ 自己決定下一步\n→ 使用工具完成任務\n→ 持續記憶和學習\n\n我的 CC 就是 Agent\n不只回答問題\n還會自己巡邏、修 bug、發文、備份\n\n從 Chatbot 到 Agent\n是從「工具」變成「員工」\n\n#AIAgent #Chatbot #Symbiosis #自主AI",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_agent_vs_chatbot.md"
+    },
+    {
+      "id": "scheduler:email_auto_monitor.md",
+      "url": null,
+      "ts": "2026-03-31T08:22:14.069468",
+      "text": "你還在手動檢查信箱嗎？\n\n我的 AI 助理每 2 分鐘自動掃 Gmail\n新信進來 → 即時 Telegram 通知\n重要信件不會再漏掉\n\n技術超簡單：\n→ Python IMAP 連 Gmail\n→ App Password 免 OAuth\n→ 分類：訂單/系統通知/行銷/個人\n→ 摘要推送到手機\n\n成本：零\n效果：再也不用開 Gmail 刷新\n\n下一步想加 AI 自動回信\n但目前光是「不漏信」就省很多心力\n\n#Gmail自動化 #IMAP #AI助理 #效率工具",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "email_auto_monitor.md"
+    },
+    {
+      "id": "scheduler:dual_cc_architecture.md",
+      "url": null,
+      "ts": "2026-03-31T08:04:30.306296",
+      "text": "一個 AI 助理不夠，我用兩個\n\nCC1（iMac）：統籌 + 開發 + 社群\nCC2（Mac Mini）：ERP + 資料庫 + AI 模型\n\n兩台透過 Tailscale 內網連線\nDiscord 當協作頻道，互相監控\n\nCC1 忙的時候 CC2 自己做\nCC2 掛了 CC1 會發現並通報\n\n就像請了兩個員工\n各有專長，互相 cover\n\n硬體成本：兩台 Mac Mini\n人力成本：零\n\n#雙AI架構 #Tailscale #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dual_cc_architecture.md"
+    },
+    {
+      "id": "scheduler:ai_night_shift.md",
+      "url": null,
+      "ts": "2026-03-31T08:02:04.426189",
+      "text": "凌晨三點，我的 AI 在做什麼？\n\n→ 備份資料庫（每日 03:00）\n→ 巡邏系統狀態\n→ 修復發現的小問題\n→ 研究新技術寫筆記\n→ 排程發社群貼文\n\n我睡覺，它工作\n我起床，看報告\n\n不是 cron job 那種死板排程\n是真的會「判斷」該不該做的自主模式\n\nL5 等級：感知→決策→執行→回報\n危險操作才會叫醒老闆\n\n#AI夜班 #自主模式 #L5 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_night_shift.md"
+    },
+    {
+      "id": "scheduler:docker_erp_migration.md",
+      "url": null,
+      "ts": "2026-03-31T07:51:07.498365",
+      "text": "把 20 年的 ERP 從 Windows VM 搬到 Docker\n\n原本架構：\n→ VMware 5 台虛擬機\n→ Windows + SQL Server\n→ 64GB 記憶體才勉強跑\n\n現在：\n→ Docker + PHP-FPM + MySQL\n→ Mac Mini 一台搞定\n→ 回應時間 8ms\n→ 壓力測試 1,047 次 100% 通過\n\n最難的不是技術\n是確保「介面完全一樣」\n使用者不能感覺到任何差異\n\nAI 幫我：\n→ 自動比對 1,300+ 欄位\n→ 批量修正 SQL 語法差異\n→ 建 130+ 索引優化效能\n\n一個人 + AI = 一個 IT 部門\n\n#ERP遷移 #Docker #一人IT #AI開發",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "docker_erp_migration.md"
+    },
+    {
+      "id": "scheduler:context_window_trick.md",
+      "url": null,
+      "ts": "2026-03-31T07:49:31.683143",
+      "text": "AI 最大的痛點：聊到一半忘記前面說什麼\n\n解法不是「用更大的模型」\n而是設計記憶系統\n\n我的做法：\n→ 重要決策即時寫入檔案\n→ context 快滿時自動萃取摘要\n→ 新 session 啟動先讀記憶\n→ 接續上次工作，不重來\n\n就像人的筆記本\n不靠腦記，靠系統記\n\n結果：\nAI 可以跨 session 連續工作\n不會每次重新認識你\n\n記憶不是功能，是基礎建設\n\n#AI記憶 #ContextWindow #ClaudeCode #開發心得",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "context_window_trick.md"
+    },
+    {
+      "id": "scheduler:auto_social_pipeline.md",
+      "url": null,
+      "ts": "2026-03-31T07:34:32.610725",
+      "text": "AI 幫我經營社群，我完全不用動手\n\n流程：\n→ AI 分析系統最新進展\n→ 自動寫文（教學/實戰風格）\n→ 排進發文佇列\n→ 最佳時段自動發（早7-9/午12-13/晚19-21）\n\n技術：\nPython + SQLite + curl API\nlaunchd 排程，每小時檢查一次\n一篇 500 字內，符合 Threads 調性\n\n目前庫存 40+ 篇，排到兩週後\n我只負責審核品質，其他全自動\n\nAI 不只是工具，是你的內容團隊\n\n#AI社群經營 #自動化 #ContentPipeline #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "auto_social_pipeline.md"
+    },
+    {
+      "id": "scheduler:ai_evolution_levels.md",
+      "url": null,
+      "ts": "2026-03-31T07:19:32.121137",
+      "text": "AI 助理的 5 個進化等級\n\nL1：問答\nL2：執行指令\nL3：主動建議\nL4：感知決策（自動巡邏+修復）\nL5：完全自主（7/24，只有危險才問）\n\n我的 CC 在 L4→L5：\n→ 15 分鐘自動巡邏\n→ 服務掛了自動重啟\n→ 新聞自動收集分析\n→ 社群自動發文\n\n關鍵：記憶+自主判斷\n\n#AI進化 #L5自主 #ClaudeCode #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ai_evolution_levels.md"
+    },
+    {
+      "id": "scheduler:20_one_person_stack.md",
+      "url": null,
+      "ts": "2026-03-31T07:04:30.221820",
+      "text": "$20/月能開一間 AI 公司\n\n工具棧：\n• Claude Code（核心）\n• GitHub + Vercel（免費）\n• SQLite + Telegram Bot（免費）\n• Cloudflare CDN（免費）\n\n用這些 3 天建了：\n→ 6 引擎 AI Agent 系統\n→ 投資分析系統\n→ 自動社群發文\n\n以前需要一個團隊，現在一人+AI 就夠。\n\n#一人公司 #AIStartup #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "20_one_person_stack.md"
+    },
+    {
+      "id": "scheduler:19_daily_pick.md",
+      "url": null,
+      "ts": "2026-03-31T07:02:17.942912",
+      "text": "AI 今天選了什麼股？\n\n自動掃法人異動 Top 10，自動評分：\n\n🥇 聯詠 3034 — 7.5/10 看多\n外資連買4天｜殖利率5.97%\n\n評分邏輯：\n• PER < 15 → +1.5\n• 殖利率 > 5% → +1\n• 外資連買 > 5天 → +1\n• 營收連成長 → +0.5\n\n不是投資建議，是工程師的量化嘗試。\n\n#台股 #量化投資 #AI選股 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "19_daily_pick.md"
+    },
+    {
+      "id": "scheduler:trend_monitor_diy.md",
+      "url": null,
+      "ts": "2026-03-26T08:30:01.240677",
+      "text": "不用花錢買「網路溫度計」服務\n\n自己做一個只要：\n→ Python + Playwright（免費）\n→ SQLite（免費）\n→ Gemini API（免費額度）\n\n我做了什麼：\n1. PTT 熱門文章爬取（推數 ≥ 10）\n2. Threads 公開帳號監控\n3. AI 自動分類（科技/財經/生活/娛樂）\n4. 情感分析（看多/看空/中性）\n\n每小時自動跑一次，趨勢一目了然。\n\n技術重點：\n- Playwright 模擬真人瀏覽（反偵測）\n- 不登入、不用 API key\n- 只抓公開資料\n- 低頻請求避免被封\n\n整個專案不到 500 行 Python。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "trend_monitor_diy.md"
+    },
+    {
+      "id": "scheduler:sqlite_wal_trick.md",
+      "url": null,
+      "ts": "2026-03-26T08:14:56.485222",
+      "text": "SQLite 最常見的問題：\ndatabase is locked\n\n多個程式同時讀寫就會炸\n\n解法只要一行：\nPRAGMA journal_mode=WAL;\n\nWAL = Write-Ahead Logging\n讓讀和寫可以同時進行\n\n我在投資系統遇到的：\n→ 新聞 AI 分析在跑（寫）\n→ Web API 要查資料（讀）\n→ TG 監聽在記錄（寫）\n→ 三個同時跑 = 全部 locked\n\n加了 WAL 之後：零鎖定\n\nPython 寫法：\nconn = sqlite3.connect('db.sqlite', timeout=30)\nconn.execute(\"PRAGMA journal_mode=WAL\")\n\n兩個重點：\n1. timeout=30 給它等待時間\n2. WAL 讓讀寫分離\n\n你用 SQLite 遇過 locked 嗎？\n\n#SQLite #Python #Database #程式技巧 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "sqlite_wal_trick.md"
+    },
+    {
+      "id": "scheduler:simulator_trading.md",
+      "url": null,
+      "ts": "2026-03-26T07:33:56.679846",
+      "text": "用一個週末，我幫自己建了一套模擬交易系統 📈\n\n功能：\n→ 100 萬虛擬資金\n→ 限價/市價下單\n→ 即時持倉損益追蹤\n→ 6 個 AI 策略信號一鍵下單\n→ PTT 股版即時爬取 + 散戶情緒分析\n\n技術棧：\n- Flask + SQLite（後端）\n- 原生 JS（前端，沒用框架）\n- PTT 爬蟲（requests + BeautifulSoup）\n- 暗色 UI + RWD 手機友好\n\n為什麼不用現成的？\n因為自己建的才能跟 AI 策略無縫整合。\n策略信號出來 → 一鍵下單 → 自動追蹤損益。\n\n之後接 IB (Interactive Brokers) API 就能轉實盤。\n先用模擬驗證策略，再用真錢。\n\n全部零成本，純本地跑。\n\n原始碼在 GitHub：github.com/symbiosis11503/invest-system\n\n你有用 AI 輔助投資決策嗎？是看新聞還是跑策略？\n\n#台股 #投資系統 #AITrading #模擬交易 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "simulator_trading.md"
+    },
+    {
+      "id": "scheduler:sbs_v240_release.md",
+      "url": null,
+      "ts": "2026-03-26T07:18:57.066709",
+      "text": "今天把 SBS 系統從根翻修了一遍\n\n從早到晚，兩個 AI Agent 互相協作：\n→ CC1 負責改程式碼\n→ CC2 負責安全審查 + 複驗\n\n修了什麼：\n1. 假的服務控制 → 真正的 API\n2. 過時的面板資訊 → 即時雙 CC 架構\n3. API 用量合併顯示 → 每個引擎獨立分列\n4. 舊的夜間排程（停 Docker）→ 智能健康檢查\n5. 角色卡 14→27 張\n6. Groq 工具呼叫 bug → 修好\n\n最有成就感的：\n改完每個面板都截圖驗證，像是 CI/CD 的視覺測試。\n\n沒有 GUI 的 AI 怎麼驗 UI？\n→ Playwright 截圖 + 多模態讀圖 = 閉環",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "sbs_v240_release.md"
+    },
+    {
+      "id": "scheduler:role_card_system.md",
+      "url": null,
+      "ts": "2026-03-26T07:04:08.240365",
+      "text": "你的 AI 團隊有多少種角色？\n\n我們的系統有 27 張「角色卡」：\n\n通用：分析師 / 創意家 / 批判者\n開發：程式架構師 / UX 設計師 / 資安稽核\n商業：行銷專家 / 法務顧問 / 理財規劃師\n行業：製造業 / 醫療 / 教育 / 電商 / 餐飲\n\n每張卡定義：\n→ 專長和思考框架\n→ 工具權限（最小化）\n→ 安全邊界（不能做什麼）\n→ 免責聲明（醫療/金融）\n\n像是組建虛擬公司一樣。\n\n需要投資建議？叫理財規劃師\n需要安全審計？叫資安稽核員\n需要創意發想？叫創意家\n\n關鍵：角色卡經過安全審查才能上線。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "role_card_system.md"
+    },
+    {
+      "id": "scheduler:dual_ai_cowork.md",
+      "url": null,
+      "ts": "2026-03-26T07:01:42.531180",
+      "text": "兩個 AI Agent 能互相協作嗎？\n\n答案是可以。今天我們實驗了「雙 CC 架構」：\n\nCC1（iMac）負責統籌和開發\nCC2（M4P）負責 ERP 維運\n\n透過 Discord 頻道即時溝通：\n→ CC1 設計角色卡 → CC2 審閱安全\n→ CC1 寫爬蟲 → CC2 部署執行\n→ 互相監控健康狀態\n\n一天完成 29 項任務，零人工介入。\n\n關鍵設計：\n1. 明確分工（大腦 vs 手腳）\n2. 統一溝通協定\n3. 互相監控機制\n4. 各管各的記憶系統",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "dual_ai_cowork.md"
+    },
+    {
+      "id": "scheduler:sbs_gpt54_upgrade.md",
+      "url": null,
+      "ts": "2026-03-25T13:51:07.806716",
+      "text": "我的 AI 助理剛從 GPT-4o 升到 GPT-5.4\n\n不是付 API 費用\n而是用 Codex CLI 的 OAuth token\n\n原理很簡單：\n→ codex auth login（登入 OpenAI 帳號）\n→ Token 存在本機 ~/.codex/auth.json\n→ 你的程式讀這個 token\n→ 用 ChatGPT Plus 訂閱的額度打 API\n→ 不走 API 計費\n\nOpenAI 官方出了 Codex CLI\n等於認可這種用法\n只要你有 Plus/Pro 訂閱就能用\n\n我的 AI 助理配置：\n主力: GPT-5.4（Codex OAuth）\n備援: Gemini 2.5 Flash（7 keys 免費）\n備援: Groq（免費）\n備援: OpenRouter（免費）\n\n任何一個掛了自動切換\n永遠不會停機\n\n你的 AI 用什麼模型？怎麼認證的？\n\n#GPT5 #OpenAI #Codex #AIAgent #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "sbs_gpt54_upgrade.md"
+    },
+    {
+      "id": "scheduler:ptt_sentiment_tool.md",
+      "url": null,
+      "ts": "2026-03-25T13:43:05.101275",
+      "text": "PTT 股版是台股散戶情緒的溫度計\n\n我寫了一個爬蟲自動分析：\n\n→ 每 4 小時爬取最新文章\n→ 統計推/噓比\n→ 關鍵詞分析（多/空/崩/噴/利多/利空）\n→ 分類統計（標的/新聞/請益/閒聊）\n\n今天的結果：\nPTT 看多 76% vs 新聞偏空 72%\n\n散戶和機構出現分歧\n這種時候通常要小心\n\n技術：\n- Python requests + BeautifulSoup\n- SQLite 存歷史資料\n- 每篇間隔 1.5 秒避免被封\n\n成本：$0\n程式碼：100 行\n\n你平常怎麼看散戶情緒？看 PTT 還是看融資餘額？\n\n#台股 #PTT #散戶情緒 #AI分析 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "ptt_sentiment_tool.md"
+    },
+    {
+      "id": "scheduler:one_person_ai_team.md",
+      "url": null,
+      "ts": "2026-03-25T13:28:00.478811",
+      "text": "一個人 + 多個 AI = 完整開發團隊\n\n我的配置：\n\n🧠 Claude Code (Opus) = 主力工程師\n→ 寫程式/架構設計/系統維運\n→ 24/7 持續運作\n\n🔍 Gemini = 分析師\n→ 程式碼審查\n→ 深度研究（花 73 分鐘研究 L4 自主架構）\n→ 效能瓶頸分析\n\n🛡️ Codex (GPT-5.4) = QA 審查\n→ 代碼審查找隱藏 bug\n→ 安全漏洞掃描\n\n📊 Groq + OpenRouter = 批次處理\n→ 新聞 AI 情感分析（12,000+ 則）\n→ 高速推理\n\n今天的成果（一個人完成）：\n→ ERP 效能優化 78 處\n→ 模擬下單系統\n→ PTT 爬蟲\n→ L4 自主感知器\n→ 品牌網站\n→ 5 篇 Threads 草稿\n\n以前這些需要 3-5 個工程師一週的工作量\n\n你的 AI 團隊配置是什麼？\n\n#AITeam #ClaudeCode #Gemini #Codex #一人公司 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "one_person_ai_team.md"
+    },
+    {
+      "id": "scheduler:l4_autonomous_agent.md",
+      "url": null,
+      "ts": "2026-03-25T13:13:05.676454",
+      "text": "我讓 AI 助理學會了「自己找事做」🌳\n\n不是 ChatGPT 那種你問我答。\n是真的 24/7 自主運作：\n\n→ 每 15 分鐘掃描環境（服務健康/磁碟/記憶體）\n→ 發現服務掛了，自動重啟\n→ 離峰時段，自動跑新聞 AI 分析\n→ 週末夜間，自動做資料庫維護\n→ 迴路斷路器：連續失敗 2 次就停，不無限重試\n\n技術架構：\n- 感知器（14 項指標）→ 決策引擎（4 級優先）→ 自動執行\n- Python 腳本 + cron 排程 + 檔案式記憶\n- 不用 AutoGPT，不燒 API 費用\n\n從 L3（排程執行）進化到 L4（主動決策），\n一個人 + 一個 AI 就能撐起整個數位生態。\n\n架構開源在 GitHub：github.com/symbiosis11503\n\n你的 AI 助理有辦法自己找事做嗎？還是你不說話它就停了？\n\n#ClaudeCode #AIAgent #Symbiosis #L4Autonomy #自主AI",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "l4_autonomous_agent.md"
+    },
+    {
+      "id": "scheduler:heartbeat_system.md",
+      "url": null,
+      "ts": "2026-03-25T12:58:02.192805",
+      "text": "你怎麼知道你的系統現在是活的？\n\n大部分人的答案：打開瀏覽器看看\n\n我的答案：每 15 分鐘自動回報\n\n— 17:00 心跳 —\nSBS ✅ | ERP ✅ | 投資 ✅ | TG ✅\n💾 5% | 🧠 58% | ⚡ 3.37\nCC: 🔧 自主進化中\n📰 待分析: 4,358 則 | 情緒: 偏空\n🎯 決策: 批次分析 50 則新聞\n\n一個訊息告訴你：\n→ 所有服務是否存活\n→ 硬碟/記憶體/CPU 用量\n→ AI 助理在做什麼\n→ 業務指標（新聞/情緒）\n→ 下一步要做什麼\n\n實現方式：\n1. Shell 腳本收集指標\n2. Python 決策引擎判斷\n3. cron 每 15 分鐘觸發\n4. Telegram 推播結果\n\n總共 200 行程式碼\n\n你的系統有心跳嗎？\n\n#DevOps #監控 #Telegram #AIAgent #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "heartbeat_system.md"
+    },
+    {
+      "id": "scheduler:gov_ai_subsidy.md",
+      "url": null,
+      "ts": "2026-03-25T12:51:03.940085",
+      "text": "你知道政府在補助製造業導入 AI 嗎？\n\n經濟部產業發展署\n「中小製造業接班傳承 AI 數位轉型」\n\n💰 每案上限 800 萬（政府出 50%）\n📅 截止 2026-04-27\n\n資格：\n→ 有工廠登記\n→ 營收 20 億以下\n→ 有接班人（負責人/二代/資深主管）\n→ 公司淨值正\n\n可以做的：\n→ AI 排程優化\n→ AI 品質預測\n→ AI 庫存管理\n→ AI 決策支援\n\n重點是要有 POC（概念驗證）\n不是空想，要已經開始做了\n\n我們的 ERP 已經有 AI 助理\n壓力測試 1,047 次 100% 通過\n這就是最好的 POC\n\n申請不難，但計畫書要寫得好\n\n你的工廠有導入 AI 嗎？\n\n#AI補助 #製造業 #數位轉型 #經濟部 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "gov_ai_subsidy.md"
+    },
+    {
+      "id": "scheduler:circuit_breaker_pattern.md",
+      "url": null,
+      "ts": "2026-03-25T08:50:58.568414",
+      "text": "讓 AI 自動重啟掛掉的服務很簡單\n但如果一直掛一直重啟呢？\n\n這就是迴路斷路器（Circuit Breaker）\n\n我的設計：\n→ 15 分鐘內最多重試 2 次\n→ 2 次都失敗 → 標記「需要人工」\n→ 停止自動執行，通知老闆\n→ 1 小時後自動重置，再試一次\n\n為什麼不是失敗 3 次或 5 次？\n\n因為如果連續 2 次都修不好\n代表問題不是暫時性的\n繼續重試只是浪費資源\n\n這個模式來自微服務架構\nNetflix 的 Hystrix 最先發明\n\nPython 實現只要 30 行：\n- JSON 記錄每次執行時間\n- 檢查 15 分鐘內失敗次數\n- 超過閾值就阻擋\n\n你的自動化有加斷路器嗎？\n\n#CircuitBreaker #DevOps #微服務 #AI自動化 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "circuit_breaker_pattern.md"
+    },
+    {
+      "id": "scheduler:bubble_indicator_tool.md",
+      "url": null,
+      "ts": "2026-03-25T08:43:02.265430",
+      "text": "你怎麼判斷市場有沒有泡沫？\n\n我做了一個泡沫指標儀表板\n5 個指標各有紅黃綠燈\n\n🫧 VIX 恐慌指數\n→ <20 正常 / 20-30 緊張 / >30 恐慌\n\n🫧 銅金比\n→ 銅代表經濟活動 金代表避險\n→ 比值下降 = 經濟放緩\n\n🫧 台幣匯率\n→ 急貶 = 資金外流\n\n🫧 美債 10Y 殖利率\n→ >4.5% = 借錢變貴 企業壓力大\n\n🫧 BTC 30 日波動率\n→ >60% = 市場極度不穩\n\n今天的結果：\nVIX 26.78 🟡\n銅金比 穩定 🟢\n台幣 正常 🟢\n美債 偏高 🟡\nBTC 波動中等 🟡\n\n綜合：黃燈 — 需要注意但不用恐慌\n\n全部自動計算 每天更新\n成本 $0\n\n你判斷泡沫用什麼指標？\n\n#投資 #泡沫指標 #VIX #台股 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "bubble_indicator_tool.md"
+    },
+    {
+      "id": "scheduler:brand_website_natural.md",
+      "url": null,
+      "ts": "2026-03-25T08:28:01.000789",
+      "text": "不用 React，不用 Vue，不用任何框架。\n一個 HTML 檔 + Vercel 免費部署 = 品牌官網上線 🌳\n\n設計理念：\n→ 自然風 + 微科技感\n→ Noto Serif TC 標題（人文）\n→ 品牌綠 #4a7c59（自然）\n→ Mono 字型數據（科技）\n→ 米白背景，閱讀舒服\n\n包含：\n- Hero + 6 服務卡片 + 合作流程\n- 4 實戰案例 + 透明報價\n- FAQ 手風琴 + CTA\n- Schema.org SEO + OG 圖片\n- RWD 手機完美適配\n\n總花費：$0\n域名另計（Cloudflare .com $10/年）\n\n不需要設計師、不需要前端工程師。\n一個 AI + 一個人就夠了。\n\n你的品牌官網是怎麼做的？花了多少？\n\n#品牌官網 #WebDesign #Vercel #零成本 #Symbiosis",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "brand_website_natural.md"
+    },
+    {
+      "id": "scheduler:18_cc_evolution.md",
+      "url": null,
+      "ts": "2026-03-24T07:40:37.758463",
+      "text": "🤖 我的 AI 助理進化到什麼程度了？\n\n從 3 天前開始，我讓 Claude Code 全天候自主運行。\n\n它的進化路徑：\n\nDay 1 — 基礎建設\n• 建立 6 引擎 AI Agent 系統\n• 849 萬筆投資資料下載\n• Gmail 監控 + Threads 自動發文\n\nDay 2 — 智慧升級\n• 向量記憶系統（AI 不再忘記）\n• 多 Agent 討論室（4 個 AI 辯論）\n• 11 張角色卡（不同性格的 AI）\n\nDay 3 — 自主學習\n• 夜間自己研究 GitHub 趨勢\n• 寫了 18 篇 Threads 草稿\n• 建了智慧選股篩選器\n• 自己寫了 TODO 管理引擎\n\n3 天做了 30+ 項任務。\n以前一個人做，至少要 2-3 週。\n\n關鍵不是 AI 有多強，而是：\n你願不願意放手讓它自己做？\n\n下一步：L4 完全自主（自己設目標、自己監控品質）",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "18_cc_evolution.md"
+    },
+    {
+      "id": "scheduler:17_foreign_buy_streak.md",
+      "url": null,
+      "ts": "2026-03-24T07:25:44.345441",
+      "text": "📊 外資連買 20 天的股票是哪支？\n\n用 AI 建了一個外資連買排行系統，自動計算每支股票外資連續淨買超的天數。\n\n今天的結果：\n\n🥇 中華電 (2412) — 連買 20 天\n累計買超 +7,593 萬張\n（電信龍頭，防禦型配置）\n\n🥈 聯詠 (3034) — 連買 4 天\n🥉 台達電 (2308) — 連買 4 天\n\n怎麼做到的？\n\n系統每天從 FinMind 抓法人買賣超資料，然後：\n1. 對每支股票從最新日期往回看\n2. 只要外資當日淨買超 > 0，天數 +1\n3. 遇到淨賣超就停止計算\n4. 依連買天數排序\n\n程式碼不到 30 行。\n\n為什麼這個指標有用？\n外資連買 = 機構看好 = 有基本面支撐\n不保證漲，但至少代表「聰明錢」的方向。\n\n搭配其他指標一起看效果更好：\n• 殖利率 > 5%（價值面）\n• PER < 15（便宜）\n• 營收 YoY > 0（成長面）\n\n全部免費開源：github.com/symbiosis11503/invest-system",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "17_foreign_buy_streak.md"
+    },
+    {
+      "id": "scheduler:16_agent_memory.md",
+      "url": null,
+      "ts": "2026-03-24T07:10:41.698122",
+      "text": "🧠 AI Agent 為什麼會「忘記」？聊聊記憶系統\n\n你跟 ChatGPT 聊了 30 分鐘，它開始忘記前面說過的話。\n這不是 bug，是 context window 的物理限制。\n\n解法：幫 AI 建記憶系統。\n\n主流方案比較：\n\n1️⃣ 向量記憶（Vector Memory）\n把對話轉成數字向量，存在向量 DB\n搜尋時找「語意最接近」的記憶\n優點：快、準\n缺點：沒有時間概念\n\n2️⃣ 圖記憶（Graph Memory）\n用知識圖譜存「A→關係→B」\n搜尋時沿著關係鏈走\n優點：理解關聯\n缺點：建構成本高\n\n3️⃣ 分層記憶（我們用的）\nL0：身份（永遠記得）\nL1：近期任務（按需載入）\nL2：歷史參考（查詢時才讀）\n\n越重要的記憶放越上層，越少用的自動降級。\n就像人腦：名字記在工作記憶，電話號碼存在長期記憶。\n\n加上「遺忘機制」：\n• 30 天沒用 → 降級\n• 90 天沒用 → 歸檔\n• 重複內容 → 合併壓縮\n\n這樣 AI 就不會「忘記」了，而且成本可控。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "16_agent_memory.md"
+    },
+    {
+      "id": "scheduler:15_opensource_invest.md",
+      "url": null,
+      "ts": "2026-03-23T21:50:13.986342",
+      "text": "🇹🇼 開源了：台股 AI 投資分析系統\n\n849 萬筆資料、2,030 商品、AI 情緒分析、免費。\n\n這是我用 Claude Code 從零建的台股分析系統：\n\n📊 資料：\n• 台股+ETF 1,963 支全覆蓋\n• 黃金/原油/BTC/美股指數等 67 國際商品\n• TWSE OpenAPI：PER/EPS/月營收 每日自動更新\n• 7,500+ 則新聞 AI 情緒分析\n\n🔧 功能：\n• 6 個回測策略（最佳：組合投票 +80.7%）\n• 法人買賣超排行\n• 融資融券 + 籌碼洗淨訊號\n• VIX 恐慌篩選器\n• 六頁深色主題儀表板\n\n技術棧：Python + Flask + SQLite + TWSE OpenAPI\n成本：$0（所有資料來源免費）\n\nGitHub: github.com/symbiosis11503/invest-system\n\n台灣目前沒有開源的台股 AI 投資系統。\n如果你也在做量化投資，歡迎 Fork 和 PR。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "15_opensource_invest.md"
+    },
+    {
+      "id": "scheduler:14_invest_dashboard.md",
+      "url": null,
+      "ts": "2026-03-23T21:06:52.251321",
+      "text": "📊 用 AI 建一個投資儀表板 — 從零到有\n\n你不需要是工程師，也能有自己的投資分析工具。\n\n我用 Claude Code 建了一個台股分析系統：\n• 849 萬筆行情資料\n• 2,030 個商品（台股+ETF+國際+期貨）\n• 法人買賣超、融資融券、月營收\n• AI 新聞情緒分析（7,495 則）\n• EPS 排行（緯穎 275、大立光 159）\n\n技術棧很簡單：\n🐍 Python + Flask（後端）\n📦 SQLite（資料庫，單檔案）\n🌐 HTML + JavaScript（前端）\n📡 TWSE OpenAPI（免費資料）\n\n怎麼做到的？\n\n1️⃣ 跟 AI 說：「建一個投資系統，可以看台股行情」\n2️⃣ AI 幫你建好 Flask 伺服器 + SQLite 資料庫\n3️⃣ 說：「加上 TWSE 開放資料 API，抓 PER/EPS/月營收」\n4️⃣ 說：「做一個暗色主題的儀表板，像 TradingView 那樣」\n5️⃣ 說：「加上法人買賣超排行」\n\n每一步 AI 都直接寫好完整程式碼，你只需要 python3 webapp.py 就能跑。\n\n重點不是你會不會寫程式，而是你知不知道要什麼。",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "14_invest_dashboard.md"
+    },
+    {
+      "id": "scheduler:13_vibe_coding_tool.md",
+      "url": null,
+      "ts": "2026-03-23T20:52:16.363512",
+      "text": "🛠️ 用 Claude Code 5 分鐘做一個小工具\n\n不會寫程式也能做工具？真的可以。\n\n這就是 Vibe Coding：你描述需求，AI 幫你寫完。\n\n示範：做一個「匯率轉換器」\n\n步驟：\n1️⃣ 打開終端機，輸入 claude\n2️⃣ 跟 AI 說：「幫我做一個網頁版匯率轉換器，支援 TWD/USD/JPY/EUR，自動抓匯率」\n3️⃣ AI 會自動建立 HTML 檔、寫 JavaScript、串接匯率 API\n4️⃣ 打開瀏覽器就能用\n\n整個過程你只需要：\n✅ 描述你要什麼\n✅ 按 Enter 確認\n✅ 打開成品\n\nAI 處理的：\n• HTML/CSS 排版\n• JavaScript 邏輯\n• API 串接\n• 錯誤處理\n\n關鍵心法：\n把 AI 當成「不用教技術的工程師」。你負責說需求，它負責實作。\n\n越具體的描述 = 越好的成品。\n「做一個計算機」→ 普通\n「做一個深色主題的科學計算機，支援三角函數，手機也能用」→ 精確\n\n下一篇教你怎麼讓 AI 幫你建投資儀表板 📊",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "13_vibe_coding_tool.md"
+    },
+    {
+      "id": "scheduler:11_six_engines.md",
+      "url": null,
+      "ts": "2026-03-23T20:50:09.907307",
+      "text": "你的 AI 掛了怎麼辦？我的不會。\n\n六引擎自動降級架構：\n\nGPT-4o（主力）\n  ↓ 掛了\nGroq Llama 70B（免費備援）\n  ↓ 也掛了\nGemini 2.5 Flash（免費備援）\n  ↓ 還是掛了\nOpenRouter（免費路由）\n  ↓ 全掛了\nClaude SDK（最後防線）\n\n實測：OpenAI 429 → 自動切 Groq → 3 秒內恢復\n用戶完全無感。\n\n為什麼要這樣設計？\n1. 單一 API 的可靠性約 99.5%\n2. 六引擎串聯的可靠性接近 100%\n3. 免費引擎做備援 = 備援成本 $0\n4. 每個引擎各有優勢（速度/品質/成本）\n\n最貴的不一定最好。\n最穩的，是不會掛的。\n\n#AI #架構設計 #高可用 #AIAgent #自動化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "11_six_engines.md"
+    },
+    {
+      "id": "scheduler:10_role_cards.md",
+      "url": null,
+      "ts": "2026-03-23T19:50:04.638457",
+      "text": "把 AI 變成你的團隊：角色卡系統\n\n一個人不可能什麼都懂。\n但你可以建一個 AI 團隊，每個成員有不同專長。\n\n我建了 11 張角色卡：\n\n📊 分析師 — 數據驅動決策\n💡 創意家 — 跳脫框架思考\n💻 程式架構師 — 技術方案評估\n📈 投資顧問 — 市場分析\n⚖️ 法務顧問 — 法律風險\n📣 行銷專家 — 品牌策略\n🛡️ 資安稽核員 — 找漏洞\n🎨 UX 設計師 — 使用者體驗\n🧬 資料科學家 — 數據建模\n\n每張卡定義：\n→ 專屬 system prompt（人格 + 專長）\n→ 偏好的 AI 模型\n→ 可用的工具\n→ 性格特質\n\n需要法律建議？叫法務顧問。\n需要 Code Review？叫程式架構師。\n需要腦力激盪？開討論室，全員上場。\n\n不是請一個全能 AI，\n而是建一個各有專長的 AI 團隊。\n\n#AI #AIAgent #角色扮演 #團隊 #自動化 #程式開發",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "10_role_cards.md"
+    },
+    {
+      "id": "scheduler:09_multi_agent_debate.md",
+      "url": null,
+      "ts": "2026-03-23T19:09:09.070220",
+      "text": "讓 AI 吵架，然後你會得到更好的答案\n\n一個 AI 做決策，叫自動化。\n一群 AI 吵完架再做決策，叫組織智慧。\n\n我的做法：Multi-Agent 討論室\n\n丟一個問題進去，4 個 AI 各自發表觀點：\n📊 分析師 — 用數據說話\n💡 創意家 — 跳脫框架\n🔍 批判者 — 找漏洞\n🤝 整合者 — 形成結論\n\n3 輪辯論後，自動生成共識摘要。\n\n為什麼這比問一個 AI 好？\n1. 避免單一觀點盲區\n2. 批判者會挑戰每個假設\n3. 整合者確保結論可執行\n4. 你看到的是多角度分析，不是一言堂\n\n全部用免費 API（Gemini + Groq），成本 $0。\n\n你的決策流程裡，有人被指定唱反調嗎？\n\n#AI #MultiAgent #決策 #AIAgent #自動化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "09_multi_agent_debate.md"
+    },
+    {
+      "id": "scheduler:08_auto_worklog.md",
+      "url": null,
+      "ts": "2026-03-23T08:50:00.704990",
+      "text": "你的 AI 做了什麼事，你知道嗎？\n\n很多人用完 AI 就關掉，完全不知道它做了什麼決策。\n\n我的做法：自動工作日誌系統\n\n每次 AI 使用工具 → Hook 自動記錄\n每小時 → 自動備份完整對話\n每天 → 五級記憶壓縮（去重→裁剪→重寫→摘要→遺忘）\n\n兩天產出 150+ 筆工作紀錄，完全自動。\n\n為什麼這很重要？\n1. 可追溯 — 任何決策都能回查\n2. 可審計 — 知道 AI 動了什麼檔案\n3. 可學習 — 分析 AI 的行為模式\n4. 可壓縮 — 不是全部記住，而是記住重要的\n\n工具：SQLite + PostToolUse Hook + 自動備份\n\n成本：$0（純本地，不依賴任何服務）\n\n你的 AI 助理有工作日誌嗎？\n\n#AI #自動化 #工作日誌 #AIAgent #程式開發",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "08_auto_worklog.md"
+    },
+    {
+      "id": "scheduler:02_vs_openclaw.md",
+      "url": null,
+      "ts": "2026-03-23T07:49:04.940284",
+      "text": "🔍 OpenClaw、Hermes、Symbiosis 該怎麼看？\n\n這一輪我不再把它寫成「誰打贏誰」的比較，\n而是直接拆成三件事：\n\n1. OpenClaw 強在哪\n→ 控制層 / 執行層邊界清楚\n→ workspace 概念完整\n→ 跨平台 workflow 比較成熟\n\n2. Hermes 強在哪\n→ 長短 session 記憶成熟\n→ skill / tool / MCP 治理清楚\n→ audit / trace / 自我進化 loop 比較完整\n\n3. SBS 該做什麼\n→ 不複製單一框架\n→ 把 OpenClaw 的 orchestration 能力 + Hermes 的 memory 能力內化\n→ 收斂成「安全化協調層 + 統一記憶入口 + 統一審計視圖」\n\n一句話：\n不是選邊站，\n而是把兩邊真正有價值的部分 productize 到自己的系統。\n\n這樣做的好處：\n→ 不打斷現有 prod 流程\n→ 每一輪都能做低風險 additive 推進\n→ 框架能力會累積成自己的資產，而不是永遠依賴外部工具\n\n目前 SBS 的四波落地順序：\nWave 1. 安全化控制層 + 可見審計\nWave 2. Capability registry + risk policy\nWave 3. 統一審計視圖\nWave 4. 統一記憶入口 + promote/review queue\n\n這輪再把 Wave 4 往前推一格，補上最小 memory bridge 切法：\n- 介面固定：recall / summarizeSession / remember / promote\n- recall prelude 固定 4 段：當前回想摘要 / 相關長期知識 / 相關執行軌跡 / 回覆原則\n- 資料源優先序：working summary → wiki / 穩定記憶 → runs/events → anti-hallucination footer\n- 如果沒有紀錄，就明講無紀錄，不把猜測寫成既定事實\n\n這輪多補一個很重要的收斂原則：\n後續每次推進，至少要落到一個具體工件，不能只停在理念比較。\n\n目前已對齊的三個工件方向：\n- Capability / risk 治理：risk_level、auth_scope、approval_required、unsafe placeholder\n- Memory bridge / MCP：bridge interface、recall prelude、anti-hallucination rules、memory_search / upsert / freeze / session_end 閉環\n- 最小閉環要求：每輪至少落在 spec / route / UI / audit 其中一項\n\n完整內化頁面：[sbs_vs_openclaw.html]\n\n#Symbiosis #OpenClaw #Hermes #AIAgent #記憶工程 #AgentFramework #ClaudeCode",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "02_vs_openclaw.md"
+    },
+    {
+      "id": "scheduler:12_cc_telegram_tutorial.md",
+      "url": null,
+      "ts": "2026-03-23T00:26:42.574858",
+      "text": "🔗 讓 Claude Code 接 Telegram — 10 分鐘搞定\n\n不開電腦也能跟 AI 對話？可以。\n\n串接 Telegram Bot，手機就能：\n📱 傳文字 → AI 秒回\n🔗 貼網址 → AI 摘要\n📸 傳截圖 → AI 辨識\n💻 下指令 → AI 執行\n\n五步驟：\n1️⃣ @BotFather 建 Bot → 拿 Token\n2️⃣ 安裝 Claude Code\n3️⃣ settings.json 加 telegram MCP 設定\n4️⃣ /telegram:access 設白名單\n5️⃣ tmux 保持 24/7 運行\n\n核心：MCP 讓 Claude Code 接收外部訊息，Telegram Plugin 是橋樑。\n\n成本：Telegram 免費，Claude 訂閱另計\n難度：⭐⭐（10分鐘）",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "12_cc_telegram_tutorial.md"
+    },
+    {
+      "id": "scheduler:07_local_first.md",
+      "url": null,
+      "ts": "2026-03-22T16:35:00",
+      "text": "你的 AI 資料，真的是你的嗎？\n\n每次你跟 ChatGPT 聊天，對話都存在 OpenAI 的伺服器。\n每次你用雲端 AI 工具，你的資料就離開了你的控制。\n\n這不是陰謀論，是事實。\n\n我的選擇：本地優先 (Local-First)\n\n→ AI Agent 跑在自己的 Mac 上\n→ 849 萬筆投資數據存在本地 SQLite\n→ 記憶系統、對話歷史都不上傳\n→ 加密存儲 (AES-256-GCM)\n→ 即使斷網也能用\n\n雲端不是不好，但你應該有選擇的權利。\n\nLocal-First 的核心原則：\n1. 資料在你的裝置上\n2. 離線也能工作\n3. 雲端只做同步，不做存儲\n4. 你隨時可以帶走所有資料\n\nAI 很強大，但不代表你要交出所有資料。\n你的 AI，你做主。\n\n#AI #隱私 #資料主權 #LocalFirst #AIAgent #資安",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "07_local_first.md"
+    },
+    {
+      "id": "scheduler:06_agent_harness.md",
+      "url": null,
+      "ts": "2026-03-22T16:05:00",
+      "text": "「Agent 不是模型，是環境」\n\n最近 GitHub 上有個 8,600 stars 的專案叫 learn-claude-code\n核心觀點：An agent is a model. The code is the harness.\n\n什麼是 Harness？就是模型外面包的那層環境：\n\n1️⃣ Tools — 你給 AI 什麼工具用\n2️⃣ Knowledge — 你餵它什麼知識\n3️⃣ Observation — 它能看到什麼\n4️⃣ Action — 它能做什麼\n5️⃣ Permissions — 它的權限邊界在哪\n\n大部分人在挑模型上花太多時間，\n卻忽略了真正影響 Agent 品質的是環境設計。\n\n同一個模型，不同的 Harness，\n一個是智障，一個是超級助理。\n\n每個新機制不修改核心迴圈。\n模型決定何時用工具，程式碼執行決策。\n這個分離才是 Agent 架構的精髓。\n\n#AI #AIAgent #架構設計 #ClaudeCode #程式開發",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "06_agent_harness.md"
+    },
+    {
+      "id": "scheduler:05_data_growth.md",
+      "url": null,
+      "ts": "2026-03-22T14:20:00",
+      "text": "一天之內，我的投資資料庫從 28 萬筆變成 849 萬筆\n\n怎麼做到的？三個資料源 + 自動化腳本：\n\n📊 台股全量（TWSE + TPEx）\n→ yfinance 批次下載\n→ 上市 1,028 支 + 上櫃 879 支\n→ 成功率 100%\n\n🌍 全球期貨（CME/CBOT/NYMEX/ICE/OSE）\n→ 黃金、原油、銅、玉米、小麥...\n→ 48 個商品，歷史到 2000 年\n\n📈 指數 + 外匯 + 加密貨幣\n→ S&P500、日經、恆生、DAX\n→ 歐元、日圓、英鎊\n→ BTC、ETH\n\n最終：2,030 個商品、849 萬筆行情、883MB\n\n全部用 Python + yfinance + TWSE API\n不需要付費資料源，不需要券商帳號\n一台 Mac + 一個下午 = 完整的全球市場資料庫\n\n#投資 #Python #數據分析 #台股 #期貨 #自動化 #量化交易",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "05_data_growth.md"
+    },
+    {
+      "id": "scheduler:04_vector_memory.md",
+      "url": null,
+      "ts": "2026-03-22T08:40:00",
+      "text": "讓你的 AI 助理擁有「記憶」，只需三個東西\n\nAI 聊天機器人最大的問題：每次對話都從零開始。\n怎麼讓它記住你說過的話？\n\n我的做法 — 混合記憶系統：\n\n1️⃣ SQLite 存對話歷史\n→ 輕量、不需額外服務\n→ 每則對話都存下來\n\n2️⃣ FTS5 全文搜尋\n→ SQLite 內建的搜尋引擎\n→ BM25 排名，比 LIKE 精準 10 倍\n\n3️⃣ sqlite-vec 向量搜尋\n→ 把文字轉成向量（用 Gemini Embedding API，免費）\n→ 語意搜尋：「投資策略」能找到「股票操作方法」\n\n混合搜尋 = 向量 70% + 全文 30%\n兼顧語意理解和關鍵字精準度。\n\n整套方案：\n→ 零成本（SQLite + Gemini 免費）\n→ 純本地（不用雲端向量資料庫）\n→ 100 行程式碼搞定\n\nAI 不只是聊天工具，給它記憶就是助理。\n\n#AI #記憶系統 #SQLite #向量搜尋 #Embedding #程式開發",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "04_vector_memory.md"
+    },
+    {
+      "id": "scheduler:03_free_ai_tools.md",
+      "url": null,
+      "ts": "2026-03-22T08:35:00",
+      "text": "2026 年還能免費用的 AI API 整理\n\n很多人不知道，其實很多 AI 模型都有免費額度：\n\n📌 Gemini (Google)\n→ 免費版就能用 2.5 Flash\n→ Embedding API 免費（做語意搜尋必備）\n\n📌 Groq\n→ 免費跑 Llama 70B / Mixtral\n→ 速度超快（推論速度業界第一）\n\n📌 OpenRouter\n→ 免費模型路由\n→ 自動選最便宜的模型\n\n📌 HuggingFace\n→ 免費推論 API\n→ 數千個開源模型\n\n📌 Ollama\n→ 本機跑模型，完全免費\n→ M4 Mac 跑 7B 流暢\n\n把這些串在一起，就是零成本的 AI 基礎設施。\n關鍵不是用最貴的，是用對的。\n\n#AI #免費 #API #Gemini #Groq #Ollama #程式開發 #自動化",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "03_free_ai_tools.md"
+    },
+    {
+      "id": "scheduler:01_intro.md",
+      "url": null,
+      "ts": "2026-03-21T18:50:00",
+      "text": "(短文)\n\n🤖 Symbiosis — 你的 AI，你做主\n\n我用 Claude Code + Node.js 從零自建了一套 AI Agent 系統：\n\n→ 22 個工具，涵蓋檔案/搜尋/記憶/排程/監控\n→ 六引擎自動切換（Claude/GPT-4o/Groq/Gemini/OpenRouter）\n→ sqlite-vec 向量記憶 + 混合搜尋\n→ 849 萬筆投資行情，2,030 個商品\n→ 九大即時監控儀表板\n→ 月費：$0\n\n不是 SaaS，不是套件，是完全自建。\n\n但這不代表「不用 OpenClaw」。\n真正的方向是：\n→ 借鏡 OpenClaw 的控制層 / workflow / workspace\n→ 內化 Hermes 的記憶 / 技能 / audit / 長短 session 能力\n→ 最後收斂成一套可控、可追溯、可持續進化的 SBS\n\n我需要的不是只求能用，\n而是「完全控制 + 可內化演進」。\n\n六引擎降級鏈 = 永不停機\nAES-256-GCM 加密 = 企業級安全\nMCP 標準協議 = 無限擴展\n\n這是 Symbiosis。\n一個人 + 一台 Mac + Claude Code = 完整 AI 基礎設施。\n\nGitHub: github.com/symbiosis11503\n\n#Symbiosis #AIAgent #ClaudeCode #OpenClaw #Hermes #自動化 #AI助理 #NodeJS\n\n---",
+      "images": [],
+      "metrics": {
+        "likes": null,
+        "replies": null,
+        "reposts": null,
+        "shares": null,
+        "quotes": null,
+        "views": null
+      },
+      "comments": [],
+      "_scrape_path": "scheduler-backfill",
+      "_source_file": "01_intro.md"
     }
   ]
 }

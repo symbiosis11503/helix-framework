@@ -195,6 +195,57 @@ if (enrich && added > 0) {
   console.error(`[scrape] enriched ${enriched} posts (${enrichmentErrors} errors)`);
 }
 
+// Step 5: backfill from threads_scheduler.py published log if available (much richer history)
+const SCHEDULER_PUBLISHED = '/Users/wei/Projects/symbiosis-agent/data/posts_published.json';
+const SCHEDULER_POSTS_DIR = '/Users/wei/Projects/symbiosis-agent/data/posts';
+let scheduler_backfill = 0;
+if (existsSync(SCHEDULER_PUBLISHED)) {
+  try {
+    const published = JSON.parse(readFileSync(SCHEDULER_PUBLISHED, 'utf8'));
+    for (const entry of published) {
+      // Use file name as stable id when scrape hasn't seen the actual post yet
+      const stableId = `scheduler:${entry.file}`;
+      if (seenIds.has(stableId)) continue;
+      // Read the draft text from posts/*.md
+      const draftPath = `${SCHEDULER_POSTS_DIR}/${entry.file}`;
+      let draftText = '';
+      if (existsSync(draftPath)) {
+        try {
+          const raw = readFileSync(draftPath, 'utf8');
+          // Extract Threads section if present, else strip markdown headers
+          if (raw.includes('## Threads 版')) {
+            const start = raw.indexOf('## Threads 版') + '## Threads 版'.length;
+            const next = raw.indexOf('\n##', start);
+            draftText = (next > -1 ? raw.slice(start, next) : raw.slice(start)).trim();
+          } else {
+            draftText = raw.split('\n').filter((l) => !l.startsWith('#')).join('\n').trim();
+          }
+        } catch {}
+      }
+      if (!draftText) continue;
+      tracker.posts.push({
+        id: stableId,
+        url: null, // scheduler doesn't capture post URL after publish
+        ts: entry.date,
+        text: draftText,
+        images: [],
+        metrics: {
+          likes: null, replies: null, reposts: null, shares: null,
+          quotes: null, views: null,
+        },
+        comments: [],
+        _scrape_path: 'scheduler-backfill',
+        _source_file: entry.file,
+      });
+      seenIds.add(stableId);
+      scheduler_backfill += 1;
+    }
+    if (scheduler_backfill > 0) console.error(`[scrape] backfilled ${scheduler_backfill} posts from scheduler published log`);
+  } catch (e) {
+    console.error(`[scrape] scheduler backfill failed: ${e.message}`);
+  }
+}
+
 tracker.posts.sort((a, b) => (b.ts || '').localeCompare(a.ts || ''));
 
 tracker.meta.scraped_at = new Date().toISOString();

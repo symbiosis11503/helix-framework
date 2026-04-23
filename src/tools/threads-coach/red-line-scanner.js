@@ -48,11 +48,13 @@ const ENGAGEMENT_BAIT_PATTERNS = {
     /(?:標註|@).*?(?:一個|個).*?(?:會用|需要)/,
   ],
   comment_bait: [
-    /留言.*?(?:YES|是|\+1|好)/i,
-    /留言.*?告訴我/,
-    /留言.*?分享/,
+    // Tight forms: word "留言" followed immediately by a CTA token (no arbitrary middle text)
+    /留言\s*[「『"']?(?:YES|是|\+1|好的|是的)[」』"']?/i,
+    /留言\s*告訴我(?!別人|哪些|什麼是)/,  // exclude "留言告訴我哪些" (analytical) but catch "留言告訴我"
     /\+1\s*留言/,
-    /comment.*?(?:yes|below|if you).*?(?:agree|want)/i,
+    /comment\s+(?:yes|below|with|if you)\b.*?(?:agree|want|need)/i,
+    // Discrimination CTA: explicitly requesting comments to share / express
+    /(?:請|歡迎|快來)留言/,
   ],
 };
 
