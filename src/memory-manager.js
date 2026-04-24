@@ -932,6 +932,90 @@ export async function backfillEmbeddings(agentId, embedFn, { batchSize = 50 } = 
   return { updated, total: r.rows.length };
 }
 
+/**
+ * recallProjectMemory — FTS-based recall from L4 project_memory table (PG-only).
+ *
+ * Added in 0.10.1 to fix the L4 shared-truth recall gap: existing `recall()` only
+ * queries the per-agent `memories` table (L2A), not the cross-agent `project_memory`
+ * table (L4). External agents need this to discover shared governance rules like
+ * 強制雙寫規則 without relying on agent-local mirrors.
+ *
+ * FTS-only (no vector) keeps 0.10.1 portable: agents without bge-m3 embedder
+ * access can still query L4 by keyword/CJK substring. Vector-reranked version
+ * lives in symbiosis-helix/src/memory-core.js for hosts with embedder.
+ *
+ * Returns empty result for sqlite (project_memory is PG-only).
+ */
+export async function recallProjectMemory({
+  projectId,
+  query: queryText,
+  scopePath = null,
+  memoryKind = null,
+  status = 'active',
+  limit = 10,
+} = {}) {
+  if (getType() !== 'pg') {
+    return { ok: true, query: queryText, results: [], note: 'project_memory is PG-only; sqlite returns empty.' };
+  }
+  if (!projectId) throw new Error('projectId required');
+  const q = String(queryText || '').trim();
+  if (!q) throw new Error('query required');
+
+  const hasCJK = /[\u4e00-\u9fff\u3400-\u4dbf]/.test(q);
+  const args = [projectId, status];
+  const conds = ['project_id = $1', 'status = $2'];
+  let idx = 3;
+
+  if (scopePath) {
+    if (scopePath.includes('%')) conds.push(`scope_path LIKE $${idx++}`);
+    else conds.push(`scope_path = $${idx++}`);
+    args.push(scopePath);
+  }
+  if (memoryKind) {
+    conds.push(`memory_kind = $${idx++}`);
+    args.push(memoryKind);
+  }
+  if (hasCJK) {
+    conds.push(`(title ILIKE $${idx} OR content ILIKE $${idx})`);
+    args.push(`%${q}%`);
+    idx++;
+  } else {
+    conds.push(`search_vector @@ to_tsquery('simple', $${idx})`);
+    args.push(q.split(/\s+/).filter(Boolean).map((t) => t + ':*').join(' | '));
+    idx++;
+  }
+  args.push(Math.max(1, Math.min(50, parseInt(limit) || 10)));
+
+  const orderBy = hasCJK
+    ? 'ORDER BY created_at DESC'
+    : `ORDER BY ts_rank(search_vector, to_tsquery('simple', $${idx - 1})) DESC`;
+  const sql = `SELECT id, project_id, scope_path, memory_kind, title, content, status, confidence,
+                      verification_state, tags, created_at
+               FROM project_memory
+               WHERE ${conds.join(' AND ')}
+               ${orderBy}
+               LIMIT $${args.length}::int`;
+  const r = await query(sql, args);
+  return {
+    ok: true,
+    query: q,
+    results: r.rows.map((row) => ({
+      layer: 'l4',
+      id: row.id,
+      projectId: row.project_id,
+      scopePath: row.scope_path,
+      memoryKind: row.memory_kind,
+      title: row.title,
+      content: row.content,
+      status: row.status,
+      confidence: row.confidence,
+      verificationState: row.verification_state,
+      tags: row.tags,
+      createdAt: row.created_at,
+    })),
+  };
+}
+
 // ========== Default Export ==========
 
 export default {
@@ -949,4 +1033,5 @@ export default {
   forgetOldMemories,
   createEmbedder,
   backfillEmbeddings,
+  recallProjectMemory,
 };

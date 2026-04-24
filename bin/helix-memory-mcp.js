@@ -61,13 +61,18 @@ async function ensureInit() {
   if (initialized) return;
 
   if (DB_TYPE === 'pg') {
-    startSshTunnel();
+    // Use SSH tunnel when HELIX_SSH_HOST is set (CC1 local→sbs-vps pattern);
+    // otherwise connect directly via PG_HOST/PG_PORT env (external agent pattern,
+    // e.g. CCC/CCOC/CCSBS over Tailscale). 0.10.0 hardcoded 127.0.0.1:15432
+    // which broke direct-PG agents — see B2.env-regress in SDD-FDW v0.2.
+    const usingTunnel = !!SSH_TUNNEL_HOST;
+    if (usingTunnel) startSshTunnel();
     await initDb({
       database: {
         type: 'pg',
         pg: {
-          host: '127.0.0.1',
-          port: PG_LOCAL_PORT,
+          host: usingTunnel ? '127.0.0.1' : (process.env.PG_HOST || '127.0.0.1'),
+          port: usingTunnel ? PG_LOCAL_PORT : parseInt(process.env.PG_PORT || '5432'),
           user: process.env.PG_USER || 'sbs',
           password: process.env.PG_PASSWORD,
           database: process.env.PG_DB || 'helix',
@@ -132,6 +137,22 @@ const TOOLS = [
       properties: {},
     },
   },
+  {
+    name: 'memory_project_recall',
+    description: 'Query L4 project_memory (shared cross-agent truth) by keyword/CJK substring. Use when you need to discover governance rules, architectural decisions, or design principles that apply across all agents — e.g. 強制雙寫規則, boundary decisions, verified_state anchors. PG-only.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project identifier (e.g. "helix")' },
+        query: { type: 'string', description: 'Search keyword or CJK substring' },
+        scope_path: { type: 'string', description: 'Optional scope filter (supports % wildcard)' },
+        memory_kind: { type: 'string', description: 'Optional kind filter (design_principle, decision, boundary, pitfall, ...)' },
+        status: { type: 'string', enum: ['active', 'superseded', 'deprecated'], default: 'active' },
+        limit: { type: 'number', default: 10 },
+      },
+      required: ['project_id', 'query'],
+    },
+  },
 ];
 
 async function handleToolCall(name, args) {
@@ -186,6 +207,25 @@ async function handleToolCall(name, args) {
       lines.push(`Avg importance: ${(stats.avg_importance || 0).toFixed(2)}`);
       lines.push(`Avg decay: ${(stats.avg_decay || 0).toFixed(2)}`);
       return { content: [{ type: 'text', text: lines.join('\n') }] };
+    }
+
+    case 'memory_project_recall': {
+      const result = await mm.recallProjectMemory({
+        projectId: args.project_id,
+        query: args.query,
+        scopePath: args.scope_path,
+        memoryKind: args.memory_kind,
+        status: args.status || 'active',
+        limit: args.limit || 10,
+      });
+      if (!result.results.length) {
+        const note = result.note ? `\n(${result.note})` : '';
+        return { content: [{ type: 'text', text: `No L4 memories found for "${args.query}"${note}` }] };
+      }
+      const text = result.results.map((m, i) => {
+        return `[${i + 1}] id=${m.id} kind=${m.memoryKind} scope=${m.scopePath || 'global'} conf=${m.confidence ?? '-'}\n    ${m.title || ''}\n    ${(m.content || '').slice(0, 400)}`;
+      }).join('\n\n');
+      return { content: [{ type: 'text', text: `L4 project_memory hits (${result.results.length}) for "${args.query}":\n\n${text}` }] };
     }
 
     default:

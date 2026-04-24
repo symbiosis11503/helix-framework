@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.1 — 2026-04-24
+
+### Added — `memory_project_recall` MCP tool
+- `bin/helix-memory-mcp.js` exposes new tool to query L4 `project_memory` (cross-agent shared truth). External agents previously had no way to reach shared governance rules via MCP — `helix_recall` only scans the per-agent `memories` table.
+- `src/memory-manager.js` adds `recallProjectMemory({ projectId, query, scopePath?, memoryKind?, status?, limit? })` — PG-only, FTS + CJK ILIKE (no bge dependency, keeps 0.10.x portable).
+
+### Fixed — PG connection hardcode for direct-PG agents
+- 0.10.0 hardcoded `host: '127.0.0.1'` + `port: 15432` in MCP server PG init, breaking agents that connect directly over Tailscale without an SSH tunnel. 0.10.1: when `HELIX_SSH_HOST` is unset, use `PG_HOST`/`PG_PORT` env (defaults `127.0.0.1:5432`).
+
+### Context
+Ships the main fix for the Forced Dual-Write Rollout (SDD v0.2, 2026-04-24). See `symbiosis-helix/docs/plans/2026-04-24-forced-dual-write-rollout-sdd-spec-v0.2.md`.
+
 ## 0.10.0 — 2026-04-21
 
 ### Added — Productization for 1.0.0 readiness
