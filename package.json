@@ -1,6 +1,6 @@
 {
   "name": "helix-agent-framework",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Helix — Local-first AI Agent Framework",
   "type": "module",
   "main": "src/server-lite.js",

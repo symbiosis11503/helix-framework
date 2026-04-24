@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.2 — 2026-04-24
+
+### Fixed — `helix_memory_stats` aggregator returning 0 despite positive sample rows
+- `bin/helix-memory-mcp.js` read `stats.avg_importance` / `stats.avg_decay` and `stats.by_type` (snake_case), but `memory-manager.js#memoryStats()` returns `avgImportance` / `avgDecay` / `byType` (camelCase). The mismatch meant every agent saw `Avg importance: 0.00` / `Avg decay: 0.00` regardless of data — a silent correctness failure flagged by CC2 and Codex during SDD-MemComplete Phase C3 authenticity work.
+- Handler now reads both shapes (camelCase preferred, snake_case fallback).
+
 ## 0.10.1 — 2026-04-24
 
 ### Added — `memory_project_recall` MCP tool

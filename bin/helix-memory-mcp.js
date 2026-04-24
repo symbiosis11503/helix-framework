@@ -199,13 +199,17 @@ async function handleToolCall(name, args) {
         `Total memories: ${stats.total || 0}`,
         `By type:`,
       ];
-      if (stats.by_type) {
-        for (const [type, count] of Object.entries(stats.by_type)) {
-          lines.push(`  ${type}: ${count}`);
-        }
+      // memoryStats() returns camelCase keys (byType / avgImportance / avgDecay);
+      // 0.10.0 + 0.10.1 formatted with snake_case and silently reported 0.
+      // Fix for 0.10.2: honour both shapes so any future refactor doesn't re-break.
+      const byType = stats.byType || stats.by_type || {};
+      const avgImportance = stats.avgImportance ?? stats.avg_importance ?? 0;
+      const avgDecay = stats.avgDecay ?? stats.avg_decay ?? 0;
+      for (const [type, count] of Object.entries(byType)) {
+        lines.push(`  ${type}: ${count}`);
       }
-      lines.push(`Avg importance: ${(stats.avg_importance || 0).toFixed(2)}`);
-      lines.push(`Avg decay: ${(stats.avg_decay || 0).toFixed(2)}`);
+      lines.push(`Avg importance: ${Number(avgImportance).toFixed(2)}`);
+      lines.push(`Avg decay: ${Number(avgDecay).toFixed(2)}`);
       return { content: [{ type: 'text', text: lines.join('\n') }] };
     }
 
