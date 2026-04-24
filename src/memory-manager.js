@@ -20,6 +20,7 @@
 
 import { query, getType } from './db.js';
 import * as sessionStore from './session-store.js';
+import { embedText, vectorLiteral } from './memory-embedder.js';
 
 // ========== Constants ==========
 
@@ -103,7 +104,7 @@ export async function initMemoryTables() {
  * @param {string} [opts.sourceSessionId] - originating session
  * @returns {{ id: string }}
  */
-export async function remember({ agentId, type, content, summary = null, importance = 0.5, tags = [], sourceSessionId = null, embedding = null }) {
+export async function remember({ agentId, type, content, summary = null, importance = 0.5, tags = [], sourceSessionId = null, embedding = null, entityKeys = null }) {
   if (!agentId) throw new Error('agentId is required');
   if (!VALID_TYPES.includes(type)) throw new Error(`Invalid memory type: ${type}. Must be one of: ${VALID_TYPES.join(', ')}`);
   if (!content) throw new Error('content is required');
@@ -112,27 +113,55 @@ export async function remember({ agentId, type, content, summary = null, importa
   const isPg = getType() === 'pg';
   const now = isPg ? 'now()' : "datetime('now')";
   const tagsJson = JSON.stringify(tags);
-  const embeddingJson = embedding ? JSON.stringify(embedding) : null;
+  const entityKeysArray = Array.isArray(entityKeys) && entityKeys.length
+    ? entityKeys.filter((k) => typeof k === 'string' && k.length > 0)
+    : null;
 
-  await query(
-    `INSERT INTO memories (id, agent_id, type, content, summary, importance, access_count, last_accessed_at, decay_factor, tags, embedding, source_session_id, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, 0, NULL, 1.0, $7, $8, $9, ${now}, ${now})`,
-    [id, agentId, type, content, summary, importance, tagsJson, embeddingJson, sourceSessionId]
-  );
-
-  // If PG has pgvector and embedding provided, also store as vector
-  if (isPg && embedding && embedding.length > 0) {
+  // 0.10.3 C1/C2: auto-embed with bge-m3 (primary) / Gemini (fallback). Failures are soft.
+  let primaryEmbedding = Array.isArray(embedding) && embedding.length ? embedding : null;
+  let primaryMeta = null;
+  if (!primaryEmbedding) {
     try {
-      await query(
-        `UPDATE memories SET embedding_vec = $1::vector WHERE id = $2`,
-        [`[${embedding.join(',')}]`, id]
-      );
+      const result = await embedText(`${summary ? `${summary} ` : ''}${content}`, { allowFallback: true });
+      if (Array.isArray(result?.embedding) && result.embedding.length) {
+        primaryEmbedding = result.embedding;
+        primaryMeta = result;
+      }
     } catch (e) {
-      console.warn('[memory] pgvector store failed:', e.message);
+      console.warn('[memory] auto embedding_bge failed:', e.message);
     }
   }
 
-  return { id };
+  const embeddingJson = primaryEmbedding ? JSON.stringify(primaryEmbedding) : null;
+  const embeddingBgeLit = isPg && primaryEmbedding ? vectorLiteral(primaryEmbedding) : null;
+
+  if (isPg) {
+    await query(
+      `INSERT INTO memories (id, agent_id, type, content, summary, importance, access_count, last_accessed_at, decay_factor, tags, embedding, source_session_id, created_at, updated_at, embedding_bge, entity_keys)
+       VALUES ($1, $2, $3, $4, $5, $6, 0, NULL, 1.0, $7, $8, $9, ${now}, ${now}, $10, $11)`,
+      [id, agentId, type, content, summary, importance, tagsJson, embeddingJson, sourceSessionId, embeddingBgeLit, entityKeysArray]
+    );
+  } else {
+    await query(
+      `INSERT INTO memories (id, agent_id, type, content, summary, importance, access_count, last_accessed_at, decay_factor, tags, embedding, source_session_id, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, 0, NULL, 1.0, $7, $8, $9, ${now}, ${now})`,
+      [id, agentId, type, content, summary, importance, tagsJson, embeddingJson, sourceSessionId]
+    );
+  }
+
+  // Legacy pgvector column — only when caller explicitly passed embedding.
+  if (isPg && Array.isArray(embedding) && embedding.length > 0) {
+    try {
+      await query(
+        `UPDATE memories SET embedding_vec = $1::vector WHERE id = $2`,
+        [vectorLiteral(embedding) || `[${embedding.join(',')}]`, id]
+      );
+    } catch (e) {
+      console.warn('[memory] legacy pgvector store failed:', e.message);
+    }
+  }
+
+  return { id, embedded_primary: !!primaryEmbedding };
 }
 
 // ========== Recall ==========

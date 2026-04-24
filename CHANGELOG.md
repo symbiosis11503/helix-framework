@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.10.3 — 2026-04-24
+
+### Added — MCP writer completeness (SDD-MemComplete Phase C)
+
+The 2026-04-24 7-agent memory rollout audit found three writer gaps in the MCP
+tool path that caused systemic quality defects for every external agent:
+
+- **C1/C2 — no bge-m3 embedding on insert.** `helix_remember` wrote to `memories`
+  without populating `embedding_bge`, leaving semantic recall blind for every row
+  not later caught by the backfill cron. Fix: `src/memory-manager.js#remember()`
+  now calls `embedText()` (bge-m3 primary, Gemini fallback) inline and writes the
+  `embedding_bge` column in the PG INSERT. Failures are soft (logged as
+  `[memory] auto embedding_bge failed: …`). Adds new module
+  `src/memory-embedder.js` (OpenAI-compatible + Ollama + Gemini routes, no deps).
+- **C3 — no `entity_keys` parameter.** The schema had `entity_keys TEXT[]` but
+  the MCP tool never exposed it, so every agent wrote 0% coverage. Fix:
+  `helix_remember` MCP tool accepts `entity_keys: string[]`, and
+  `memory-manager.js#remember()` accepts `entityKeys` and writes the column.
+
+### Fixed
+- `remember()` now branches on `isPg` so the SQLite variant keeps its original
+  INSERT shape (no `embedding_bge`, no `entity_keys` columns). Prevents
+  regression for the local dev path that has no Ollama/pgvector.
+- Return value extended to `{ id, embedded_primary: boolean }` so callers can
+  observe whether the inline embedder succeeded without another DB roundtrip.
+
+### Context
+Companion to SDD-MemComplete Phase C authenticity/enforcement gate. Does **not**
+yet ship the restart gate wiring — that lands in a follow-up along with
+agent-side pre-exec hook registration.
+
+External-agent upgrade path: `npm i -g helix-agent-framework@0.10.3` and restart
+the MCP server. All three defects resolve for new writes; legacy rows still need
+`backfill-embeddings.mjs` (in symbiosis-helix) and a separate entity_keys
+backfill for old rows.
+
 ## 0.10.2 — 2026-04-24
 
 ### Fixed — `helix_memory_stats` aggregator returning 0 despite positive sample rows

@@ -91,7 +91,7 @@ async function ensureInit() {
 const TOOLS = [
   {
     name: 'helix_remember',
-    description: 'Store a memory in Helix long-term memory system. Use for project decisions, technical facts, conversation summaries, and anything worth recalling later. Supports episodic/semantic/procedural types with importance scoring.',
+    description: 'Store a memory in Helix long-term memory system. Use for project decisions, technical facts, conversation summaries, and anything worth recalling later. Supports episodic/semantic/procedural types with importance scoring. 0.10.3 adds entity_keys parameter (C3 fix) and triggers bge-m3 embedding on insert (C1/C2 fix).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -100,6 +100,7 @@ const TOOLS = [
         type: { type: 'string', enum: ['episodic', 'semantic', 'procedural'], description: 'Memory type: episodic (events/conversations), semantic (facts/knowledge), procedural (how-to/rules)', default: 'semantic' },
         importance: { type: 'number', description: 'Importance score 0-1 (higher = recalled more often)', default: 0.5 },
         tags: { type: 'string', description: 'Comma-separated tags for categorization' },
+        entity_keys: { type: 'array', items: { type: 'string' }, description: 'Entity keys for search/dedup (agent, topic, project names). 0.10.3 new: agents must pass this to avoid 0% entity_keys coverage.' },
       },
       required: ['content', 'summary'],
     },
@@ -167,8 +168,12 @@ async function handleToolCall(name, args) {
         type: args.type || 'semantic',
         importance: args.importance ?? 0.5,
         tags: args.tags,
+        entityKeys: args.entity_keys,
       });
-      return { content: [{ type: 'text', text: `Stored memory: ${result.id}\nType: ${args.type || 'semantic'}\nImportance: ${args.importance ?? 0.5}\nSummary: ${args.summary}` }] };
+      const ekNote = Array.isArray(args.entity_keys) && args.entity_keys.length
+        ? `\nEntity keys: ${args.entity_keys.join(', ')}`
+        : '';
+      return { content: [{ type: 'text', text: `Stored memory: ${result.id}\nType: ${args.type || 'semantic'}\nImportance: ${args.importance ?? 0.5}\nSummary: ${args.summary}${ekNote}` }] };
     }
 
     case 'helix_recall': {
