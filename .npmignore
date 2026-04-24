@@ -1,6 +1,7 @@
 # Build artifacts
 *.tgz
 *.tar.gz
+dist/
 
 # Runtime data
 .helix/
@@ -15,14 +16,30 @@
 .DS_Store
 .env
 .env.*
+.gitignore
 
 # Docs (available on repo, not in npm package)
 docs/
 
-# scripts/ — exclude all except runtime-required ones
-scripts/sbs-init.sh
-scripts/*.test.mjs
-scripts/dev-*
+# Bulky source-only directories
+desktop/
+design/
+backups/
+workspace/
+migrations/
+scripts/
+static/v1/
+
+# Chinese readmes (keep only English primary for npm; repo has bilingual)
+README.zh-TW.md
+README.en.md
+CONTRIBUTING.zh-TW.md
+
+# .bak files (manual backups from local edits)
+*.bak
+*.bak_*
+*.bak.*
+src/*.bak_*
 
 # Deprecated (superseded by skills.js)
 src/skill-loader.js
@@ -33,4 +50,8 @@ test/
 __tests__/
 *.test.js
 *.spec.js
+*.test.mjs
 coverage/
+
+# Examples smoke scripts (shipped in repo, not package)
+examples/*/smoke.sh
