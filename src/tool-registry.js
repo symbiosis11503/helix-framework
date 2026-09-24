@@ -80,6 +80,7 @@ export function unregister(name) {
  * Bind tools to a role
  */
 export function bindCapabilities(roleId, toolNames) {
+  if (!roleId) throw new Error('Capability role ID required');
   const existing = _capabilityBindings.get(roleId);
   if (existing) {
     for (const t of toolNames) existing.add(t);
@@ -92,8 +93,9 @@ export function bindCapabilities(roleId, toolNames) {
  * Check if a role can use a tool
  */
 export function hasCapability(roleId, toolName) {
+  if (!roleId) return false;
   const bindings = _capabilityBindings.get(roleId);
-  if (!bindings) return true; // No binding = unrestricted
+  if (!bindings) return false;
   return bindings.has(toolName) || bindings.has('*');
 }
 
@@ -101,8 +103,9 @@ export function hasCapability(roleId, toolName) {
  * Get tools available for a role
  */
 export function getToolsForRole(roleId) {
+  if (!roleId) return [];
   const bindings = _capabilityBindings.get(roleId);
-  if (!bindings) return [..._tools.values()]; // No binding = all tools
+  if (!bindings) return [];
   if (bindings.has('*')) return [..._tools.values()];
   return [..._tools.values()].filter(t => bindings.has(t.name));
 }
@@ -131,8 +134,13 @@ export async function execute(toolName, args = {}, context = {}) {
   }
 
   // 2. Check capability
-  if (context.roleId && !hasCapability(context.roleId, toolName)) {
-    return { ok: false, error: `Role ${context.roleId} lacks capability for tool ${toolName}` };
+  const capabilityRoleId = context.capabilityRoleId ?? context.roleId ?? null;
+  const trustedExecution = context.trustedExecution === true && typeof context.reviewedBy === 'string' && context.reviewedBy;
+  if (!trustedExecution && !capabilityRoleId) {
+    return { ok: false, error: `No capability role bound for tool ${toolName}` };
+  }
+  if (!trustedExecution && !hasCapability(capabilityRoleId, toolName)) {
+    return { ok: false, error: `Capability role ${capabilityRoleId} lacks access to tool ${toolName}` };
   }
 
   // 3. Before hooks
@@ -140,7 +148,9 @@ export async function execute(toolName, args = {}, context = {}) {
     toolName,
     args,
     agentId: context.agentId || 'unknown',
-    roleId: context.roleId,
+    roleId: capabilityRoleId,
+    callerRole: context.callerRole,
+    reviewedBy: trustedExecution || null,
     taskId: context.taskId,
     level: tool.level,
     category: tool.category,

@@ -44,6 +44,8 @@ export async function startLiteServer(config = {}) {
 
   // Init database
   await initDb(config);
+  const auth = await import('./auth.js');
+  await auth.initAuthTables();
 
   const app = express();
   app.use(express.json({ limit: '10mb' }));
@@ -79,6 +81,106 @@ export async function startLiteServer(config = {}) {
     }
   });
 
+  const publicRouteMatchers = [
+    { method: 'GET', pattern: /^\/api\/health$/ },
+    { method: 'GET', pattern: /^\/api\/readiness$/ },
+    { method: 'POST', pattern: /^\/api\/gateway\/(?:telegram|discord|line|slack)$/ },
+    { method: 'POST', pattern: /^\/api\/gateway\/messaging\/(?:telegram|discord|line|slack)$/ },
+  ];
+  const adminRouteMatchers = [
+    /^\/api\/admin\//,
+    /^\/api\/auth\/keys(?:\/[^/]+\/revoke)?$/,
+    /^\/api\/auth\/2fa(?:\/|$)/,
+    /^\/api\/mcp(?:\/|$)/,
+    /^\/api\/oauth(?:\/|$)/,
+    /^\/api\/trace\/runs\/[^/]+\/eval$/,
+  ];
+  const authMiddlewareByRole = new Map();
+
+  function getRequestPath(req) {
+    return `${req.baseUrl || ''}${req.path}`;
+  }
+
+  function matchesRoute(req, matcher) {
+    return req.method === matcher.method && matcher.pattern.test(getRequestPath(req));
+  }
+
+  function getRequiredRole(req) {
+    if (publicRouteMatchers.some(matcher => matchesRoute(req, matcher))) return null;
+    if (adminRouteMatchers.some(pattern => pattern.test(getRequestPath(req)))) return 'admin';
+    if (req.method === 'GET' || req.method === 'HEAD') return 'viewer';
+    return 'operator';
+  }
+
+  function requireHttpRole(role) {
+    if (!authMiddlewareByRole.has(role)) {
+      authMiddlewareByRole.set(role, auth.requireRole(role));
+    }
+    return authMiddlewareByRole.get(role);
+  }
+
+  async function enforceAgentAccess(req, res, agentId, { requireExisting = false } = {}) {
+    if (!agentId) {
+      res.status(400).json({ error: 'agent_id required' });
+      return null;
+    }
+    if (!auth.hasAgentAccess(req.auth?.agentScope, agentId)) {
+      res.status(403).json({ error: 'agent access denied' });
+      return null;
+    }
+    if (!requireExisting) return { id: agentId };
+    const result = await query('SELECT id, role_id FROM agent_instances WHERE id = $1', [agentId]);
+    const row = result.rows[0];
+    if (!row) {
+      res.status(404).json({ error: 'agent not found' });
+      return null;
+    }
+    return row;
+  }
+
+  async function enforceSessionAccess(req, res, sessionId) {
+    const result = await query('SELECT id, agent_id FROM sessions WHERE id = $1', [sessionId]);
+    const row = result.rows[0];
+    if (!row) {
+      res.status(404).json({ error: 'session not found' });
+      return null;
+    }
+    if (!auth.hasAgentAccess(req.auth?.agentScope, row.agent_id)) {
+      res.status(403).json({ error: 'session access denied' });
+      return null;
+    }
+    return row;
+  }
+
+  async function requireCapabilityRole(req, res, requestedAgentId) {
+    const agentId = requestedAgentId || req.auth?.agentScope || null;
+    if (!agentId) {
+      res.status(400).json({ error: 'agent_id required' });
+      return null;
+    }
+    const agent = await enforceAgentAccess(req, res, agentId, { requireExisting: true });
+    if (!agent) return null;
+    return { agentId: agent.id, capabilityRoleId: agent.role_id || null };
+  }
+
+  async function requireSafetyBoundary(req, res, next) {
+    try {
+      const hooks = await import('./hooks.js');
+      const toolBeforeHooks = hooks.listHooks()['tool.before'] || [];
+      const hookIds = new Set(toolBeforeHooks.map(h => h.id));
+      if (hookIds.has('builtin-command-safety') && hookIds.has('builtin-injection-defense')) {
+        return next();
+      }
+    } catch {}
+    return res.status(503).json({ error: 'dangerous operations disabled until safety hooks are available' });
+  }
+
+  app.use('/api', (req, res, next) => {
+    const requiredRole = getRequiredRole(req);
+    if (!requiredRole) return next();
+    return requireHttpRole(requiredRole)(req, res, next);
+  });
+
   // ========== Tasks ==========
   app.get('/api/tasks', async (req, res) => {
     try {
@@ -111,13 +213,22 @@ export async function startLiteServer(config = {}) {
   // ========== Agents ==========
   app.get('/api/agents/instances', async (req, res) => {
     try {
-      const r = await query('SELECT * FROM agent_instances ORDER BY created_at DESC LIMIT $1', [parseInt(req.query.limit) || 50]);
+      const params = [];
+      let sql = 'SELECT * FROM agent_instances';
+      if (req.auth?.agentScope) {
+        params.push(req.auth.agentScope);
+        sql += ` WHERE id = $${params.length}`;
+      }
+      params.push(parseInt(req.query.limit) || 50);
+      sql += ` ORDER BY created_at DESC LIMIT $${params.length}`;
+      const r = await query(sql, params);
       res.json({ ok: true, agents: r.rows });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
   app.post('/api/agents/spawn', async (req, res) => {
     try {
+      if (req.auth?.agentScope) return res.status(403).json({ error: 'scoped keys cannot spawn agents' });
       const { role_id = 'assistant', name, task, system_prompt = '' } = req.body || {};
       const id = `agi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       const model = config.model || 'gemini-2.5-flash';
@@ -137,6 +248,8 @@ export async function startLiteServer(config = {}) {
       const { agent, agent_id, message, session_id } = req.body || {};
       const agentId = agent || agent_id;
       if (!agentId || !message) return res.status(400).json({ error: 'agent and message required' });
+      if (!await enforceAgentAccess(req, res, agentId)) return;
+      if (session_id && !await enforceSessionAccess(req, res, session_id)) return;
 
       // Look up agent
       const r = await query('SELECT id, model, system_prompt, key_env FROM agent_instances WHERE id = $1', [agentId]);
@@ -220,6 +333,7 @@ export async function startLiteServer(config = {}) {
       const { agent, agent_id } = req.body || {};
       const agentId = agent || agent_id;
       if (!agentId) return res.status(400).json({ error: 'agent required' });
+      if (!await enforceAgentAccess(req, res, agentId)) return;
       _agentSessions.delete(agentId);
       res.json({ ok: true, message: 'session reset, next chat will start fresh' });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -268,6 +382,7 @@ export async function startLiteServer(config = {}) {
     try {
       const { agent_id, status, limit = 20 } = req.query;
       if (!agent_id) return res.status(400).json({ error: 'agent_id required' });
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
       const sessionStore = await import('./session-store.js');
       const sessions = await sessionStore.listSessions(agent_id, { limit: parseInt(limit) || 20, status: status || null });
       res.json({ ok: true, sessions, count: sessions.length });
@@ -278,6 +393,8 @@ export async function startLiteServer(config = {}) {
     try {
       const { agent_id, parent_session_id, system_prompt, metadata } = req.body || {};
       if (!agent_id) return res.status(400).json({ error: 'agent_id required' });
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
+      if (parent_session_id && !await enforceSessionAccess(req, res, parent_session_id)) return;
       const sessionStore = await import('./session-store.js');
       const session = await sessionStore.createSession({ agentId: agent_id, parentSessionId: parent_session_id, systemPrompt: system_prompt, metadata });
       res.json({ ok: true, ...session });
@@ -286,6 +403,7 @@ export async function startLiteServer(config = {}) {
 
   app.get('/api/sessions/:id/messages', async (req, res) => {
     try {
+      if (!await enforceSessionAccess(req, res, req.params.id)) return;
       const sessionStore = await import('./session-store.js');
       const messages = await sessionStore.getMessages(req.params.id, { limit: parseInt(req.query.limit) || 500 });
       res.json({ ok: true, messages, count: messages.length });
@@ -294,6 +412,7 @@ export async function startLiteServer(config = {}) {
 
   app.post('/api/sessions/:id/messages', async (req, res) => {
     try {
+      if (!await enforceSessionAccess(req, res, req.params.id)) return;
       const { role, content, tool_call_id, tool_name, metadata } = req.body || {};
       if (!role || !content) return res.status(400).json({ error: 'role and content required' });
       const sessionStore = await import('./session-store.js');
@@ -304,6 +423,7 @@ export async function startLiteServer(config = {}) {
 
   app.post('/api/sessions/:id/context', async (req, res) => {
     try {
+      if (!await enforceSessionAccess(req, res, req.params.id)) return;
       const { max_tokens = 12000 } = req.body || {};
       const sessionStore = await import('./session-store.js');
       const ctx = await sessionStore.buildSessionContext(req.params.id, { maxTokens: max_tokens });
@@ -313,6 +433,7 @@ export async function startLiteServer(config = {}) {
 
   app.post('/api/sessions/:id/compress', async (req, res) => {
     try {
+      if (!await enforceSessionAccess(req, res, req.params.id)) return;
       const { head_count = 2, tail_count = 4, prune_tool_output = true, use_llm = true } = req.body || {};
       const sessionStore = await import('./session-store.js');
       const summarizer = use_llm ? sessionStore.createLLMSummarizer() : async (msgs) => msgs.map(m => `[${m.role}] ${(m.content || '').slice(0, 150)}`).join('\n');
@@ -329,6 +450,8 @@ export async function startLiteServer(config = {}) {
     try {
       const { agent_id, query: q, limit = 20, session_id } = req.body || {};
       if (!agent_id || !q) return res.status(400).json({ error: 'agent_id and query required' });
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
+      if (session_id && !await enforceSessionAccess(req, res, session_id)) return;
       const sessionStore = await import('./session-store.js');
       const results = await sessionStore.searchMessages(agent_id, q, { limit, sessionId: session_id });
       res.json({ ok: true, results, count: results.length });
@@ -337,6 +460,7 @@ export async function startLiteServer(config = {}) {
 
   app.get('/api/sessions/:agentId/stats', async (req, res) => {
     try {
+      if (!await enforceAgentAccess(req, res, req.params.agentId)) return;
       const sessionStore = await import('./session-store.js');
       const stats = await sessionStore.sessionStats(req.params.agentId);
       res.json({ ok: true, ...stats });
@@ -348,6 +472,7 @@ export async function startLiteServer(config = {}) {
     try {
       const { parent_agent_id, task, child_role, allowed_tools, blocked_tools, depth } = req.body || {};
       if (!parent_agent_id || !task) return res.status(400).json({ error: 'parent_agent_id and task required' });
+      if (!await enforceAgentAccess(req, res, parent_agent_id)) return;
       const delegation = await import('./delegation.js');
       const result = await delegation.delegate({
         parentAgentId: parent_agent_id,
@@ -365,6 +490,7 @@ export async function startLiteServer(config = {}) {
     try {
       const { parent_agent_id, tasks, depth } = req.body || {};
       if (!parent_agent_id || !tasks || !Array.isArray(tasks)) return res.status(400).json({ error: 'parent_agent_id and tasks[] required' });
+      if (!await enforceAgentAccess(req, res, parent_agent_id)) return;
       const delegation = await import('./delegation.js');
       const results = await delegation.delegateBatch({
         parentAgentId: parent_agent_id,
@@ -411,18 +537,29 @@ export async function startLiteServer(config = {}) {
     try {
       const registry = await import('./tool-registry.js');
       const format = req.query.format || 'list';
-      const roleId = req.query.role_id || null;
-      res.json({ ok: true, tools: registry.getManifest({ roleId, format }), count: registry.count() });
+      const capability = await requireCapabilityRole(req, res, req.query.agent_id);
+      if (!capability) return;
+      const tools = registry.getManifest({ roleId: capability.capabilityRoleId, format });
+      res.json({ ok: true, tools, count: tools.length });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/tools/execute', async (req, res) => {
+  app.post('/api/tools/execute', requireSafetyBoundary, async (req, res) => {
     try {
-      const { tool, args, agent_id, role_id } = req.body || {};
+      const { tool, args, agent_id } = req.body || {};
       if (!tool) return res.status(400).json({ error: 'tool required' });
+      const capability = await requireCapabilityRole(req, res, agent_id);
+      if (!capability) return;
       const registry = await import('./tool-registry.js');
-      const result = await registry.execute(tool, args || {}, { agentId: agent_id || 'api', roleId: role_id });
-      res.json(result);
+      const result = await registry.execute(tool, args || {}, {
+        agentId: capability.agentId,
+        capabilityRoleId: capability.capabilityRoleId,
+        callerRole: req.auth?.role,
+      });
+      if (!result.ok && /capability role|lacks access/i.test(result.error || '')) {
+        return res.status(403).json(result);
+      }
+      res.status(result.ok ? 200 : 400).json(result);
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
@@ -434,7 +571,7 @@ export async function startLiteServer(config = {}) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/mcp/connect', async (req, res) => {
+  app.post('/api/mcp/connect', requireSafetyBoundary, async (req, res) => {
     try {
       const { name, command, args, env, timeout } = req.body || {};
       if (!name || !command) return res.status(400).json({ error: 'name and command required' });
@@ -444,7 +581,7 @@ export async function startLiteServer(config = {}) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/mcp/disconnect', async (req, res) => {
+  app.post('/api/mcp/disconnect', requireSafetyBoundary, async (req, res) => {
     try {
       const { name } = req.body || {};
       if (!name) return res.status(400).json({ error: 'name required' });
@@ -461,7 +598,7 @@ export async function startLiteServer(config = {}) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/mcp/call', async (req, res) => {
+  app.post('/api/mcp/call', requireSafetyBoundary, async (req, res) => {
     try {
       const { server, tool, args } = req.body || {};
       if (!server || !tool) return res.status(400).json({ error: 'server and tool required' });
@@ -493,7 +630,7 @@ export async function startLiteServer(config = {}) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/files/edit', async (req, res) => {
+  app.post('/api/files/edit', requireSafetyBoundary, async (req, res) => {
     try {
       const { path: filePath, old_string, new_string, replace_all = false, dry_run = false } = req.body || {};
       if (!filePath || old_string === undefined || new_string === undefined) {
@@ -807,8 +944,10 @@ export async function startLiteServer(config = {}) {
   app.post('/api/auth/keys', async (req, res) => {
     try {
       const au = await import('./auth.js');
-      await au.initAuthTables();
-      const result = await au.createApiKey(req.body);
+      const result = await au.createApiKey({
+        ...req.body,
+        agentScope: req.body?.agentScope ?? req.body?.agent_scope ?? null,
+      });
       res.json({ ok: true, ...result });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
@@ -816,7 +955,6 @@ export async function startLiteServer(config = {}) {
   app.get('/api/auth/keys', async (_req, res) => {
     try {
       const au = await import('./auth.js');
-      await au.initAuthTables();
       const keys = await au.listKeys();
       res.json({ ok: true, keys });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -869,19 +1007,6 @@ export async function startLiteServer(config = {}) {
   // D1 Phase 2: ad-hoc backfill — re-score N completed runs without eval_score
   // Per spec docs/reports/14_*; admin-only.
   app.post('/api/admin/trace/eval/backfill', async (req, res) => {
-    // Fail-closed: same policy as A 線 admin-api.js (P0 fix 2026-04-20).
-    // No token configured anywhere → only allow loopback / Tailscale / private LAN.
-    const expected = process.env.ADMIN_TOKEN || process.env.SBS_ADMIN_TOKEN;
-    if (expected) {
-      const authHdr = req.headers['authorization'] || '';
-      const bearer = authHdr.startsWith('Bearer ') ? authHdr.slice(7) : '';
-      const got = req.headers['x-admin-token'] || bearer;
-      if (got !== expected) return res.status(401).json({ error: 'admin token required (Authorization: Bearer ... or X-Admin-Token: ...)' });
-    } else {
-      const ip = (req.ip || req.connection?.remoteAddress || '').replace('::ffff:', '');
-      const isLocal = ip === '127.0.0.1' || ip === '::1' || /^100\./.test(ip) || /^192\.168\./.test(ip) || /^10\./.test(ip);
-      if (!isLocal) return res.status(401).json({ error: 'admin token not configured; remote requests denied (set ADMIN_TOKEN to enable)' });
-    }
     try {
       const { backfillBatch } = await import('../scripts/nightly-trace-eval-backfill.mjs');
       const limit = parseInt(req.body?.limit || req.query?.limit || '20', 10);
@@ -898,20 +1023,6 @@ export async function startLiteServer(config = {}) {
   // D1: attach eval score to a completed run (per spec docs/reports/14_*)
   // Admin-only — only callable from internal eval pipeline / nightly cron
   app.post('/api/trace/runs/:runId/eval', async (req, res) => {
-    // Reuse same auth pattern as other admin endpoints (Bearer or X-Admin-Token)
-    // Fail-closed: same policy as A 線 admin-api.js (P0 fix 2026-04-20).
-    // No token configured anywhere → only allow loopback / Tailscale / private LAN.
-    const expected = process.env.ADMIN_TOKEN || process.env.SBS_ADMIN_TOKEN;
-    if (expected) {
-      const authHdr = req.headers['authorization'] || '';
-      const bearer = authHdr.startsWith('Bearer ') ? authHdr.slice(7) : '';
-      const got = req.headers['x-admin-token'] || bearer;
-      if (got !== expected) return res.status(401).json({ error: 'admin token required (Authorization: Bearer ... or X-Admin-Token: ...)' });
-    } else {
-      const ip = (req.ip || req.connection?.remoteAddress || '').replace('::ffff:', '');
-      const isLocal = ip === '127.0.0.1' || ip === '::1' || /^100\./.test(ip) || /^192\.168\./.test(ip) || /^10\./.test(ip);
-      if (!isLocal) return res.status(401).json({ error: 'admin token not configured; remote requests denied (set ADMIN_TOKEN to enable)' });
-    }
     try {
       const tr = await import('./trace-lite.js');
       await tr.initTraceTables();
@@ -1210,6 +1321,7 @@ export async function startLiteServer(config = {}) {
   // ========== Memory Manager (Tiered Long-term Memory) ==========
   app.post('/api/memory/v2/remember', async (req, res) => {
     try {
+      if (!await enforceAgentAccess(req, res, req.body?.agent_id || req.body?.agentId)) return;
       const mm = await import('./memory-manager.js');
       await mm.initMemoryTables();
       const result = await mm.remember(req.body);
@@ -1221,6 +1333,7 @@ export async function startLiteServer(config = {}) {
     try {
       const mm = await import('./memory-manager.js');
       const { agent_id, query: q, type, limit, min_importance } = req.body;
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
       const results = await mm.recall(agent_id, q, { type, limit, minImportance: min_importance });
       res.json({ ok: true, memories: results });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -1231,6 +1344,8 @@ export async function startLiteServer(config = {}) {
       const mm = await import('./memory-manager.js');
       await mm.initMemoryTables();
       const { agent_id, session_id } = req.body;
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
+      if (session_id && !await enforceSessionAccess(req, res, session_id)) return;
       const result = await mm.extractFromSession(agent_id, session_id);
       res.json({ ok: true, ...result });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -1238,6 +1353,7 @@ export async function startLiteServer(config = {}) {
 
   app.get('/api/memory/v2/stats/:agentId', async (req, res) => {
     try {
+      if (!await enforceAgentAccess(req, res, req.params.agentId)) return;
       const mm = await import('./memory-manager.js');
       const stats = await mm.memoryStats(req.params.agentId);
       res.json({ ok: true, ...stats });
@@ -1248,6 +1364,7 @@ export async function startLiteServer(config = {}) {
     try {
       const mm = await import('./memory-manager.js');
       const { agent_id, query: q, max_tokens, types } = req.body;
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
       const ctx = await mm.buildMemoryContext(agent_id, q, { maxTokens: max_tokens, types });
       res.json({ ok: true, ...ctx });
     } catch (e) { res.status(500).json({ error: e.message }); }
@@ -1257,6 +1374,7 @@ export async function startLiteServer(config = {}) {
     try {
       const mm = await import('./memory-manager.js');
       const { agent_id, decay_rate } = req.body;
+      if (!await enforceAgentAccess(req, res, agent_id)) return;
       const result = await mm.decayMemories(agent_id, { decayRate: decay_rate });
       res.json({ ok: true, ...result });
     } catch (e) { res.status(500).json({ error: e.message }); }
