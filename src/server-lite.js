@@ -540,7 +540,8 @@ export async function startLiteServer(config = {}) {
       const capability = await requireCapabilityRole(req, res, req.query.agent_id);
       if (!capability) return;
       const tools = registry.getManifest({ roleId: capability.capabilityRoleId, format });
-      res.json({ ok: true, tools, count: tools.length });
+      const count = Array.isArray(tools) ? tools.length : registry.getToolsForRole(capability.capabilityRoleId).length;
+      res.json({ ok: true, tools, count });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
