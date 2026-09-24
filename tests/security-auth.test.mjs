@@ -112,6 +112,18 @@ test('health remains public but anonymous sensitive bootstrap is denied', async 
   assert.match(data.error, /API key required/i);
 });
 
+test('CORS preflight is not blocked by auth middleware', async () => {
+  const res = await fetch(baseUrl + '/api/tools/execute', {
+    method: 'OPTIONS',
+    headers: {
+      Origin: 'http://localhost:3000',
+      'Access-Control-Request-Method': 'POST',
+    },
+  });
+  assert.notEqual(res.status, 401);
+  assert.notEqual(res.status, 403);
+});
+
 test('viewer cannot mutate or execute protected operations', async () => {
   const executeRes = await json('/api/tools/execute', {
     method: 'POST',
@@ -198,6 +210,28 @@ test('scoped callers cannot access other agents or sessions', async () => {
     headers: authHeaders(operatorKey),
   });
   assert.equal(foreignMessages.res.status, 403);
+});
+
+test('memory remember persists the validated agent target', async () => {
+  const remember = await json('/api/memory/v2/remember', {
+    method: 'POST',
+    headers: authHeaders(operatorKey, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({
+      agent_id: 'agent-a',
+      agentId: 'agent-b',
+      type: 'semantic',
+      content: 'authorized memory',
+    }),
+  });
+  assert.equal(remember.res.status, 200);
+
+  const recall = await json('/api/memory/v2/recall', {
+    method: 'POST',
+    headers: authHeaders(operatorKey, { 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ agent_id: 'agent-a', query: 'authorized memory', limit: 5 }),
+  });
+  assert.equal(recall.res.status, 200);
+  assert.ok((recall.data.memories || []).some(memory => memory.content === 'authorized memory'));
 });
 
 test('dangerous execution is disabled when safety hooks are unavailable', async () => {

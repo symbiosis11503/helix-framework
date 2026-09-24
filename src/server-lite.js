@@ -106,6 +106,7 @@ export async function startLiteServer(config = {}) {
   }
 
   function getRequiredRole(req) {
+    if (req.method === 'OPTIONS') return null;
     if (publicRouteMatchers.some(matcher => matchesRoute(req, matcher))) return null;
     if (adminRouteMatchers.some(pattern => pattern.test(getRequestPath(req)))) return 'admin';
     if (req.method === 'GET' || req.method === 'HEAD') return 'viewer';
@@ -1322,10 +1323,15 @@ export async function startLiteServer(config = {}) {
   // ========== Memory Manager (Tiered Long-term Memory) ==========
   app.post('/api/memory/v2/remember', async (req, res) => {
     try {
-      if (!await enforceAgentAccess(req, res, req.body?.agent_id || req.body?.agentId)) return;
+      const authorizedAgent = req.body?.agent_id || req.body?.agentId;
+      if (!await enforceAgentAccess(req, res, authorizedAgent)) return;
       const mm = await import('./memory-manager.js');
       await mm.initMemoryTables();
-      const result = await mm.remember(req.body);
+      const result = await mm.remember({
+        ...req.body,
+        agent_id: authorizedAgent,
+        agentId: authorizedAgent,
+      });
       res.json({ ok: true, ...result });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });

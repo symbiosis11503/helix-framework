@@ -135,11 +135,10 @@ export async function execute(toolName, args = {}, context = {}) {
 
   // 2. Check capability
   const capabilityRoleId = context.capabilityRoleId ?? context.roleId ?? null;
-  const trustedExecution = context.trustedExecution === true && typeof context.reviewedBy === 'string' && context.reviewedBy;
-  if (!trustedExecution && !capabilityRoleId) {
+  if (!capabilityRoleId) {
     return { ok: false, error: `No capability role bound for tool ${toolName}` };
   }
-  if (!trustedExecution && !hasCapability(capabilityRoleId, toolName)) {
+  if (!hasCapability(capabilityRoleId, toolName)) {
     return { ok: false, error: `Capability role ${capabilityRoleId} lacks access to tool ${toolName}` };
   }
 
@@ -150,7 +149,7 @@ export async function execute(toolName, args = {}, context = {}) {
     agentId: context.agentId || 'unknown',
     roleId: capabilityRoleId,
     callerRole: context.callerRole,
-    reviewedBy: trustedExecution || null,
+    reviewedBy: context.reviewedBy || null,
     taskId: context.taskId,
     level: tool.level,
     category: tool.category,
