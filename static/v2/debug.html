@@ -110,14 +110,14 @@ const BASE = '';
 const TOKEN_KEY = '_helix_api_token';
 
 function getApiToken() {
-  return localStorage.getItem(TOKEN_KEY) || '';
+  return sessionStorage.getItem(TOKEN_KEY) || '';
 }
 
 function configureToken() {
   const next = prompt('Enter your Helix ADMIN_TOKEN or API key for protected routes:', getApiToken());
   if (next === null) return;
-  if (next.trim()) localStorage.setItem(TOKEN_KEY, next.trim());
-  else localStorage.removeItem(TOKEN_KEY);
+  if (next.trim()) sessionStorage.setItem(TOKEN_KEY, next.trim());
+  else sessionStorage.removeItem(TOKEN_KEY);
 }
 
 function withAuth(opt = {}) {

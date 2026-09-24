@@ -43,5 +43,5 @@ Tool execution, file mutation, and MCP operations require the built-in command-s
 ## Upgrade notes
 
 - Existing automation that called protected routes anonymously must now send a bearer token in the `Authorization` header (or `X-Api-Key`).
-- The dashboard stores the token in browser local storage under `_helix_api_token` and reuses it for protected API calls.
+- The dashboard stores the token in browser session storage under `_helix_api_token` and reuses it for protected API calls during the current browser session only.
 - The CLI reuses `HELIX_API_KEY` or `ADMIN_TOKEN` from `~/.helix/auth.json` (or environment variables) when calling protected local runtime endpoints.

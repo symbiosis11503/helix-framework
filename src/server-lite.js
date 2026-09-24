@@ -538,10 +538,18 @@ export async function startLiteServer(config = {}) {
     try {
       const registry = await import('./tool-registry.js');
       const format = req.query.format || 'list';
-      const capability = await requireCapabilityRole(req, res, req.query.agent_id);
-      if (!capability) return;
-      const tools = registry.getManifest({ roleId: capability.capabilityRoleId, format });
-      const count = Array.isArray(tools) ? tools.length : registry.getToolsForRole(capability.capabilityRoleId).length;
+      const requestedAgentId = req.query.agent_id || req.auth?.agentScope || null;
+      let tools;
+      let count;
+      if (requestedAgentId) {
+        const capability = await requireCapabilityRole(req, res, requestedAgentId);
+        if (!capability) return;
+        tools = registry.getManifest({ roleId: capability.capabilityRoleId, format });
+        count = Array.isArray(tools) ? tools.length : registry.getToolsForRole(capability.capabilityRoleId).length;
+      } else {
+        tools = registry.getManifest({ format });
+        count = registry.count();
+      }
       res.json({ ok: true, tools, count });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
