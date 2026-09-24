@@ -59,7 +59,15 @@ before(async () => {
     inputSchema: { required: ['value'], optional: [] },
     handler: async ({ value }) => ({ echoed: value }),
   });
-  registry.bindCapabilities('cap-alpha', ['test.echo']);
+  registry.register({
+    name: 'test.dangerous',
+    description: 'dangerous echo',
+    category: 'write',
+    metadata: { requiresSafety: true },
+    inputSchema: { required: ['value'], optional: [] },
+    handler: async ({ value }) => ({ echoed: value }),
+  });
+  registry.bindCapabilities('cap-alpha', ['test.echo', 'test.dangerous']);
 
   await query(
     'INSERT INTO agent_instances (id, role_id, name, model, system_prompt, status) VALUES ($1, $2, $3, $4, $5, $6)',
@@ -86,6 +94,7 @@ before(async () => {
 after(async () => {
   hooks.clearHooks();
   try { registry.unregister('test.echo'); } catch {}
+  try { registry.unregister('test.dangerous'); } catch {}
   delete process.env.ADMIN_TOKEN;
   await new Promise(resolve => runtime.server.close(resolve));
   rmSync(dbDir, { recursive: true, force: true });
@@ -206,6 +215,11 @@ test('scoped callers cannot access other agents or sessions', async () => {
   assert.equal(ownSessions.res.status, 200);
   assert.equal(ownSessions.data.count, 1);
 
+  const foreignAgents = await json('/api/agents/instances?id=agent-b', {
+    headers: authHeaders(operatorKey),
+  });
+  assert.equal(foreignAgents.res.status, 403);
+
   const foreignMessages = await json('/api/sessions/session-b/messages', {
     headers: authHeaders(operatorKey),
   });
@@ -239,7 +253,7 @@ test('dangerous execution is disabled when safety hooks are unavailable', async 
   const { res, data } = await json('/api/tools/execute', {
     method: 'POST',
     headers: authHeaders(adminKey, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ tool: 'test.echo', agent_id: 'agent-a', args: { value: 'nope' } }),
+    body: JSON.stringify({ tool: 'test.dangerous', agent_id: 'agent-a', args: { value: 'nope' } }),
   });
   assert.equal(res.status, 503);
   assert.match(data.error, /dangerous operations disabled/i);

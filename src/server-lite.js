@@ -164,15 +164,20 @@ export async function startLiteServer(config = {}) {
     return { agentId: agent.id, capabilityRoleId: agent.role_id || null };
   }
 
-  async function requireSafetyBoundary(req, res, next) {
+  async function isSafetyBoundaryReady() {
     try {
       const hooks = await import('./hooks.js');
       const toolBeforeHooks = hooks.listHooks()['tool.before'] || [];
       const hookIds = new Set(toolBeforeHooks.map(h => h.id));
       if (hookIds.has('builtin-command-safety') && hookIds.has('builtin-injection-defense')) {
-        return next();
+        return true;
       }
     } catch {}
+    return false;
+  }
+
+  async function requireSafetyBoundary(req, res, next) {
+    if (await isSafetyBoundaryReady()) return next();
     return res.status(503).json({ error: 'dangerous operations disabled until safety hooks are available' });
   }
 
@@ -214,6 +219,12 @@ export async function startLiteServer(config = {}) {
   // ========== Agents ==========
   app.get('/api/agents/instances', async (req, res) => {
     try {
+      if (req.auth?.agentScope) {
+        const requestedAgentId = req.query.id || req.query.agent_id || null;
+        if (requestedAgentId && requestedAgentId !== req.auth.agentScope) {
+          return res.status(403).json({ error: 'agent access denied' });
+        }
+      }
       const params = [];
       let sql = 'SELECT * FROM agent_instances';
       if (req.auth?.agentScope) {
@@ -554,13 +565,22 @@ export async function startLiteServer(config = {}) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post('/api/tools/execute', requireSafetyBoundary, async (req, res) => {
+  app.post('/api/tools/execute', async (req, res) => {
     try {
       const { tool, args, agent_id } = req.body || {};
       if (!tool) return res.status(400).json({ error: 'tool required' });
+      const registry = await import('./tool-registry.js');
+      const toolDef = registry.getTool(tool);
+      if (!toolDef) return res.status(404).json({ ok: false, error: `Unknown tool: ${tool}` });
+      const requiresSafety = toolDef.metadata?.requiresSafety === true
+        || toolDef.metadata?.dangerous === true
+        || toolDef.category === 'write'
+        || toolDef.category === 'manage';
+      if (requiresSafety && !await isSafetyBoundaryReady()) {
+        return res.status(503).json({ error: 'dangerous operations disabled until safety hooks are available' });
+      }
       const capability = await requireCapabilityRole(req, res, agent_id);
       if (!capability) return;
-      const registry = await import('./tool-registry.js');
       const result = await registry.execute(tool, args || {}, {
         agentId: capability.agentId,
         capabilityRoleId: capability.capabilityRoleId,
