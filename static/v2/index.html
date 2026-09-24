@@ -142,15 +142,22 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <div class="nav">
   <a href="/v2/debug.html">🔍 Debug Tools</a>
   <a href="/api/health" target="_blank">🩺 API Health</a>
+  <button onclick="configureToken()" style="background:none;border:1px solid #30363d;border-radius:999px;color:var(--text);padding:6px 10px;cursor:pointer">🔐 API Key</button>
   <a href="https://www.npmjs.com/package/helix-agent-framework" target="_blank" rel="noopener">📦 npm</a>
   <a href="https://github.com/symbiosis11503/helix-framework" target="_blank" rel="noopener">🐙 GitHub</a>
+  <span id="auth-status" style="color:var(--muted);font-size:11px"></span>
   <span class="ver" id="ver">Helix</span>
 </div>
 
 </div>
 <script>
 const BASE='';
-async function j(url,opt){try{const r=await fetch(BASE+url,opt);return await r.json()}catch{return null}}
+const TOKEN_KEY='_helix_api_token';
+function getApiToken(){return sessionStorage.getItem(TOKEN_KEY)||''}
+function setApiToken(token){if(token)sessionStorage.setItem(TOKEN_KEY,token);else sessionStorage.removeItem(TOKEN_KEY)}
+function configureToken(){const next=prompt('Enter your Helix ADMIN_TOKEN or API key for protected routes:',getApiToken());if(next===null)return;setApiToken(next.trim());document.getElementById('auth-status').textContent=next.trim()?'API key saved locally':'API key cleared';}
+function withAuth(opt={}){const headers={...(opt.headers||{})};const token=getApiToken();if(token)headers.Authorization='Bearer '+token;return {...opt,headers}}
+async function j(url,opt){try{const r=await fetch(BASE+url,withAuth(opt||{}));const data=await r.json();if(r.status===401||r.status===403){document.getElementById('auth-status').textContent=data?.error||`HTTP ${r.status}`;}return data}catch{return null}}
 
 async function checkHealth(){
   const d=await j('/api/health');const el=document.getElementById('hb');

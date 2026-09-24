@@ -59,7 +59,18 @@ export async function reason({
   const llmMod = await import('./llm-provider.js');
   const trMod = await safeImport('./tool-registry.js');
   const mmMod = await safeImport('./memory-manager.js');
+  const dbMod = trMod ? await safeImport('./db.js') : null;
   const ss = sessionId ? await safeImport('./session-store.js') : null;
+  let capabilityRoleId = null;
+
+  if (dbMod?.query && agentId) {
+    try {
+      const agent = await dbMod.query('SELECT role_id FROM agent_instances WHERE id = $1', [agentId]);
+      capabilityRoleId = agent.rows[0]?.role_id || null;
+    } catch (e) {
+      console.warn('[reasoning] capability role lookup failed:', e.message);
+    }
+  }
 
   // Load available tools
   let toolCatalog = '';
@@ -132,7 +143,12 @@ export async function reason({
     if (decision.tool && decision.tool !== 'none' && trMod) {
       // Execute tool via registry with timeout
       try {
-        const toolPromise = trMod.execute(decision.tool, decision.params || {});
+        if (!capabilityRoleId) throw new Error(`Agent ${agentId} lacks a capability role`);
+        const toolPromise = trMod.execute(decision.tool, decision.params || {}, {
+          agentId,
+          capabilityRoleId,
+          reviewedBy: 'agent-reasoning',
+        });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error(`Tool timeout after ${DEFAULT_TIMEOUT_MS}ms`)), DEFAULT_TIMEOUT_MS));
         actionResult = await Promise.race([toolPromise, timeoutPromise]);
         step.toolResult = typeof actionResult === 'string' ? actionResult : JSON.stringify(actionResult);

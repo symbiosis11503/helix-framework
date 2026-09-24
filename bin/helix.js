@@ -9,7 +9,7 @@
  *   helix status        — 查看 agent 狀態
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, chmodSync } from 'fs';
 import { join, resolve } from 'path';
 import { execSync } from 'child_process';
 import { createInterface } from 'readline';
@@ -43,6 +43,7 @@ function loadAuth() {
 function saveAuth(auth) {
   ensureHomeDir();
   writeFileSync(AUTH_PATH, JSON.stringify(auth, null, 2), { mode: 0o600 });
+  try { chmodSync(AUTH_PATH, 0o600); } catch {}
 }
 
 async function prompt(question) {
@@ -157,8 +158,8 @@ async function cmdLogin() {
   const flagProvider = getFlag('--provider');
   const flagKey = getFlag('--api-key');
 
-  const provider = flagProvider || await prompt('選擇 LLM provider (gemini/claude/openai) [gemini]: ') || 'gemini';
-  const envMap = { gemini: 'GEMINI_API_KEY', claude: 'ANTHROPIC_API_KEY', openai: 'OPENAI_API_KEY' };
+  const provider = flagProvider || await prompt('選擇 provider (gemini/claude/openai/admin) [gemini]: ') || 'gemini';
+  const envMap = { gemini: 'GEMINI_API_KEY', claude: 'ANTHROPIC_API_KEY', openai: 'OPENAI_API_KEY', admin: 'ADMIN_TOKEN', helix: 'HELIX_API_KEY' };
   const envKey = envMap[provider] || `${provider.toUpperCase()}_API_KEY`;
 
   const key = flagKey || await prompt(`輸入 ${envKey}: `);
@@ -172,6 +173,9 @@ async function cmdLogin() {
 
   console.log(`\n✅ ${envKey} 已儲存到 ~/.helix/auth.json`);
   console.log('  提示：也可以設定環境變數 ' + envKey + ' 來覆蓋');
+  if (envKey === 'ADMIN_TOKEN' || envKey === 'HELIX_API_KEY') {
+    console.log('  之後 CLI 會自動用它呼叫受保護的本地 API。');
+  }
 }
 
 function getFlag(name) {
@@ -380,8 +384,7 @@ async function cmdAgentList() {
   try {
     const config = (await import(join(process.cwd(), 'helix.config.js'))).default;
     const port = config?.server?.port || 18860;
-    const res = await fetch(`http://127.0.0.1:${port}/api/agents/instances`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/agents/instances`, { headers: authHeader(runtimeApiToken()) });
     if (!data.agents?.length) { console.log('  (無 agent)'); return; }
     for (const a of data.agents) {
       console.log(`  ${a.status === 'active' ? '🟢' : '⚪'} ${a.id} — ${a.name || a.role_id} (${a.model || 'default'})`);
@@ -442,8 +445,8 @@ async function cmdAgentChat() {
           continue;
         }
         if (cmd === '/reset') {
-          await fetch(`http://127.0.0.1:${port}/api/agent/reset-session`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+          await fetchJson(`http://127.0.0.1:${port}/api/agent/reset-session`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader(runtimeApiToken()) },
             body: JSON.stringify({ agent: currentAgent }),
           });
           sessionId = null;
@@ -453,8 +456,7 @@ async function cmdAgentChat() {
         }
         if (cmd === '/agents') {
           try {
-            const r = await fetch(`http://127.0.0.1:${port}/api/agents/instances`);
-            const d = await r.json();
+            const d = await fetchJson(`http://127.0.0.1:${port}/api/agents/instances`, { headers: authHeader(runtimeApiToken()) });
             if (!d.agents?.length) { console.log('  (無 agent)\n'); continue; }
             for (const a of d.agents) console.log(`  ${a.id === currentAgent ? '→' : ' '} ${a.id}  ${a.name || a.role_id || ''}`);
             console.log('');
@@ -472,14 +474,12 @@ async function cmdAgentChat() {
         if (cmd === '/memory') {
           const limit = parseInt(arg) || 10;
           try {
-            const r = await fetch(`http://127.0.0.1:${port}/api/memory/v2/stats/${currentAgent}`);
-            const stats = await r.json();
+            const stats = await fetchJson(`http://127.0.0.1:${port}/api/memory/v2/stats/${currentAgent}`, { headers: authHeader(runtimeApiToken()) });
             console.log(`  總筆數: ${stats.total ?? '?'}  平均重要度: ${stats.avg_importance ?? '?'}`);
-            const recall = await fetch(`http://127.0.0.1:${port}/api/memory/v2/recall`, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
+            const recallData = await fetchJson(`http://127.0.0.1:${port}/api/memory/v2/recall`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader(runtimeApiToken()) },
               body: JSON.stringify({ agent_id: currentAgent, query: '', limit }),
             });
-            const recallData = await recall.json();
             for (const m of (recallData.memories || []).slice(0, limit)) {
               console.log(`    [${m.type}/${(m.importance ?? 0).toFixed(2)}] ${(m.summary || m.content || '').slice(0, 80)}`);
             }
@@ -504,11 +504,10 @@ async function cmdAgentChat() {
       try {
         const body = { agent: currentAgent, message: trimmed };
         if (sessionId) body.session_id = sessionId;
-        const res = await fetch(`http://127.0.0.1:${port}/api/agent/chat`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+        const data = await fetchJson(`http://127.0.0.1:${port}/api/agent/chat`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader(runtimeApiToken()) },
           body: JSON.stringify(body),
         });
-        const data = await res.json();
         if (data.reply) {
           console.log(`\n${currentAgent}> ${data.reply}\n`);
           history.push({ role: currentAgent, content: data.reply });
@@ -632,8 +631,7 @@ async function cmdMemoryStats() {
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   const agentId = process.argv[4] || 'default';
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/memory/v2/stats/${agentId}`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/memory/v2/stats/${agentId}`, { headers: authHeader(runtimeApiToken()) });
     if (!data.ok) { console.log('❌', data.error); return; }
     console.log(`\n🧠 Memory Stats — ${agentId}`);
     console.log(`  Total memories: ${data.total}`);
@@ -654,12 +652,11 @@ async function cmdMemoryRecall() {
   const queryText = process.argv.slice(5).join(' ');
   if (!queryText) { console.log('Usage: helix memory recall <agent_id> <query>'); return; }
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/memory/v2/recall`, {
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/memory/v2/recall`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeader(runtimeApiToken()) },
       body: JSON.stringify({ agent_id: agentId, query: queryText, limit: 10 }),
     });
-    const data = await res.json();
     if (!data.ok) { console.log('❌', data.error); return; }
     console.log(`\n🔍 Recall "${queryText}" — ${data.memories.length} results`);
     for (const m of data.memories) {
@@ -676,8 +673,7 @@ async function cmdGatewayStatus() {
   const port = await getRunningPort();
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/gateway/messaging/adapters`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/gateway/messaging/adapters`, { headers: authHeader(runtimeApiToken()) });
     if (!data.ok) { console.log('❌', data.error); return; }
     console.log(`\n📡 Gateway Adapters`);
     console.log(`  Registered: ${data.adapters.length > 0 ? data.adapters.join(', ') : '(none)'}`);
@@ -714,11 +710,10 @@ async function cmdEvalRun() {
   if (port) {
     console.log(`\n🧪 Eval: ${suite} (via API)`);
     try {
-      const res = await fetch(`http://127.0.0.1:${port}/api/eval/run`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const data = await fetchJson(`http://127.0.0.1:${port}/api/eval/run`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader(runtimeApiToken()) },
         body: JSON.stringify({ suite }),
       });
-      const data = await res.json();
       console.log(`  Score: ${data.score}% (${data.passed}/${data.total})`);
       if (data.results) {
         for (const r of data.results) {
@@ -755,8 +750,7 @@ async function cmdEvalHistory() {
   const port = await getRunningPort();
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/eval/history?limit=10`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/eval/history?limit=10`, { headers: authHeader(runtimeApiToken()) });
     console.log(`\n📊 Eval History (${data.history?.length || 0} runs)`);
     for (const h of (data.history || [])) {
       console.log(`  ${h.suite.padEnd(18)} ${String(h.score).padStart(3)}% (${h.passed}/${h.total})  ${h.created_at || ''}`);
@@ -771,8 +765,7 @@ async function cmdTraceRuns() {
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   const limit = parseInt(getFlag('--limit') || '20');
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/trace/runs?limit=${limit}`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/trace/runs?limit=${limit}`, { headers: authHeader(runtimeApiToken()) });
     const runs = data.runs || [];
     console.log(`\n🛰  Trace Runs (${runs.length})`);
     if (runs.length === 0) { console.log('  (no runs)'); return; }
@@ -790,8 +783,7 @@ async function cmdTraceStats() {
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   const hours = parseInt(getFlag('--hours') || '24');
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/trace/stats?hours=${hours}`);
-    const data = await res.json();
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/trace/stats?hours=${hours}`, { headers: authHeader(runtimeApiToken()) });
     // API contract (per src/trace-lite.js traceStats): { runs, byStatus, spans, totalTokens, totalCost, hours }
     console.log(`\n📊 Trace Stats (last ${data.hours ?? hours}h)`);
     console.log(`  runs: ${data.runs ?? 0}  spans: ${data.spans ?? 0}  tokens: ${data.totalTokens ?? 0}  cost: $${(Number(data.totalCost) || 0).toFixed(4)}`);
@@ -807,17 +799,14 @@ async function cmdTraceBackfill() {
   const port = await getRunningPort();
   if (!port) { console.log('❌ Runtime not running. Use: helix start'); return; }
   const limit = parseInt(getFlag('--limit') || '20');
-  const auth = loadAuth();
-  const token = auth.ADMIN_TOKEN || process.env.ADMIN_TOKEN || '';
-  if (!token) { console.log('❌ ADMIN_TOKEN not set. Run: helix login --provider admin --api-key <token>'); return; }
+  const token = runtimeApiToken();
+  if (!token) { console.log('❌ ADMIN_TOKEN or HELIX_API_KEY not set. Run: helix login --provider admin --api-key <token>'); return; }
   try {
-    const res = await fetch(`http://127.0.0.1:${port}/api/admin/trace/eval/backfill`, {
+    const data = await fetchJson(`http://127.0.0.1:${port}/api/admin/trace/eval/backfill`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+      headers: { 'Content-Type': 'application/json', ...authHeader(token) },
       body: JSON.stringify({ limit }),
     });
-    const data = await res.json();
-    if (!res.ok) { console.log(`❌ ${data.error || res.status}`); return; }
     console.log(`\n🔄 Trace Eval Backfill`);
     console.log(`  processed: ${data.processed}  version: ${data.eval_version}`);
     for (const r of (data.runs || []).slice(0, 10)) {
@@ -837,8 +826,27 @@ function workstationConfig() {
   return { url, token };
 }
 
+function runtimeApiToken() {
+  const auth = loadAuth();
+  return process.env.HELIX_API_KEY || auth.HELIX_API_KEY || process.env.ADMIN_TOKEN || auth.ADMIN_TOKEN || '';
+}
+
 function authHeader(token) {
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return token ? { Authorization: 'Bearer ' + token } : {};
+}
+
+async function fetchJson(url, opt = {}) {
+  const res = await fetch(url, opt);
+  const text = await res.text().catch(() => '');
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { data = { error: text || `HTTP ${res.status}` }; }
+  if (!res.ok) {
+    const advice = res.status === 401
+      ? ' (run `helix login --provider admin --api-key <token>` or set HELIX_API_KEY/ADMIN_TOKEN)' 
+      : '';
+    throw new Error((data?.error || `HTTP ${res.status}`) + advice);
+  }
+  return data;
 }
 
 async function cmdWorkstationHealth() {

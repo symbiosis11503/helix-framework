@@ -93,6 +93,7 @@ export async function validateKey(key) {
   const row = r.rows[0];
   if (!row) return { valid: false };
   if (!row.active) return { valid: false, reason: 'key disabled' };
+  if (!ROLES.includes(row.role)) return { valid: false, reason: 'unknown role' };
 
   // Check expiry
   if (row.expires_at) {
@@ -140,7 +141,8 @@ export async function revokeKey(keyId) {
  * @returns {boolean}
  */
 export function hasRole(userRole, requiredRole) {
-  return (ROLE_HIERARCHY[userRole] || 0) >= (ROLE_HIERARCHY[requiredRole] || 0);
+  if (!ROLES.includes(userRole) || !ROLES.includes(requiredRole)) return false;
+  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
 }
 
 /**
@@ -167,13 +169,14 @@ export function hasAgentAccess(agentScope, agentId) {
 export function requireRole(minRole = 'viewer') {
   return async (req, res, next) => {
     const token = extractToken(req);
+    const adminToken = getAdminToken();
 
     if (!token) {
       return res.status(401).json({ error: 'API key required (Authorization: Bearer ... or X-Api-Key: ...)' });
     }
 
     // Backward compat: check ADMIN_TOKEN env var
-    if (process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN) {
+    if (adminToken && token === adminToken) {
       req.auth = { role: 'admin', name: 'env-admin', agentScope: null };
       return next();
     }
@@ -192,12 +195,7 @@ export function requireRole(minRole = 'viewer') {
       req.auth = result;
       next();
     } catch {
-      // DB not initialized — fall back to ADMIN_TOKEN only
-      if (process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN) {
-        req.auth = { role: 'admin', name: 'env-admin', agentScope: null };
-        return next();
-      }
-      return res.status(401).json({ error: 'auth system not available' });
+      return res.status(503).json({ error: 'auth system not available' });
     }
   };
 }
@@ -210,6 +208,10 @@ function extractToken(req) {
   if (req.headers['x-api-key']) return req.headers['x-api-key'];
   if (req.headers['x-admin-token']) return req.headers['x-admin-token'];
   return null;
+}
+
+function getAdminToken() {
+  return process.env.ADMIN_TOKEN || process.env.SBS_ADMIN_TOKEN || null;
 }
 
 function hashKey(key) {
